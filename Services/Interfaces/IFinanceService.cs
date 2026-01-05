@@ -1,0 +1,17 @@
+using BarberPro.Models.DTOs.Requests;
+using BarberPro.Models.DTOs.Responses;
+
+namespace BarberPro.Services.Interfaces;
+
+/// <summary>
+/// Interfaz para el servicio de finanzas
+/// </summary>
+public interface IFinanceService
+{
+    Task<FinanceSummaryDto> GetFinanceSummaryAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null);
+    Task<TransactionsResponse> GetIncomeAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 50);
+    Task<TransactionsResponse> GetExpensesAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 50);
+    Task<TransactionDto> CreateExpenseAsync(int barberId, CreateExpenseRequest request);
+    Task CreateIncomeFromAppointmentAsync(int barberId, int appointmentId, decimal amount, string description);
+}
+

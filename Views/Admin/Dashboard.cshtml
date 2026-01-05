@@ -1,0 +1,208 @@
+@using BarberPro.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Panel de Administración";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var dashboard = ViewBag.Dashboard as AdminDashboardDto;
+}
+
+<div class="container mx-auto p-4 sm:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gold mb-1">Panel de Administración</h1>
+        <p class="text-sm text-gray-400">Bienvenido, @ViewBag.Nombre</p>
+    </div>
+    
+    <!-- Estadísticas Principales -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Total Barberos</div>
+            <div class="text-2xl font-bold text-gold">@(dashboard?.TotalBarbers ?? 0)</div>
+            <div class="text-xs text-gray-400 mt-1">@(dashboard?.ActiveBarbers ?? 0) activos</div>
+        </div>
+        
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Total Citas</div>
+            <div class="text-2xl font-bold text-gold">@(dashboard?.TotalAppointments ?? 0)</div>
+            <div class="text-xs text-gray-400 mt-1">@(dashboard?.PendingAppointments ?? 0) pendientes</div>
+        </div>
+        
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Ingresos Totales</div>
+            <div class="text-2xl font-bold text-gold">$@((dashboard?.TotalRevenue ?? 0).ToString("N2"))</div>
+            <div class="text-xs text-gray-400 mt-1">Todos los tiempos</div>
+        </div>
+        
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Estado Citas</div>
+            <div class="text-lg font-semibold text-success">@(dashboard?.ConfirmedAppointments ?? 0)</div>
+            <div class="text-xs text-gray-400 mt-1">Confirmadas</div>
+        </div>
+    </div>
+    
+    <!-- Resumen de Citas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div class="bg-base-200 rounded-lg p-3 border border-base-300">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Pendientes</span>
+                <span class="text-lg font-semibold text-warning">@(dashboard?.PendingAppointments ?? 0)</span>
+            </div>
+        </div>
+        <div class="bg-base-200 rounded-lg p-3 border border-base-300">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Confirmadas</span>
+                <span class="text-lg font-semibold text-success">@(dashboard?.ConfirmedAppointments ?? 0)</span>
+            </div>
+        </div>
+        <div class="bg-base-200 rounded-lg p-3 border border-base-300">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">Canceladas</span>
+                <span class="text-lg font-semibold text-error">@(dashboard?.CancelledAppointments ?? 0)</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista de Barberos Recientes -->
+    @if (dashboard?.RecentBarbers != null && dashboard.RecentBarbers.Any())
+    {
+        <div class="bg-base-100 rounded-lg border border-base-300 shadow-sm">
+            <div class="p-4 border-b border-base-300">
+                <h2 class="text-lg font-semibold">Barberos Registrados</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-xs">Nombre</th>
+                            <th class="text-xs">Negocio</th>
+                            <th class="text-xs text-center">Citas</th>
+                            <th class="text-xs text-right">Ingresos</th>
+                            <th class="text-xs text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var barber in dashboard.RecentBarbers.Take(10))
+                        {
+                            <tr>
+                                <td class="text-sm font-medium">@barber.Name</td>
+                                <td class="text-xs text-gray-500">@(string.IsNullOrEmpty(barber.BusinessName) ? "-" : barber.BusinessName)</td>
+                                <td class="text-center text-sm">@barber.TotalAppointments</td>
+                                <td class="text-right text-sm text-gold">$@barber.TotalRevenue.ToString("N2")</td>
+                                <td class="text-center">
+                                    @if (barber.IsActive)
+                                    {
+                                        <span class="badge badge-success badge-xs">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-error badge-xs">Inactivo</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="bg-base-200 rounded-lg p-6 text-center border border-base-300">
+            <p class="text-gray-500 text-sm mb-4">No hay barberos registrados aún</p>
+            <button onclick="document.getElementById('modalCrearBarbero').showModal()" class="btn btn-sm btn-gold">
+                Crear Primer Barbero
+            </button>
+        </div>
+    }
+    
+    <!-- Botón flotante para crear barbero -->
+    <div class="fixed bottom-6 right-6">
+        <button onclick="document.getElementById('modalCrearBarbero').showModal()" class="btn btn-circle btn-gold shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Modal para crear barbero -->
+    <dialog id="modalCrearBarbero" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">Crear Nuevo Barbero</h3>
+            <form id="formCrearBarbero" class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input type="email" name="email" class="input input-bordered" required placeholder="barbero@example.com"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Contraseña</span>
+                    </label>
+                    <input type="password" name="password" class="input input-bordered" required placeholder="Mínimo 6 caracteres"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Nombre</span>
+                    </label>
+                    <input type="text" name="name" class="input input-bordered" required placeholder="Juan Pérez"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Nombre del Negocio (opcional)</span>
+                    </label>
+                    <input type="text" name="businessName" class="input input-bordered" placeholder="Barbería Central"/>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Teléfono</span>
+                    </label>
+                    <input type="tel" name="phone" class="input input-bordered" required placeholder="1234567890"/>
+                </div>
+                <div class="modal-action">
+                    <button type="button" onclick="document.getElementById('modalCrearBarbero').close()" class="btn btn-ghost">Cancelar</button>
+                    <button type="submit" class="btn btn-gold">Crear Barbero</button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+    
+    <script>
+        document.getElementById('formCrearBarbero').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/admin/createbarber', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        email: formData.get('email'),
+                        password: formData.get('password'),
+                        name: formData.get('name'),
+                        businessName: formData.get('businessName') || null,
+                        phone: formData.get('phone')
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Barbero creado exitosamente');
+                    document.getElementById('modalCrearBarbero').close();
+                    location.reload();
+                } else {
+                    alert('Error: ' + (result.message || 'No se pudo crear el barbero'));
+                }
+            } catch (error) {
+                alert('Error al crear barbero: ' + error.message);
+            }
+        });
+    </script>
+</div>
+

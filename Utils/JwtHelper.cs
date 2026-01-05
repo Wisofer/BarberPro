@@ -1,0 +1,73 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using BarberPro.Models.Entities;
+
+namespace BarberPro.Utils;
+
+/// <summary>
+/// Helper para generar y validar tokens JWT
+/// </summary>
+public static class JwtHelper
+{
+    /// <summary>
+    /// Genera un token JWT para un usuario
+    /// </summary>
+    public static string GenerateToken(User user, string secretKey, string issuer, string audience, int expirationMinutes)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("UserId", user.Id.ToString())
+        };
+
+        // Si es barbero, agregar el ID del barbero
+        if (user.Barber != null)
+        {
+            claims.Add(new Claim("BarberId", user.Barber.Id.ToString()));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    /// <summary>
+    /// Obtiene el ID del usuario desde los claims
+    /// </summary>
+    public static int? GetUserId(ClaimsPrincipal user)
+    {
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(userIdClaim, out var userId) ? userId : null;
+    }
+
+    /// <summary>
+    /// Obtiene el ID del barbero desde los claims
+    /// </summary>
+    public static int? GetBarberId(ClaimsPrincipal user)
+    {
+        var barberIdClaim = user.FindFirst("BarberId")?.Value;
+        return int.TryParse(barberIdClaim, out var barberId) ? barberId : null;
+    }
+
+    /// <summary>
+    /// Obtiene el rol del usuario desde los claims
+    /// </summary>
+    public static string GetRole(ClaimsPrincipal user)
+    {
+        return user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+    }
+}
+

@@ -1,0 +1,34 @@
+namespace BarberPro.Models.Entities;
+
+/// <summary>
+/// Cita agendada por un cliente
+/// </summary>
+public class Appointment
+{
+    public int Id { get; set; }
+    public int BarberId { get; set; }
+    public int ServiceId { get; set; }
+    public string ClientName { get; set; } = string.Empty;
+    public string ClientPhone { get; set; } = string.Empty;
+    public DateOnly Date { get; set; }
+    public TimeOnly Time { get; set; }
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // Relaciones
+    public Barber Barber { get; set; } = null!;
+    public Service Service { get; set; } = null!;
+    public Transaction? Transaction { get; set; } // Ingreso generado por esta cita
+}
+
+/// <summary>
+/// Estados de una cita
+/// </summary>
+public enum AppointmentStatus
+{
+    Pending = 1,    // Pendiente de confirmación
+    Confirmed = 2,  // Confirmada
+    Cancelled = 3   // Cancelada
+}
+
