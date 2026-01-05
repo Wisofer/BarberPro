@@ -3,6 +3,7 @@ using BarberPro.Models.DTOs.Responses;
 using BarberPro.Models.Entities;
 using BarberPro.Services.Interfaces;
 using BarberPro.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,7 @@ namespace BarberPro.Controllers.Api;
 /// </summary>
 [ApiController]
 [Route("api/barber")]
-[Authorize(Roles = "Barber")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Barber")]
 public class BarberController : ControllerBase
 {
     private readonly IBarberService _barberService;
