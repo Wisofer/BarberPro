@@ -161,23 +161,26 @@ public class DashboardService : IDashboardService
             .Where(t => t.Type == TransactionType.Income)
             .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
-        var recentBarbers = await _context.Barbers
+        // Obtener barberos con sus datos
+        var barbers = await _context.Barbers
             .OrderByDescending(b => b.CreatedAt)
             .Take(10)
-            .Select(b => new BarberSummaryDto
-            {
-                Id = b.Id,
-                Name = b.Name,
-                BusinessName = b.BusinessName ?? "",
-                Slug = b.Slug,
-                IsActive = b.IsActive,
-                CreatedAt = b.CreatedAt,
-                TotalAppointments = b.Appointments.Count,
-                TotalRevenue = b.Transactions
-                    .Where(t => t.Type == TransactionType.Income)
-                    .Sum(t => t.Amount)
-            })
             .ToListAsync();
+
+        var recentBarbers = barbers.Select(b => new BarberSummaryDto
+        {
+            Id = b.Id,
+            Name = b.Name ?? "Sin nombre",
+            BusinessName = b.BusinessName ?? "",
+            Phone = b.Phone ?? "",
+            Slug = b.Slug ?? "",
+            IsActive = b.IsActive,
+            CreatedAt = b.CreatedAt,
+            TotalAppointments = _context.Appointments.Count(a => a.BarberId == b.Id),
+            TotalRevenue = _context.Transactions
+                .Where(t => t.BarberId == b.Id && t.Type == TransactionType.Income)
+                .Sum(t => (decimal?)t.Amount) ?? 0
+        }).ToList();
 
         return new AdminDashboardDto
         {

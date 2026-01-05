@@ -168,3 +168,4 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberPro.pdb
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberPro.genruntimeconfig.cache
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/ref/BarberPro.dll
+/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberPro.sourcelink.json

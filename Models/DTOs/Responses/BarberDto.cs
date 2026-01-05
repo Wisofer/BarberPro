@@ -27,6 +27,7 @@ public class BarberDto
     public bool IsActive { get; set; }
     public string QrUrl { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public string? Email { get; set; } // Email del usuario asociado
 }
 
 /// <summary>

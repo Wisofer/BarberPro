@@ -107,7 +107,8 @@ public class BarberService : IBarberService
             Slug = barber.Slug,
             IsActive = barber.IsActive,
             QrUrl = QrHelper.GenerateBarberUrl(barber.Slug),
-            CreatedAt = barber.CreatedAt
+            CreatedAt = barber.CreatedAt,
+            Email = barber.User?.Email
         };
     }
 
