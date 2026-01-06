@@ -33,6 +33,7 @@ public class DashboardService : IDashboardService
 
         // Estadísticas del día
         var todayAppointments = await _context.Appointments
+            .Include(a => a.Service)
             .Where(a => a.BarberId == barberId && a.Date == today)
             .ToListAsync();
 
@@ -42,8 +43,8 @@ public class DashboardService : IDashboardService
             Completed = todayAppointments.Count(a => a.Status == AppointmentStatus.Confirmed),
             Pending = todayAppointments.Count(a => a.Status == AppointmentStatus.Pending),
             Income = todayAppointments
-                .Where(a => a.Status == AppointmentStatus.Confirmed)
-                .Sum(a => a.Service.Price)
+                .Where(a => a.Status == AppointmentStatus.Confirmed && a.Service != null)
+                .Sum(a => a.Service!.Price)
         };
 
         // Estadísticas de la semana
@@ -59,7 +60,9 @@ public class DashboardService : IDashboardService
             startOfWeek.ToDateTime(TimeOnly.MinValue), 
             endOfWeek.ToDateTime(TimeOnly.MaxValue));
 
-        var weekIncome = weekAppointments.Sum(a => a.Service.Price);
+        var weekIncome = weekAppointments
+            .Where(a => a.Service != null)
+            .Sum(a => a.Service!.Price);
         var weekUniqueClients = weekAppointments
             .Select(a => a.ClientPhone)
             .Distinct()
@@ -118,8 +121,8 @@ public class DashboardService : IDashboardService
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
                 ServiceId = a.ServiceId,
-                ServiceName = a.Service.Name,
-                ServicePrice = a.Service.Price,
+                ServiceName = a.Service != null ? a.Service.Name : null,
+                ServicePrice = a.Service != null ? a.Service.Price : null,
                 ClientName = a.ClientName,
                 ClientPhone = a.ClientPhone,
                 Date = a.Date,
@@ -142,8 +145,8 @@ public class DashboardService : IDashboardService
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
                 ServiceId = a.ServiceId,
-                ServiceName = a.Service.Name,
-                ServicePrice = a.Service.Price,
+                ServiceName = a.Service != null ? a.Service.Name : null,
+                ServicePrice = a.Service != null ? a.Service.Price : null,
                 ClientName = a.ClientName,
                 ClientPhone = a.ClientPhone,
                 Date = a.Date,
