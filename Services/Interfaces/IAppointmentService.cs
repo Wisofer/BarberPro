@@ -10,7 +10,7 @@ namespace BarberPro.Services.Interfaces;
 public interface IAppointmentService
 {
     Task<AppointmentDto> CreateAppointmentAsync(CreateAppointmentRequest request);
-    Task<AppointmentDto> CreateAppointmentForBarberAsync(int barberId, CreateAppointmentRequest request); // Para barbero autenticado
+    Task<AppointmentDto> CreateAppointmentForBarberAsync(int barberId, CreateAppointmentRequest request, int? employeeId = null); // Para barbero autenticado o trabajador
     Task<List<AppointmentDto>> GetBarberAppointmentsAsync(int barberId, DateOnly? date = null, AppointmentStatus? status = null);
     Task<AppointmentDto?> GetAppointmentByIdAsync(int id);
     Task<AppointmentDto> UpdateAppointmentAsync(int id, UpdateAppointmentRequest request);

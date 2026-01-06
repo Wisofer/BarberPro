@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
     // Entidades del sistema nuevo (API)
     public DbSet<User> Users { get; set; }
     public DbSet<Barber> Barbers { get; set; }
+    public DbSet<Employee> Employees { get; set; }
     
     // Entidades del sistema antiguo (MVC web - mantener compatibilidad)
     public DbSet<Usuario> Usuarios { get; set; }
@@ -36,6 +37,11 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Role).HasConversion<int>();
             entity.HasIndex(e => e.Email).IsUnique();
+            
+            entity.HasOne(e => e.Employee)
+                .WithOne(emp => emp.User)
+                .HasForeignKey<Employee>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Configuración de Barber
@@ -69,6 +75,20 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // Configuración de Employee
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.HasIndex(e => e.UserId).IsUnique();
+            
+            entity.HasOne(e => e.OwnerBarber)
+                .WithMany(b => b.Employees)
+                .HasForeignKey(e => e.OwnerBarberId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         // Configuración de Appointment
         modelBuilder.Entity<Appointment>(entity =>
         {
@@ -76,11 +96,18 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ClientName).IsRequired().HasMaxLength(200);
             entity.Property(e => e.ClientPhone).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Status).HasConversion<int>();
+            entity.Property(e => e.EmployeeId).IsRequired(false);
             
             entity.HasOne(e => e.Barber)
                 .WithMany(b => b.Appointments)
                 .HasForeignKey(e => e.BarberId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Employee)
+                .WithMany(emp => emp.Appointments)
+                .HasForeignKey(e => e.EmployeeId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
             
             entity.HasOne(e => e.Service)
                 .WithMany(s => s.Appointments)
@@ -151,11 +178,18 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Category).HasMaxLength(100);
+            entity.Property(e => e.EmployeeId).IsRequired(false);
             
             entity.HasOne(e => e.Barber)
                 .WithMany(b => b.Transactions)
                 .HasForeignKey(e => e.BarberId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Employee)
+                .WithMany(emp => emp.Transactions)
+                .HasForeignKey(e => e.EmployeeId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
         });
 
         // Configuración de Configuracion (mantener existente)

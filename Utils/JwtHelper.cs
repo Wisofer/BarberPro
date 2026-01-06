@@ -30,6 +30,13 @@ public static class JwtHelper
             claims.Add(new Claim("BarberId", user.Barber.Id.ToString()));
         }
 
+        // Si es trabajador, agregar el ID del trabajador y del barbero dueño
+        if (user.Employee != null)
+        {
+            claims.Add(new Claim("EmployeeId", user.Employee.Id.ToString()));
+            claims.Add(new Claim("OwnerBarberId", user.Employee.OwnerBarberId.ToString()));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -68,6 +75,24 @@ public static class JwtHelper
     public static string GetRole(ClaimsPrincipal user)
     {
         return user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Obtiene el ID del trabajador desde los claims
+    /// </summary>
+    public static int? GetEmployeeId(ClaimsPrincipal user)
+    {
+        var employeeIdClaim = user.FindFirst("EmployeeId")?.Value;
+        return int.TryParse(employeeIdClaim, out var employeeId) ? employeeId : null;
+    }
+
+    /// <summary>
+    /// Obtiene el ID del barbero dueño desde los claims (para trabajadores)
+    /// </summary>
+    public static int? GetOwnerBarberId(ClaimsPrincipal user)
+    {
+        var ownerBarberIdClaim = user.FindFirst("OwnerBarberId")?.Value;
+        return int.TryParse(ownerBarberIdClaim, out var ownerBarberId) ? ownerBarberId : null;
     }
 }
 

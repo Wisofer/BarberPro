@@ -26,6 +26,7 @@ public class BarberController : ControllerBase
     private readonly IWorkingHoursService _workingHoursService;
     private readonly IExportService _exportService;
     private readonly IHelpSupportService _helpSupportService;
+    private readonly IEmployeeService _employeeService;
     private readonly ILogger<BarberController> _logger;
 
     public BarberController(
@@ -38,6 +39,7 @@ public class BarberController : ControllerBase
         IWorkingHoursService workingHoursService,
         IExportService exportService,
         IHelpSupportService helpSupportService,
+        IEmployeeService employeeService,
         ILogger<BarberController> logger)
     {
         _barberService = barberService;
@@ -49,6 +51,7 @@ public class BarberController : ControllerBase
         _workingHoursService = workingHoursService;
         _exportService = exportService;
         _helpSupportService = helpSupportService;
+        _employeeService = employeeService;
         _logger = logger;
     }
 
@@ -833,5 +836,124 @@ public class BarberController : ControllerBase
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
+
+    #region Trabajadores/Empleados
+
+    /// <summary>
+    /// Obtener todos los trabajadores del barbero
+    /// </summary>
+    [HttpGet("employees")]
+    public async Task<ActionResult<List<EmployeeDto>>> GetEmployees()
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var employees = await _employeeService.GetEmployeesAsync(barberId);
+            return Ok(employees);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener trabajadores");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener un trabajador por ID
+    /// </summary>
+    [HttpGet("employees/{id}")]
+    public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var employee = await _employeeService.GetEmployeeByIdAsync(id, barberId);
+            if (employee == null)
+                return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
+            return Ok(employee);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener trabajador {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Crear un nuevo trabajador
+    /// </summary>
+    [HttpPost("employees")]
+    public async Task<ActionResult<EmployeeDto>> CreateEmployee([FromBody] CreateEmployeeRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var barberId = GetBarberId();
+            var employee = await _employeeService.CreateEmployeeAsync(barberId, request);
+            return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al crear trabajador");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Actualizar un trabajador
+    /// </summary>
+    [HttpPut("employees/{id}")]
+    public async Task<ActionResult<EmployeeDto>> UpdateEmployee(int id, [FromBody] UpdateEmployeeRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var barberId = GetBarberId();
+            var employee = await _employeeService.UpdateEmployeeAsync(id, barberId, request);
+            if (employee == null)
+                return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
+            return Ok(employee);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar trabajador {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Eliminar (desactivar) un trabajador
+    /// </summary>
+    [HttpDelete("employees/{id}")]
+    public async Task<ActionResult> DeleteEmployee(int id)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var deleted = await _employeeService.DeleteEmployeeAsync(id, barberId);
+            if (!deleted)
+                return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar trabajador {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    #endregion
 }
 

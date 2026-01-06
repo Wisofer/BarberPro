@@ -39,6 +39,22 @@ public class AuthService : IAuthService
                 .LoadAsync();
         }
 
+        // Cargar trabajador si existe
+        if (user.Role == UserRole.Employee)
+        {
+            await _context.Entry(user)
+                .Reference(u => u.Employee)
+                .LoadAsync();
+            
+            // Cargar también el barbero dueño
+            if (user.Employee != null)
+            {
+                await _context.Entry(user.Employee)
+                    .Reference(e => e.OwnerBarber)
+                    .LoadAsync();
+            }
+        }
+
         // Generar token JWT
         var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
         var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberPro";

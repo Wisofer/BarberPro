@@ -7,6 +7,7 @@ public class Transaction
 {
     public int Id { get; set; }
     public int BarberId { get; set; }
+    public int? EmployeeId { get; set; } // Opcional: si el ingreso/egreso es de un trabajador
     public TransactionType Type { get; set; }
     public decimal Amount { get; set; }
     public string Description { get; set; } = string.Empty;
@@ -17,6 +18,7 @@ public class Transaction
 
     // Relaciones
     public Barber Barber { get; set; } = null!;
+    public Employee? Employee { get; set; } // Opcional: trabajador que generó la transacción
     public Appointment? Appointment { get; set; }
 }
 

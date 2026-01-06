@@ -22,5 +22,6 @@ public class Barber
     public ICollection<WorkingHours> WorkingHours { get; set; } = new List<WorkingHours>();
     public ICollection<BlockedTime> BlockedTimes { get; set; } = new List<BlockedTime>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+    public ICollection<Employee> Employees { get; set; } = new List<Employee>(); // Trabajadores del barbero
 }
 

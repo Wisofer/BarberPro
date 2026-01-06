@@ -8,6 +8,8 @@ public class AppointmentDto
     public int Id { get; set; }
     public int BarberId { get; set; }
     public string BarberName { get; set; } = string.Empty;
+    public int? EmployeeId { get; set; } // Opcional: trabajador que atiende la cita
+    public string? EmployeeName { get; set; } // Opcional: nombre del trabajador
     
     // Compatibilidad: primer servicio (mantener para retrocompatibilidad)
     public int? ServiceId { get; set; } // Opcional

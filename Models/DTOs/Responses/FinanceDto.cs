@@ -25,6 +25,8 @@ public class TransactionDto
     public string? Category { get; set; }
     public DateTime Date { get; set; }
     public int? AppointmentId { get; set; }
+    public int? EmployeeId { get; set; } // Opcional: trabajador que generó la transacción
+    public string? EmployeeName { get; set; } // Opcional: nombre del trabajador
 }
 
 /// <summary>

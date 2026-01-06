@@ -107,6 +107,7 @@ public class AppointmentService : IAppointmentService
         var query = _context.Appointments
             .Include(a => a.Service)
             .Include(a => a.Barber)
+            .Include(a => a.Employee)
             .Where(a => a.BarberId == barberId);
 
         if (date.HasValue)
@@ -146,6 +147,8 @@ public class AppointmentService : IAppointmentService
                 Id = a.Id,
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
+                EmployeeId = a.EmployeeId,
+                EmployeeName = a.Employee != null ? a.Employee.Name : null,
                 ServiceId = a.ServiceId, // Primer servicio (compatibilidad)
                 ServiceName = a.Service != null ? a.Service.Name : null,
                 ServicePrice = a.Service != null ? a.Service.Price : null,
@@ -165,6 +168,7 @@ public class AppointmentService : IAppointmentService
         var appointment = await _context.Appointments
             .Include(a => a.Service)
             .Include(a => a.Barber)
+            .Include(a => a.Employee)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (appointment == null)
@@ -189,6 +193,8 @@ public class AppointmentService : IAppointmentService
             Id = appointment.Id,
             BarberId = appointment.BarberId,
             BarberName = appointment.Barber.Name,
+            EmployeeId = appointment.EmployeeId,
+            EmployeeName = appointment.Employee != null ? appointment.Employee.Name : null,
             ServiceId = appointment.ServiceId, // Primer servicio (compatibilidad)
             ServiceName = appointment.Service != null ? appointment.Service.Name : null,
             ServicePrice = appointment.Service != null ? appointment.Service.Price : null,
@@ -412,7 +418,7 @@ public class AppointmentService : IAppointmentService
         return true;
     }
 
-    public async Task<AppointmentDto> CreateAppointmentForBarberAsync(int barberId, CreateAppointmentRequest request)
+    public async Task<AppointmentDto> CreateAppointmentForBarberAsync(int barberId, CreateAppointmentRequest request, int? employeeId = null)
     {
         // Obtener el barbero para validar que existe
         var barber = await _barberService.GetBarberByIdAsync(barberId);
@@ -452,6 +458,7 @@ public class AppointmentService : IAppointmentService
         var appointment = new Appointment
         {
             BarberId = barberId,
+            EmployeeId = employeeId, // Opcional: trabajador que crea la cita
             ServiceId = selectedServices.FirstOrDefault()?.Id, // Primer servicio o null
             ClientName = request.ClientName,
             ClientPhone = request.ClientPhone,
@@ -462,6 +469,22 @@ public class AppointmentService : IAppointmentService
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
+
+        // Guardar los servicios seleccionados en la tabla intermedia
+        if (selectedServices.Count > 0)
+        {
+            foreach (var service in selectedServices)
+            {
+                var appointmentService = new AppointmentServiceEntity
+                {
+                    AppointmentId = appointment.Id,
+                    ServiceId = service.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.AppointmentServices.Add(appointmentService);
+            }
+            await _context.SaveChangesAsync();
+        }
 
         return await GetAppointmentByIdAsync(appointment.Id) ?? throw new Exception("Error al crear la cita");
     }

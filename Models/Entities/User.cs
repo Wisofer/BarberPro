@@ -13,8 +13,9 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    // Relación 1:1 con Barber
-    public Barber? Barber { get; set; }
+    // Relaciones
+    public Barber? Barber { get; set; } // 1:1 con Barber (si es dueño)
+    public Employee? Employee { get; set; } // 1:1 con Employee (si es trabajador)
 }
 
 /// <summary>
@@ -23,6 +24,7 @@ public class User
 public enum UserRole
 {
     Admin = 1,
-    Barber = 2
+    Barber = 2,
+    Employee = 3 // Trabajador/empleado de un barbero
 }
 

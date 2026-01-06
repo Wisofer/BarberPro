@@ -54,6 +54,7 @@ public class FinanceService : IFinanceService
     public async Task<TransactionsResponse> GetIncomeAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 50)
     {
         var query = _context.Transactions
+            .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Income);
 
         if (startDate.HasValue)
@@ -75,7 +76,9 @@ public class FinanceService : IFinanceService
                 Description = t.Description,
                 Category = t.Category,
                 Date = t.Date,
-                AppointmentId = t.AppointmentId
+                AppointmentId = t.AppointmentId,
+                EmployeeId = t.EmployeeId,
+                EmployeeName = t.Employee != null ? t.Employee.Name : null
             })
             .ToListAsync();
 
@@ -89,6 +92,7 @@ public class FinanceService : IFinanceService
     public async Task<TransactionsResponse> GetExpensesAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 50)
     {
         var query = _context.Transactions
+            .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Expense);
 
         if (startDate.HasValue)
@@ -110,7 +114,9 @@ public class FinanceService : IFinanceService
                 Description = t.Description,
                 Category = t.Category,
                 Date = t.Date,
-                AppointmentId = t.AppointmentId
+                AppointmentId = t.AppointmentId,
+                EmployeeId = t.EmployeeId,
+                EmployeeName = t.Employee != null ? t.Employee.Name : null
             })
             .ToListAsync();
 
@@ -121,11 +127,12 @@ public class FinanceService : IFinanceService
         };
     }
 
-    public async Task<TransactionDto> CreateExpenseAsync(int barberId, CreateExpenseRequest request)
+    public async Task<TransactionDto> CreateExpenseAsync(int barberId, CreateExpenseRequest request, int? employeeId = null)
     {
         var transaction = new Transaction
         {
             BarberId = barberId,
+            EmployeeId = employeeId,
             Type = TransactionType.Expense,
             Amount = request.Amount,
             Description = request.Description,
@@ -136,6 +143,14 @@ public class FinanceService : IFinanceService
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
+        // Cargar Employee si existe
+        if (employeeId.HasValue)
+        {
+            await _context.Entry(transaction)
+                .Reference(t => t.Employee)
+                .LoadAsync();
+        }
+
         return new TransactionDto
         {
             Id = transaction.Id,
@@ -144,7 +159,9 @@ public class FinanceService : IFinanceService
             Description = transaction.Description,
             Category = transaction.Category,
             Date = transaction.Date,
-            AppointmentId = transaction.AppointmentId
+            AppointmentId = transaction.AppointmentId,
+            EmployeeId = transaction.EmployeeId,
+            EmployeeName = transaction.Employee != null ? transaction.Employee.Name : null
         };
     }
 
@@ -205,11 +222,12 @@ public class FinanceService : IFinanceService
         return Task.FromResult(categories);
     }
 
-    public async Task<TransactionDto> CreateIncomeAsync(int barberId, CreateIncomeRequest request)
+    public async Task<TransactionDto> CreateIncomeAsync(int barberId, CreateIncomeRequest request, int? employeeId = null)
     {
         var transaction = new Transaction
         {
             BarberId = barberId,
+            EmployeeId = employeeId,
             Type = TransactionType.Income,
             Amount = request.Amount,
             Description = request.Description,
@@ -221,6 +239,14 @@ public class FinanceService : IFinanceService
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
+        // Cargar Employee si existe
+        if (employeeId.HasValue)
+        {
+            await _context.Entry(transaction)
+                .Reference(t => t.Employee)
+                .LoadAsync();
+        }
+
         return new TransactionDto
         {
             Id = transaction.Id,
@@ -229,7 +255,9 @@ public class FinanceService : IFinanceService
             Description = transaction.Description,
             Category = transaction.Category,
             Date = transaction.Date,
-            AppointmentId = transaction.AppointmentId
+            AppointmentId = transaction.AppointmentId,
+            EmployeeId = transaction.EmployeeId,
+            EmployeeName = transaction.Employee != null ? transaction.Employee.Name : null
         };
     }
 
