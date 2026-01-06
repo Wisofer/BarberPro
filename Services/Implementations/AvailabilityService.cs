@@ -82,7 +82,9 @@ public class AvailabilityService : IAvailabilityService
                 // Verificar si hay conflicto con citas existentes
                 var hasConflict = appointments.Any(a =>
                 {
-                    var appointmentEndTime = a.Time.AddMinutes(a.Service.DurationMinutes);
+                    // Si la cita no tiene servicio, usar duración por defecto de 30 minutos
+                    var appointmentDuration = a.Service?.DurationMinutes ?? 30;
+                    var appointmentEndTime = a.Time.AddMinutes(appointmentDuration);
                     return (a.Time <= currentTime && appointmentEndTime > currentTime) ||
                            (currentTime <= a.Time && endTime > a.Time);
                 });

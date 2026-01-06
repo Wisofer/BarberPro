@@ -349,14 +349,22 @@ public class AppointmentService : IAppointmentService
             return false;
 
         // Verificar que no haya otra cita en el mismo horario
-        var hasConflict = await _context.Appointments
-            .AnyAsync(a => a.BarberId == barberId &&
-                          a.Date == date &&
-                          a.Id != excludeAppointmentId &&
-                          a.Status != AppointmentStatus.Cancelled &&
-                          ((a.Time <= time && a.Time.AddMinutes(
-                              _context.Services.First(s => s.Id == a.ServiceId).DurationMinutes) > time) ||
-                           (time <= a.Time && endTime > a.Time)));
+        var existingAppointments = await _context.Appointments
+            .Include(a => a.Service)
+            .Where(a => a.BarberId == barberId &&
+                       a.Date == date &&
+                       a.Id != excludeAppointmentId &&
+                       a.Status != AppointmentStatus.Cancelled)
+            .ToListAsync();
+
+        var hasConflict = existingAppointments.Any(a =>
+        {
+            // Si la cita no tiene servicio, usar duración por defecto de 30 minutos
+            var appointmentDuration = a.Service?.DurationMinutes ?? 30;
+            var appointmentEndTime = a.Time.AddMinutes(appointmentDuration);
+            return (a.Time <= time && appointmentEndTime > time) ||
+                   (time <= a.Time && endTime > a.Time);
+        });
 
         return !hasConflict;
     }

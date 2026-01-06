@@ -4,7 +4,6 @@
     Layout = null;
     var barber = ViewBag.Barber as BarberPublicDto;
     var slug = ViewBag.Slug as string;
-    var today = DateTime.Today;
 }
 
 <!DOCTYPE html>
@@ -13,7 +12,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@(barber?.Name ?? "Barbero") - Agendar Cita</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -23,169 +21,281 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
         }
         
-        .container-main {
-            max-width: 1200px;
+        .container {
+            max-width: 480px;
             margin: 0 auto;
-        }
-        
-        .card {
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            min-height: 100vh;
         }
         
-        .header-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px;
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .barber-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .barber-business {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-bottom: 12px;
+        }
+        
+        .barber-phone {
+            font-size: 14px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Selector de Fecha */
+        .date-section {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .date-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
         }
         
         .date-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 12px;
-            margin-top: 30px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
         }
         
         .date-option {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
-            padding: 16px 12px;
+            background: #f8f9fa;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 12px 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
         }
         
         .date-option:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+            border-color: #25D366;
         }
         
         .date-option.selected {
-            background: white;
-            color: #667eea;
-            border-color: white;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: #25D366;
+            border-color: #25D366;
+            color: white;
         }
         
         .date-day {
-            font-size: 14px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
         
         .date-number {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
-            margin-top: 4px;
+        }
+        
+        .date-month {
+            font-size: 10px;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+        
+        /* Horarios Disponibles */
+        .time-section {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
         }
         
         .time-slots {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 12px;
-            margin-top: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
         
         .time-slot {
             background: #f8f9fa;
-            border: 2px solid #e9ecef;
+            border: 2px solid #e5e5e5;
             border-radius: 12px;
-            padding: 14px;
+            padding: 14px 8px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             font-weight: 600;
+            font-size: 14px;
             color: #495057;
         }
         
         .time-slot:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-            transform: translateY(-2px);
+            border-color: #25D366;
+            background: #f0fdf4;
         }
         
         .time-slot.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #25D366;
             color: white;
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border-color: #25D366;
         }
         
-        .input-modern {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 16px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
+        .time-slot:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
         
-        .input-modern:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        /* Formulario */
+        .form-section {
+            padding: 20px;
         }
         
-        .input-with-icon {
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-label .optional {
+            font-weight: 400;
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .input-wrapper {
             position: relative;
         }
         
         .input-icon {
             position: absolute;
-            left: 20px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: #667eea;
-            font-size: 20px;
+            color: #25D366;
+            font-size: 18px;
         }
         
-        .input-with-icon input {
-            padding-left: 55px;
-        }
-        
-        .btn-primary {
+        .form-input {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px 16px 14px 50px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+        }
+        
+        .form-help {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .whatsapp-icon {
+            color: #25D366;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: #25D366;
             color: white;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
+            margin-top: 10px;
         }
         
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        .btn-submit:hover:not(:disabled) {
+            background: #128C7E;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
         
-        .btn-primary:disabled {
+        .btn-submit:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
         
-        .info-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #25D366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error */
+        .error-box {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 12px;
+            padding: 16px;
+            color: #c33;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        /* Info Cards */
+        .info-section {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
         }
         
         .info-item {
@@ -201,229 +311,239 @@
         }
         
         .info-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f0fdf4;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @@keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .error-message {
-            background: #fee;
-            border: 2px solid #fcc;
-            border-radius: 12px;
-            padding: 16px;
-            color: #c33;
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .whatsapp-icon {
             color: #25D366;
+            font-size: 16px;
+        }
+        
+        .info-text {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 35px;
+        }
+        
+        .modal-icon.success {
+            background: #d4edda;
+            color: #28a745;
+        }
+        
+        .modal-icon.error {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .modal-message {
+            color: #6c757d;
+            margin-bottom: 24px;
+        }
+        
+        /* Select */
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
         }
     </style>
 </head>
 <body>
-    <div class="container-main">
-        <div class="card">
-            <!-- Header -->
-            <div class="header-gradient">
-                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
-                    <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                        ✂️
-                    </div>
-                    <div>
-                        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 8px;">@(barber?.Name ?? "Barbero")</h1>
-                        @if (!string.IsNullOrEmpty(barber?.BusinessName))
-                        {
-                            <p style="font-size: 18px; opacity: 0.9;">@barber.BusinessName</p>
-                        }
-                        <p style="font-size: 16px; opacity: 0.8; margin-top: 8px;">
-                            <i class="fas fa-phone"></i> @barber?.Phone
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Selector de Fecha Automático -->
-                <div>
-                    <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Selecciona una fecha</h2>
-                    <div class="date-selector" id="dateSelector">
-                        <!-- Se generará dinámicamente -->
-                    </div>
-                </div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="barber-name">@(barber?.Name ?? "Barbero")</div>
+            @if (!string.IsNullOrEmpty(barber?.BusinessName))
+            {
+                <div class="barber-business">@barber.BusinessName</div>
+            }
+            <div class="barber-phone">
+                <i class="fas fa-phone"></i>
+                <span>@barber?.Phone</span>
             </div>
-            
-            <!-- Contenido -->
-            <div style="padding: 40px;">
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px;">
-                    <!-- Columna Izquierda: Información -->
-                    <div>
-                        <div class="info-card">
-                            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #333;">Información</h3>
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-user"></i></div>
-                                <div>
-                                    <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px;">Nombre</div>
-                                    <div style="font-weight: 600; color: #333; margin-top: 4px;">@barber?.Name</div>
-                                </div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(barber?.BusinessName))
-                            {
-                                <div class="info-item">
-                                    <div class="info-icon"><i class="fas fa-store"></i></div>
-                                    <div>
-                                        <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px;">Negocio</div>
-                                        <div style="font-weight: 600; color: #333; margin-top: 4px;">@barber.BusinessName</div>
-                                    </div>
-                                </div>
-                            }
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-phone"></i></div>
-                                <div>
-                                    <div style="font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px;">Teléfono</div>
-                                    <div style="font-weight: 600; color: #333; margin-top: 4px;">@barber?.Phone</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Horarios -->
-                        <div class="info-card">
-                            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #333;">Horarios</h3>
-                            @if (barber?.WorkingHours != null && barber.WorkingHours.Any(wh => wh.IsActive))
-                            {
-                                @foreach (var wh in barber.WorkingHours.Where(wh => wh.IsActive).OrderBy(w => w.DayOfWeek))
-                                {
-                                    <div class="info-item">
-                                        <div class="info-icon" style="background: #f8f9fa; color: #667eea;"><i class="fas fa-clock"></i></div>
-                                        <div style="flex: 1; display: flex; justify-content: space-between; align-items: center;">
-                                            <span style="font-weight: 600; color: #333;">@GetDayName(wh.DayOfWeek)</span>
-                                            <span style="color: #667eea; font-weight: 700;">@wh.StartTime.ToString("HH:mm") - @wh.EndTime.ToString("HH:mm")</span>
-                                        </div>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <p style="color: #6c757d; text-align: center; padding: 20px;">No hay horarios configurados</p>
-                            }
-                        </div>
-                    </div>
-                    
-                    <!-- Columna Derecha: Formulario -->
-                    <div>
-                        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 30px; color: #333;">Agendar Cita</h2>
-                        
-                        <!-- Horarios Disponibles -->
-                        <div style="margin-bottom: 30px;">
-                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; color: #333;">Horarios Disponibles</h3>
-                            <div id="timeSlots" class="time-slots">
-                                <div class="loading">
-                                    <div class="spinner"></div>
-                                    <p>Selecciona una fecha para ver horarios</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Formulario -->
-                        <form id="appointmentForm">
-                            <!-- Servicio (Opcional) -->
-                            @if (barber?.Services != null && barber.Services.Any(s => s.IsActive))
-                            {
-                                <div style="margin-bottom: 24px;">
-                                    <label style="display: block; font-weight: 600; margin-bottom: 12px; color: #333;">
-                                        Servicio <span style="font-weight: 400; color: #6c757d; font-size: 14px;">(Opcional)</span>
-                                    </label>
-                                    <select id="serviceSelect" class="input-modern">
-                                        <option value="">Sin servicio específico</option>
-                                        @foreach (var service in barber.Services.Where(s => s.IsActive))
-                                        {
-                                            <option value="@service.Id">@service.Name - $@service.Price.ToString("N2")</option>
-                                        }
-                                    </select>
-                                </div>
-                            }
-                            
-                            <!-- Nombre -->
-                            <div style="margin-bottom: 24px;">
-                                <label style="display: block; font-weight: 600; margin-bottom: 12px; color: #333;">Tu Nombre</label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-user input-icon"></i>
-                                    <input type="text" id="clientName" class="input-modern" placeholder="Nombre completo" required>
-                                </div>
-                            </div>
-                            
-                            <!-- Teléfono con WhatsApp -->
-                            <div style="margin-bottom: 30px;">
-                                <label style="display: block; font-weight: 600; margin-bottom: 12px; color: #333;">Tu WhatsApp</label>
-                                <div class="input-with-icon">
-                                    <i class="fab fa-whatsapp input-icon whatsapp-icon"></i>
-                                    <input type="tel" id="clientPhone" class="input-modern" placeholder="Número de WhatsApp" required>
-                                </div>
-                                <p style="font-size: 12px; color: #6c757d; margin-top: 8px;">
-                                    <i class="fab fa-whatsapp whatsapp-icon"></i> Te contactaremos por WhatsApp
-                                </p>
-                            </div>
-                            
-                            <!-- Botón -->
-                            <button type="submit" id="submitBtn" class="btn-primary" disabled>
-                                <span id="submitText">Agendar Cita</span>
-                                <span id="submitLoading" style="display: none; margin-left: 10px;">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </span>
-                            </button>
-                        </form>
-                    </div>
+        </div>
+        
+        <!-- Selector de Fecha -->
+        <div class="date-section">
+            <div class="date-title">Selecciona una fecha</div>
+            <div class="date-selector" id="dateSelector"></div>
+        </div>
+        
+        <!-- Horarios Disponibles -->
+        <div class="time-section">
+            <div class="section-title">Horarios Disponibles</div>
+            <div id="timeSlots" class="time-slots">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Selecciona una fecha</p>
                 </div>
             </div>
         </div>
+        
+        <!-- Formulario -->
+        <div class="form-section">
+            <form id="appointmentForm">
+                <!-- Servicio (Opcional) -->
+                @if (barber?.Services != null && barber.Services.Any(s => s.IsActive))
+                {
+                    <div class="form-group">
+                        <label class="form-label">
+                            Servicio <span class="optional">(Opcional)</span>
+                        </label>
+                        <select id="serviceSelect" class="form-select">
+                            <option value="">Sin servicio específico</option>
+                            @foreach (var service in barber.Services.Where(s => s.IsActive))
+                            {
+                                <option value="@service.Id">@service.Name - $@service.Price.ToString("N2")</option>
+                            }
+                        </select>
+                    </div>
+                }
+                
+                <!-- Nombre -->
+                <div class="form-group">
+                    <label class="form-label">Tu Nombre</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="clientName" class="form-input" placeholder="Nombre completo" required>
+                    </div>
+                </div>
+                
+                <!-- WhatsApp -->
+                <div class="form-group">
+                    <label class="form-label">Tu WhatsApp</label>
+                    <div class="input-wrapper">
+                        <i class="fab fa-whatsapp input-icon whatsapp-icon"></i>
+                        <input type="tel" id="clientPhone" class="form-input" placeholder="Número de WhatsApp" required>
+                    </div>
+                    <div class="form-help">
+                        <i class="fab fa-whatsapp whatsapp-icon"></i>
+                        <span>Te confirmo por WhatsApp</span>
+                    </div>
+                </div>
+                
+                <!-- Botón -->
+                <button type="submit" id="submitBtn" class="btn-submit" disabled>
+                    <span id="submitText">Agendar Cita</span>
+                    <span id="submitLoading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Información (Opcional, colapsable) -->
+        @if (barber?.WorkingHours != null && barber.WorkingHours.Any(wh => wh.IsActive))
+        {
+            <div class="info-section">
+                <div class="section-title">Horarios de Atención</div>
+                @foreach (var wh in barber.WorkingHours.Where(wh => wh.IsActive).OrderBy(w => w.DayOfWeek == DayOfWeek.Sunday ? 7 : (int)w.DayOfWeek))
+                {
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-text">
+                            <div class="info-label">@GetDayName(wh.DayOfWeek)</div>
+                            <div class="info-value">@wh.StartTime.ToString("HH:mm") - @wh.EndTime.ToString("HH:mm")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
     
     <!-- Modal de Éxito -->
-    <div id="successModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: white; border-radius: 24px; padding: 40px; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="width: 80px; height: 80px; background: #d4edda; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <i class="fas fa-check" style="font-size: 40px; color: #28a745;"></i>
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i class="fas fa-check"></i>
             </div>
-            <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #333;">¡Cita Agendada!</h3>
-            <p id="successMessage" style="color: #6c757d; margin-bottom: 30px;">Tu cita ha sido agendada exitosamente.</p>
-            <button onclick="closeSuccessModal()" class="btn-primary">Cerrar</button>
+            <div class="modal-title">¡Cita Agendada!</div>
+            <div class="modal-message" id="successMessage">Tu cita ha sido agendada exitosamente.</div>
+            <button onclick="closeSuccessModal()" class="btn-submit">Cerrar</button>
         </div>
     </div>
     
     <!-- Modal de Error -->
-    <div id="errorModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: white; border-radius: 24px; padding: 40px; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="width: 80px; height: 80px; background: #f8d7da; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <i class="fas fa-times" style="font-size: 40px; color: #dc3545;"></i>
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon error">
+                <i class="fas fa-times"></i>
             </div>
-            <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #333;">Error</h3>
-            <p id="errorMessage" style="color: #6c757d; margin-bottom: 30px;">Ocurrió un error al agendar la cita.</p>
-            <button onclick="closeErrorModal()" class="btn-primary">Cerrar</button>
+            <div class="modal-title">Error</div>
+            <div class="modal-message" id="errorMessage">Ocurrió un error al agendar la cita.</div>
+            <button onclick="closeErrorModal()" class="btn-submit">Cerrar</button>
         </div>
     </div>
     
@@ -440,28 +560,34 @@
             
             container.innerHTML = '';
             
+            // Crear array de fechas ordenadas (empezando desde hoy)
+            const dates = [];
             for (let i = 0; i < 7; i++) {
                 const date = new Date();
                 date.setDate(date.getDate() + i);
-                
+                dates.push(date);
+            }
+            
+            // Ordenar para que el día actual esté primero, pero mantener orden natural
+            dates.forEach((date, index) => {
                 const dayName = days[date.getDay()];
                 const dayNumber = date.getDate();
                 const month = months[date.getMonth()];
                 const dateStr = date.toISOString().split('T')[0];
                 
                 const option = document.createElement('div');
-                option.className = 'date-option' + (i === 0 ? ' selected' : '');
+                option.className = 'date-option' + (index === 0 ? ' selected' : '');
                 option.dataset.date = dateStr;
                 
                 option.innerHTML = `
                     <div class="date-day">${dayName}</div>
                     <div class="date-number">${dayNumber}</div>
-                    <div style="font-size: 11px; margin-top: 4px; opacity: 0.8;">${month}</div>
+                    <div class="date-month">${month}</div>
                 `;
                 
                 option.onclick = () => selectDate(dateStr, option);
                 container.appendChild(option);
-            }
+            });
             
             // Seleccionar fecha de hoy automáticamente
             if (container.children.length > 0) {
@@ -488,7 +614,7 @@
         
         async function loadAvailability(dateStr) {
             const timeSlotsContainer = document.getElementById('timeSlots');
-            timeSlotsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando horarios disponibles...</p></div>';
+            timeSlotsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando horarios...</p></div>';
             
             try {
                 const response = await fetch(`/b/${slug}/availability?date=${dateStr}`);
@@ -500,7 +626,7 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    timeSlotsContainer.innerHTML = `<div class="error-message">${data.error}</div>`;
+                    timeSlotsContainer.innerHTML = `<div class="error-box">${data.error}</div>`;
                     return;
                 }
                 
@@ -529,14 +655,14 @@
                             timeSlotsContainer.appendChild(button);
                         });
                     } else {
-                        timeSlotsContainer.innerHTML = '<div class="error-message">No hay horarios disponibles para esta fecha</div>';
+                        timeSlotsContainer.innerHTML = '<div class="error-box">No hay horarios disponibles para esta fecha</div>';
                     }
                 } else {
-                    timeSlotsContainer.innerHTML = '<div class="error-message">No hay horarios disponibles para esta fecha</div>';
+                    timeSlotsContainer.innerHTML = '<div class="error-box">No hay horarios disponibles para esta fecha</div>';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                timeSlotsContainer.innerHTML = '<div class="error-message">Error al cargar horarios disponibles. Por favor intenta más tarde.</div>';
+                timeSlotsContainer.innerHTML = '<div class="error-box">Error al cargar horarios. Intenta más tarde.</div>';
             }
         }
         
@@ -588,7 +714,7 @@
                 
                 if (result.success) {
                     document.getElementById('successMessage').textContent = result.message || 'Tu cita ha sido agendada exitosamente. Te contactaremos pronto.';
-                    document.getElementById('successModal').style.display = 'flex';
+                    document.getElementById('successModal').classList.add('show');
                     document.getElementById('appointmentForm').reset();
                     selectedTime = null;
                     generateDateOptions();
@@ -607,15 +733,15 @@
         
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorModal').style.display = 'flex';
+            document.getElementById('errorModal').classList.add('show');
         }
         
         function closeSuccessModal() {
-            document.getElementById('successModal').style.display = 'none';
+            document.getElementById('successModal').classList.remove('show');
         }
         
         function closeErrorModal() {
-            document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('errorModal').classList.remove('show');
         }
         
         // Cerrar modales al hacer clic fuera
