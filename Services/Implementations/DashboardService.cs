@@ -59,12 +59,21 @@ public class DashboardService : IDashboardService
             startOfWeek.ToDateTime(TimeOnly.MinValue), 
             endOfWeek.ToDateTime(TimeOnly.MaxValue));
 
+        var weekIncome = weekAppointments.Sum(a => a.Service.Price);
+        var weekUniqueClients = weekAppointments
+            .Select(a => a.ClientPhone)
+            .Distinct()
+            .Count();
+        var weekAveragePerClient = weekUniqueClients > 0 ? weekIncome / weekUniqueClients : 0;
+
         var weekStats = new PeriodStatsDto
         {
             Appointments = weekAppointments.Count,
-            Income = weekAppointments.Sum(a => a.Service.Price),
+            Income = weekIncome,
             Expenses = weekFinance.ExpensesThisMonth,
-            Profit = weekAppointments.Sum(a => a.Service.Price) - weekFinance.ExpensesThisMonth
+            Profit = weekIncome - weekFinance.ExpensesThisMonth,
+            UniqueClients = weekUniqueClients,
+            AveragePerClient = weekAveragePerClient
         };
 
         // Estadísticas del mes
@@ -78,12 +87,21 @@ public class DashboardService : IDashboardService
 
         var monthFinance = await _financeService.GetFinanceSummaryAsync(barberId);
 
+        var monthIncome = monthFinance.IncomeThisMonth;
+        var monthUniqueClients = monthAppointments
+            .Select(a => a.ClientPhone)
+            .Distinct()
+            .Count();
+        var monthAveragePerClient = monthUniqueClients > 0 ? monthIncome / monthUniqueClients : 0;
+
         var monthStats = new PeriodStatsDto
         {
             Appointments = monthAppointments.Count,
-            Income = monthFinance.IncomeThisMonth,
+            Income = monthIncome,
             Expenses = monthFinance.ExpensesThisMonth,
-            Profit = monthFinance.ProfitThisMonth
+            Profit = monthFinance.ProfitThisMonth,
+            UniqueClients = monthUniqueClients,
+            AveragePerClient = monthAveragePerClient
         };
 
         // Citas recientes y próximas

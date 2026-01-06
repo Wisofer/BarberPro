@@ -33,6 +33,8 @@ public class PeriodStatsDto
     public decimal Income { get; set; }
     public decimal Expenses { get; set; }
     public decimal Profit { get; set; }
+    public int UniqueClients { get; set; } // Clientes únicos atendidos
+    public decimal AveragePerClient { get; set; } // Promedio de ingresos por cliente
 }
 
 /// <summary>

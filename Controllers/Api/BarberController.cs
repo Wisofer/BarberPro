@@ -24,6 +24,8 @@ public class BarberController : ControllerBase
     private readonly IDashboardService _dashboardService;
     private readonly IAuthService _authService;
     private readonly IWorkingHoursService _workingHoursService;
+    private readonly IExportService _exportService;
+    private readonly IHelpSupportService _helpSupportService;
     private readonly ILogger<BarberController> _logger;
 
     public BarberController(
@@ -34,6 +36,8 @@ public class BarberController : ControllerBase
         IDashboardService dashboardService,
         IAuthService authService,
         IWorkingHoursService workingHoursService,
+        IExportService exportService,
+        IHelpSupportService helpSupportService,
         ILogger<BarberController> logger)
     {
         _barberService = barberService;
@@ -43,6 +47,8 @@ public class BarberController : ControllerBase
         _dashboardService = dashboardService;
         _authService = authService;
         _workingHoursService = workingHoursService;
+        _exportService = exportService;
+        _helpSupportService = helpSupportService;
         _logger = logger;
     }
 
@@ -465,6 +471,161 @@ public class BarberController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al eliminar horario de trabajo");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Exportar reporte de citas
+    /// </summary>
+    [HttpGet("export/appointments")]
+    public async Task<ActionResult> ExportAppointments([FromQuery] string? startDate = null, [FromQuery] string? endDate = null, [FromQuery] string format = "csv")
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            DateOnly? start = null;
+            DateOnly? end = null;
+
+            if (!string.IsNullOrEmpty(startDate) && DateOnly.TryParse(startDate, out var parsedStart))
+                start = parsedStart;
+            if (!string.IsNullOrEmpty(endDate) && DateOnly.TryParse(endDate, out var parsedEnd))
+                end = parsedEnd;
+
+            var fileBytes = await _exportService.ExportAppointmentsAsync(barberId, start, end, format);
+            var contentType = format.ToLower() switch
+            {
+                "csv" => "text/csv",
+                "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+            var fileName = $"citas_{DateTime.UtcNow:yyyyMMdd}.{format.ToLower()}";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al exportar citas");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Exportar reporte financiero
+    /// </summary>
+    [HttpGet("export/finances")]
+    public async Task<ActionResult> ExportFinances([FromQuery] string? startDate = null, [FromQuery] string? endDate = null, [FromQuery] string format = "csv")
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            DateOnly? start = null;
+            DateOnly? end = null;
+
+            if (!string.IsNullOrEmpty(startDate) && DateOnly.TryParse(startDate, out var parsedStart))
+                start = parsedStart;
+            if (!string.IsNullOrEmpty(endDate) && DateOnly.TryParse(endDate, out var parsedEnd))
+                end = parsedEnd;
+
+            var fileBytes = await _exportService.ExportFinancesAsync(barberId, start, end, format);
+            var contentType = format.ToLower() switch
+            {
+                "csv" => "text/csv",
+                "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+            var fileName = $"finanzas_{DateTime.UtcNow:yyyyMMdd}.{format.ToLower()}";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al exportar finanzas");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Exportar reporte de clientes
+    /// </summary>
+    [HttpGet("export/clients")]
+    public async Task<ActionResult> ExportClients([FromQuery] string format = "csv")
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var fileBytes = await _exportService.ExportClientsAsync(barberId, format);
+            var contentType = format.ToLower() switch
+            {
+                "csv" => "text/csv",
+                "excel" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+            var fileName = $"clientes_{DateTime.UtcNow:yyyyMMdd}.{format.ToLower()}";
+
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al exportar clientes");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Crear backup completo de datos
+    /// </summary>
+    [HttpGet("export/backup")]
+    public async Task<ActionResult> ExportBackup()
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var fileBytes = await _exportService.ExportBackupAsync(barberId);
+            var fileName = $"backup_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json";
+
+            return File(fileBytes, "application/json", fileName);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al crear backup");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener información de ayuda y soporte
+    /// </summary>
+    [HttpGet("help-support")]
+    public async Task<ActionResult<HelpSupportDto>> GetHelpSupport()
+    {
+        try
+        {
+            var helpSupport = await _helpSupportService.GetHelpSupportAsync();
+            return Ok(helpSupport);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener ayuda y soporte");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
