@@ -234,10 +234,10 @@
                         <!-- Servicios -->
                         <div>
                             <label class="label">
-                                <span class="label-text font-bold text-gray-700 text-lg">Selecciona un Servicio</span>
+                                <span class="label-text font-bold text-gray-700 text-lg">Selecciona un Servicio <span class="text-sm font-normal text-gray-500">(Opcional)</span></span>
                             </label>
-                            <select id="serviceSelect" name="serviceId" class="select select-bordered w-full bg-white border-gray-300 text-gray-800 input-glow focus:border-gold h-12 text-base" required>
-                                <option value="">-- Selecciona un servicio --</option>
+                            <select id="serviceSelect" name="serviceId" class="select select-bordered w-full bg-white border-gray-300 text-gray-800 input-glow focus:border-gold h-12 text-base">
+                                <option value="">-- No especificar servicio (opcional) --</option>
                                 @if (barber?.Services != null && barber.Services.Any())
                                 {
                                     @foreach (var service in barber.Services.Where(s => s.IsActive))
@@ -250,11 +250,11 @@
                             </select>
                             @if (barber?.Services == null || !barber.Services.Any())
                             {
-                                <div class="alert alert-warning mt-3">
+                                <div class="alert alert-info mt-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span>No hay servicios disponibles. Por favor contacta al barbero.</span>
+                                    <span>No hay servicios específicos listados. Puedes agendar tu cita y el barbero te ayudará a decidir el servicio.</span>
                                 </div>
                             }
                         </div>
@@ -425,8 +425,9 @@
             const clientPhone = document.getElementById('clientPhone').value;
             const date = document.getElementById('appointmentDate').value;
 
-            if (!serviceId || !clientName || !clientPhone || !date || !selectedTime) {
-                showError('Por favor completa todos los campos');
+            // Validar campos requeridos (serviceId es opcional ahora)
+            if (!clientName || !clientPhone || !date || !selectedTime) {
+                showError('Por favor completa todos los campos requeridos');
                 return;
             }
 
@@ -452,7 +453,7 @@
                     },
                     body: JSON.stringify({
                         barberSlug: slug,
-                        serviceId: parseInt(serviceId),
+                        serviceId: serviceId ? parseInt(serviceId) : null,
                         clientName: clientName,
                         clientPhone: clientPhone,
                         date: date,

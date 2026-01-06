@@ -7,7 +7,7 @@ public class Appointment
 {
     public int Id { get; set; }
     public int BarberId { get; set; }
-    public int ServiceId { get; set; }
+    public int? ServiceId { get; set; } // Opcional: el cliente puede no saber qué servicio quiere
     public string ClientName { get; set; } = string.Empty;
     public string ClientPhone { get; set; } = string.Empty;
     public DateOnly Date { get; set; }
@@ -18,7 +18,7 @@ public class Appointment
 
     // Relaciones
     public Barber Barber { get; set; } = null!;
-    public Service Service { get; set; } = null!;
+    public Service? Service { get; set; } // Opcional
     public Transaction? Transaction { get; set; } // Ingreso generado por esta cita
 }
 

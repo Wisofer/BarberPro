@@ -40,15 +40,22 @@ public class AppointmentService : IAppointmentService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        // Validar que el servicio existe y pertenece al barbero
-        var service = await _context.Services
-            .FirstOrDefaultAsync(s => s.Id == request.ServiceId && s.BarberId == barber.Id && s.IsActive);
-        if (service == null)
-            throw new KeyNotFoundException("Servicio no encontrado");
+        // Validar servicio si se proporciona
+        Service? service = null;
+        int durationMinutes = 30; // Duración por defecto si no hay servicio (30 minutos)
+        
+        if (request.ServiceId.HasValue)
+        {
+            service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barber.Id && s.IsActive);
+            if (service == null)
+                throw new KeyNotFoundException("Servicio no encontrado");
+            durationMinutes = service.DurationMinutes;
+        }
 
-        // Validar disponibilidad
+        // Validar disponibilidad (usar duración del servicio o 30 min por defecto)
         var isAvailable = await ValidateAppointmentAvailabilityAsync(
-            barber.Id, request.Date, request.Time, service.DurationMinutes);
+            barber.Id, request.Date, request.Time, durationMinutes);
         if (!isAvailable)
             throw new InvalidOperationException("El horario no está disponible");
 
@@ -61,7 +68,7 @@ public class AppointmentService : IAppointmentService
         var appointment = new Appointment
         {
             BarberId = barber.Id,
-            ServiceId = request.ServiceId,
+            ServiceId = request.ServiceId, // Puede ser null
             ClientName = request.ClientName,
             ClientPhone = request.ClientPhone,
             Date = request.Date,
@@ -97,8 +104,8 @@ public class AppointmentService : IAppointmentService
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
                 ServiceId = a.ServiceId,
-                ServiceName = a.Service.Name,
-                ServicePrice = a.Service.Price,
+                ServiceName = a.Service != null ? a.Service.Name : null,
+                ServicePrice = a.Service != null ? a.Service.Price : null,
                 ClientName = a.ClientName,
                 ClientPhone = a.ClientPhone,
                 Date = a.Date,
@@ -121,8 +128,8 @@ public class AppointmentService : IAppointmentService
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
                 ServiceId = a.ServiceId,
-                ServiceName = a.Service.Name,
-                ServicePrice = a.Service.Price,
+                ServiceName = a.Service != null ? a.Service.Name : null,
+                ServicePrice = a.Service != null ? a.Service.Price : null,
                 ClientName = a.ClientName,
                 ClientPhone = a.ClientPhone,
                 Date = a.Date,
@@ -141,11 +148,11 @@ public class AppointmentService : IAppointmentService
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada");
 
-        // Si cambia el estado a Confirmed, crear ingreso automáticamente
+        // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
         if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed)
+            appointment.Status != AppointmentStatus.Confirmed && appointment.Service != null)
         {
-            // Crear ingreso automático
+            // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(
                 appointment.BarberId,
                 appointment.Id,
@@ -178,11 +185,11 @@ public class AppointmentService : IAppointmentService
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada o no pertenece al barbero");
 
-        // Si cambia el estado a Confirmed, crear ingreso automáticamente
+        // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
         if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed)
+            appointment.Status != AppointmentStatus.Confirmed && appointment.Service != null)
         {
-            // Crear ingreso automático
+            // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(
                 appointment.BarberId,
                 appointment.Id,
@@ -239,15 +246,22 @@ public class AppointmentService : IAppointmentService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        // Validar que el servicio existe y pertenece al barbero
-        var service = await _context.Services
-            .FirstOrDefaultAsync(s => s.Id == request.ServiceId && s.BarberId == barberId && s.IsActive);
-        if (service == null)
-            throw new KeyNotFoundException("Servicio no encontrado");
+        // Validar servicio si se proporciona
+        Service? service = null;
+        int durationMinutes = 30; // Duración por defecto si no hay servicio (30 minutos)
+        
+        if (request.ServiceId.HasValue)
+        {
+            service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barberId && s.IsActive);
+            if (service == null)
+                throw new KeyNotFoundException("Servicio no encontrado");
+            durationMinutes = service.DurationMinutes;
+        }
 
-        // Validar disponibilidad
+        // Validar disponibilidad (usar duración del servicio o 30 min por defecto)
         var isAvailable = await ValidateAppointmentAvailabilityAsync(
-            barberId, request.Date, request.Time, service.DurationMinutes);
+            barberId, request.Date, request.Time, durationMinutes);
         if (!isAvailable)
             throw new InvalidOperationException("El horario no está disponible");
 

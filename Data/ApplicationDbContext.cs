@@ -84,7 +84,8 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(e => e.Service)
                 .WithMany(s => s.Appointments)
                 .HasForeignKey(e => e.ServiceId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false); // ServiceId es opcional
             
             entity.HasOne(e => e.Transaction)
                 .WithOne(t => t.Appointment)

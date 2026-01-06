@@ -10,8 +10,8 @@ public class CreateAppointmentRequest
     // Opcional: solo requerido para creación pública, no para barbero autenticado
     public string? BarberSlug { get; set; }
 
-    [Required(ErrorMessage = "El servicio es requerido")]
-    public int ServiceId { get; set; }
+    // Opcional: el cliente puede no saber qué servicio quiere
+    public int? ServiceId { get; set; }
 
     [Required(ErrorMessage = "El nombre del cliente es requerido")]
     [MaxLength(200, ErrorMessage = "El nombre no puede exceder 200 caracteres")]

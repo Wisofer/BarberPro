@@ -182,15 +182,18 @@ public class BarberController : ControllerBase
     [HttpPost("appointments")]
     public async Task<ActionResult<AppointmentDto>> CreateAppointment([FromBody] CreateAppointmentRequest request)
     {
+        // El barbero no necesita pasar barberSlug, se usa su barberId del token
+        // Limpiar cualquier error de validación de BarberSlug antes de validar
+        if (ModelState.ContainsKey("BarberSlug"))
+            ModelState.Remove("BarberSlug");
+        request.BarberSlug = null;
+
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
         try
         {
             var barberId = GetBarberId();
-            // El barbero no necesita pasar barberSlug, se usa su barberId del token
-            // Ignorar barberSlug si viene en el request
-            request.BarberSlug = null;
             var appointment = await _appointmentService.CreateAppointmentForBarberAsync(barberId, request);
             return CreatedAtAction(nameof(GetAppointments), null, appointment);
         }

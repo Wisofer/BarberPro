@@ -8,9 +8,9 @@ public class AppointmentDto
     public int Id { get; set; }
     public int BarberId { get; set; }
     public string BarberName { get; set; } = string.Empty;
-    public int ServiceId { get; set; }
-    public string ServiceName { get; set; } = string.Empty;
-    public decimal ServicePrice { get; set; }
+    public int? ServiceId { get; set; } // Opcional
+    public string? ServiceName { get; set; } // Opcional
+    public decimal? ServicePrice { get; set; } // Opcional
     public string ClientName { get; set; } = string.Empty;
     public string ClientPhone { get; set; } = string.Empty;
     public DateOnly Date { get; set; }
