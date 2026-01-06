@@ -360,6 +360,56 @@ public class BarberController : ControllerBase
     }
 
     /// <summary>
+    /// Actualizar servicio
+    /// </summary>
+    [HttpPut("services/{id}")]
+    public async Task<ActionResult<ServiceDto>> UpdateService(int id, [FromBody] CreateServiceRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var barberId = GetBarberId();
+            var updated = await _serviceService.UpdateServiceAsync(barberId, id, request);
+            
+            if (!updated)
+                return NotFound(new { message = "Servicio no encontrado o no pertenece al barbero" });
+
+            var service = await _serviceService.GetServiceByIdAsync(id);
+            return Ok(service);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar servicio {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Eliminar servicio (soft delete)
+    /// </summary>
+    [HttpDelete("services/{id}")]
+    public async Task<ActionResult> DeleteService(int id)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var deleted = await _serviceService.DeleteServiceAsync(barberId, id);
+            
+            if (!deleted)
+                return NotFound(new { message = "Servicio no encontrado o no pertenece al barbero" });
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar servicio {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
     /// Obtener resumen financiero
     /// </summary>
     [HttpGet("finances/summary")]

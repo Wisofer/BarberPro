@@ -15,8 +15,7 @@ public class CreateServiceRequest
     [Range(0.01, 999999.99, ErrorMessage = "El precio debe ser mayor a 0")]
     public decimal Price { get; set; }
 
-    [Required(ErrorMessage = "La duración es requerida")]
     [Range(15, 480, ErrorMessage = "La duración debe estar entre 15 y 480 minutos")]
-    public int DurationMinutes { get; set; }
+    public int? DurationMinutes { get; set; } // Opcional, default 30 minutos
 }
 

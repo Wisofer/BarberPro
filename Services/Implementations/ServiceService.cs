@@ -40,7 +40,7 @@ public class ServiceService : IServiceService
             BarberId = barberId,
             Name = request.Name,
             Price = request.Price,
-            DurationMinutes = request.DurationMinutes,
+            DurationMinutes = request.DurationMinutes ?? 30, // Default 30 minutos si no se proporciona
             IsActive = true
         };
 
@@ -72,23 +72,27 @@ public class ServiceService : IServiceService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<bool> UpdateServiceAsync(int id, CreateServiceRequest request)
+    public async Task<bool> UpdateServiceAsync(int barberId, int id, CreateServiceRequest request)
     {
-        var service = await _context.Services.FindAsync(id);
+        var service = await _context.Services
+            .FirstOrDefaultAsync(s => s.Id == id && s.BarberId == barberId);
+        
         if (service == null)
             return false;
 
         service.Name = request.Name;
         service.Price = request.Price;
-        service.DurationMinutes = request.DurationMinutes;
+        service.DurationMinutes = request.DurationMinutes ?? 30; // Default 30 minutos si no se proporciona
 
         await _context.SaveChangesAsync();
         return true;
     }
 
-    public async Task<bool> DeleteServiceAsync(int id)
+    public async Task<bool> DeleteServiceAsync(int barberId, int id)
     {
-        var service = await _context.Services.FindAsync(id);
+        var service = await _context.Services
+            .FirstOrDefaultAsync(s => s.Id == id && s.BarberId == barberId);
+        
         if (service == null)
             return false;
 
