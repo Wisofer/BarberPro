@@ -162,9 +162,12 @@ public class AppointmentService : IAppointmentService
         // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
         service = service ?? appointment.Service;
 
-        // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
-        if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed && service != null)
+        // Si cambia el estado a Confirmed o Completed, crear ingreso automáticamente (solo si hay servicio y no se ha creado ya)
+        if (request.Status.HasValue && 
+            (request.Status.Value == AppointmentStatus.Confirmed || request.Status.Value == AppointmentStatus.Completed) && 
+            appointment.Status != AppointmentStatus.Confirmed && 
+            appointment.Status != AppointmentStatus.Completed && 
+            service != null)
         {
             // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(
@@ -213,9 +216,12 @@ public class AppointmentService : IAppointmentService
         // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
         service = service ?? appointment.Service;
 
-        // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
-        if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed && service != null)
+        // Si cambia el estado a Confirmed o Completed, crear ingreso automáticamente (solo si hay servicio y no se ha creado ya)
+        if (request.Status.HasValue && 
+            (request.Status.Value == AppointmentStatus.Confirmed || request.Status.Value == AppointmentStatus.Completed) && 
+            appointment.Status != AppointmentStatus.Confirmed && 
+            appointment.Status != AppointmentStatus.Completed && 
+            service != null)
         {
             // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(

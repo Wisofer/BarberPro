@@ -28,7 +28,8 @@ public class Appointment
 public enum AppointmentStatus
 {
     Pending = 1,    // Pendiente de confirmación
-    Confirmed = 2,  // Confirmada
-    Cancelled = 3   // Cancelada
+    Confirmed = 2,  // Confirmada (aceptada por el barbero)
+    Completed = 3,  // Completada (cita realizada)
+    Cancelled = 4   // Cancelada
 }
 

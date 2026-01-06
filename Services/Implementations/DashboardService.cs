@@ -40,10 +40,10 @@ public class DashboardService : IDashboardService
         var todayStats = new TodayStatsDto
         {
             Appointments = todayAppointments.Count,
-            Completed = todayAppointments.Count(a => a.Status == AppointmentStatus.Confirmed),
+            Completed = todayAppointments.Count(a => a.Status == AppointmentStatus.Completed),
             Pending = todayAppointments.Count(a => a.Status == AppointmentStatus.Pending),
             Income = todayAppointments
-                .Where(a => a.Status == AppointmentStatus.Confirmed && a.Service != null)
+                .Where(a => (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed) && a.Service != null)
                 .Sum(a => a.Service!.Price)
         };
 
@@ -53,7 +53,7 @@ public class DashboardService : IDashboardService
             .Where(a => a.BarberId == barberId && 
                        a.Date >= startOfWeek && 
                        a.Date <= endOfWeek &&
-                       a.Status == AppointmentStatus.Confirmed)
+                       (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed))
             .ToListAsync();
 
         var weekFinance = await _financeService.GetFinanceSummaryAsync(barberId, 
@@ -85,7 +85,7 @@ public class DashboardService : IDashboardService
             .Where(a => a.BarberId == barberId && 
                        a.Date >= startOfMonth && 
                        a.Date <= endOfMonth &&
-                       a.Status == AppointmentStatus.Confirmed)
+                       (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed))
             .ToListAsync();
 
         var monthFinance = await _financeService.GetFinanceSummaryAsync(barberId);
