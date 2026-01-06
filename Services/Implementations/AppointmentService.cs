@@ -285,33 +285,89 @@ public class AppointmentService : IAppointmentService
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada o no pertenece al barbero");
 
-        // Actualizar servicio si se proporciona
-        Service? service = null;
-        if (request.ServiceId.HasValue)
+        // Asignar múltiples servicios si se proporcionan (prioridad sobre ServiceId único)
+        if (request.ServiceIds != null && request.ServiceIds.Length > 0)
         {
-            service = await _context.Services
+            // Validar que todos los servicios pertenezcan al barbero y estén activos
+            var selectedServices = await _context.Services
+                .Where(s => request.ServiceIds.Contains(s.Id) && s.BarberId == barberId && s.IsActive)
+                .ToListAsync();
+            
+            if (selectedServices.Count != request.ServiceIds.Length)
+                throw new KeyNotFoundException("Uno o más servicios no encontrados o no pertenecen al barbero");
+
+            // Eliminar servicios existentes en AppointmentServices para esta cita
+            var existingAppointmentServices = await _context.AppointmentServices
+                .Where(aps => aps.AppointmentId == appointment.Id)
+                .ToListAsync();
+            _context.AppointmentServices.RemoveRange(existingAppointmentServices);
+
+            // Agregar los nuevos servicios a AppointmentServices
+            foreach (var selectedService in selectedServices)
+            {
+                var appointmentService = new AppointmentServiceEntity
+                {
+                    AppointmentId = appointment.Id,
+                    ServiceId = selectedService.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.AppointmentServices.Add(appointmentService);
+            }
+
+            // Actualizar ServiceId con el primer servicio (para compatibilidad)
+            appointment.ServiceId = selectedServices.FirstOrDefault()?.Id;
+        }
+        // Actualizar servicio único si se proporciona (legacy, solo si no hay ServiceIds)
+        else if (request.ServiceId.HasValue)
+        {
+            var singleService = await _context.Services
                 .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barberId && s.IsActive);
-            if (service == null)
+            if (singleService == null)
                 throw new KeyNotFoundException("Servicio no encontrado");
             appointment.ServiceId = request.ServiceId.Value;
         }
 
         // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
-        service = service ?? appointment.Service;
+        var currentService = appointment.Service;
 
-        // Si cambia el estado a Confirmed o Completed, crear ingreso automáticamente (solo si hay servicio y no se ha creado ya)
+        // Si cambia el estado a Confirmed o Completed, crear ingresos automáticamente
         if (request.Status.HasValue && 
             (request.Status.Value == AppointmentStatus.Confirmed || request.Status.Value == AppointmentStatus.Completed) && 
             appointment.Status != AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Completed && 
-            service != null)
+            appointment.Status != AppointmentStatus.Completed)
         {
-            // Crear ingreso automático solo si hay servicio con precio
-            await _financeService.CreateIncomeFromAppointmentAsync(
-                appointment.BarberId,
-                appointment.Id,
-                service.Price,
-                $"Cita - {service.Name} - {appointment.ClientName}");
+            // Guardar cambios antes de verificar AppointmentServices
+            await _context.SaveChangesAsync();
+
+            // Obtener todos los servicios asociados a esta cita desde la tabla intermedia
+            var appointmentServices = await _context.AppointmentServices
+                .Include(aps => aps.Service)
+                .Where(aps => aps.AppointmentId == appointment.Id)
+                .ToListAsync();
+
+            if (appointmentServices.Count > 0)
+            {
+                // Crear múltiples ingresos (uno por cada servicio)
+                var servicesList = appointmentServices
+                    .Select(aps => (aps.ServiceId, aps.Service.Name, aps.Service.Price))
+                    .ToList();
+                
+                await _financeService.CreateMultipleIncomesFromAppointmentAsync(
+                    appointment.BarberId,
+                    appointment.Id,
+                    servicesList,
+                    appointment.ClientName);
+            }
+            else if (currentService != null)
+            {
+                // Fallback: si no hay servicios en la tabla intermedia pero hay ServiceId, crear un ingreso
+                await _financeService.CreateIncomeFromAppointmentAsync(
+                    appointment.BarberId,
+                    appointment.Id,
+                    currentService.Price,
+                    $"Cita - {currentService.Name} - {appointment.ClientName}");
+            }
+            // Si no hay servicios ni ServiceId, no se crea ingreso automático
         }
 
         // Actualizar campos

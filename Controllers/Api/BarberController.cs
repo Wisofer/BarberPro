@@ -467,6 +467,28 @@ public class BarberController : ControllerBase
     }
 
     /// <summary>
+    /// Crear ingreso manual
+    /// </summary>
+    [HttpPost("finances/income")]
+    public async Task<ActionResult<TransactionDto>> CreateIncome([FromBody] CreateIncomeRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var barberId = GetBarberId();
+            var income = await _financeService.CreateIncomeAsync(barberId, request);
+            return CreatedAtAction(nameof(GetIncome), null, income);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al crear ingreso");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
     /// Crear egreso
     /// </summary>
     [HttpPost("finances/expenses")]
@@ -484,6 +506,71 @@ public class BarberController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear egreso");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Actualizar egreso
+    /// </summary>
+    [HttpPut("finances/expenses/{id}")]
+    public async Task<ActionResult<TransactionDto>> UpdateExpense(int id, [FromBody] UpdateExpenseRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var barberId = GetBarberId();
+            var expense = await _financeService.UpdateExpenseAsync(barberId, id, request);
+            return Ok(expense);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar egreso {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Eliminar egreso
+    /// </summary>
+    [HttpDelete("finances/expenses/{id}")]
+    public async Task<ActionResult> DeleteExpense(int id)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var deleted = await _financeService.DeleteExpenseAsync(barberId, id);
+            if (!deleted)
+                return NotFound(new { message = "Egreso no encontrado o no pertenece al barbero" });
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar egreso {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener categorías predefinidas
+    /// </summary>
+    [HttpGet("finances/categories")]
+    public async Task<ActionResult<List<string>>> GetCategories()
+    {
+        try
+        {
+            var categories = await _financeService.GetCategoriesAsync();
+            return Ok(categories);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener categorías");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }

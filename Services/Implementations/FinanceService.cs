@@ -148,6 +148,91 @@ public class FinanceService : IFinanceService
         };
     }
 
+    public async Task<TransactionDto> UpdateExpenseAsync(int barberId, int expenseId, UpdateExpenseRequest request)
+    {
+        var transaction = await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == expenseId && t.BarberId == barberId && t.Type == TransactionType.Expense);
+
+        if (transaction == null)
+            throw new KeyNotFoundException("Egreso no encontrado o no pertenece al barbero");
+
+        transaction.Amount = request.Amount;
+        transaction.Description = request.Description;
+        transaction.Category = request.Category;
+        transaction.Date = request.Date;
+
+        _context.Transactions.Update(transaction);
+        await _context.SaveChangesAsync();
+
+        return new TransactionDto
+        {
+            Id = transaction.Id,
+            Type = transaction.Type.ToString(),
+            Amount = transaction.Amount,
+            Description = transaction.Description,
+            Category = transaction.Category,
+            Date = transaction.Date,
+            AppointmentId = transaction.AppointmentId
+        };
+    }
+
+    public async Task<bool> DeleteExpenseAsync(int barberId, int expenseId)
+    {
+        var transaction = await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == expenseId && t.BarberId == barberId && t.Type == TransactionType.Expense);
+
+        if (transaction == null)
+            return false;
+
+        _context.Transactions.Remove(transaction);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public Task<List<string>> GetCategoriesAsync()
+    {
+        // Categorías predefinidas para ingresos y egresos
+        var categories = new List<string>
+        {
+            "Alquiler",
+            "Servicios Públicos",
+            "Materiales",
+            "Salarios",
+            "Marketing",
+            "Service",
+            "Otros"
+        };
+        return Task.FromResult(categories);
+    }
+
+    public async Task<TransactionDto> CreateIncomeAsync(int barberId, CreateIncomeRequest request)
+    {
+        var transaction = new Transaction
+        {
+            BarberId = barberId,
+            Type = TransactionType.Income,
+            Amount = request.Amount,
+            Description = request.Description,
+            Category = request.Category ?? "Service",
+            Date = request.Date,
+            AppointmentId = null // Ingreso manual, no viene de cita
+        };
+
+        _context.Transactions.Add(transaction);
+        await _context.SaveChangesAsync();
+
+        return new TransactionDto
+        {
+            Id = transaction.Id,
+            Type = transaction.Type.ToString(),
+            Amount = transaction.Amount,
+            Description = transaction.Description,
+            Category = transaction.Category,
+            Date = transaction.Date,
+            AppointmentId = transaction.AppointmentId
+        };
+    }
+
     public async Task CreateIncomeFromAppointmentAsync(int barberId, int appointmentId, decimal amount, string description)
     {
         // Verificar que no exista ya una transacción para esta cita
