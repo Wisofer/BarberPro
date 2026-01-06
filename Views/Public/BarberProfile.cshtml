@@ -292,6 +292,25 @@
             margin-top: 16px;
         }
         
+        .no-availability {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .no-availability-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .no-availability-message {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        
         /* Info Cards */
         .info-section {
             padding: 20px;
@@ -626,7 +645,12 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    timeSlotsContainer.innerHTML = `<div class="error-box">${data.error}</div>`;
+                    timeSlotsContainer.innerHTML = `
+                        <div class="no-availability">
+                            <div class="no-availability-title">No disponible</div>
+                            <div class="no-availability-message">${data.error}</div>
+                        </div>
+                    `;
                     return;
                 }
                 
@@ -655,14 +679,29 @@
                             timeSlotsContainer.appendChild(button);
                         });
                     } else {
-                        timeSlotsContainer.innerHTML = '<div class="error-box">No hay horarios disponibles para esta fecha</div>';
+                        timeSlotsContainer.innerHTML = `
+                            <div class="no-availability">
+                                <div class="no-availability-title">No hay horarios disponibles</div>
+                                <div class="no-availability-message">El barbero no trabaja este día</div>
+                            </div>
+                        `;
                     }
                 } else {
-                    timeSlotsContainer.innerHTML = '<div class="error-box">No hay horarios disponibles para esta fecha</div>';
+                    timeSlotsContainer.innerHTML = `
+                        <div class="no-availability">
+                            <div class="no-availability-title">No hay horarios disponibles</div>
+                            <div class="no-availability-message">El barbero no trabaja este día</div>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Error:', error);
-                timeSlotsContainer.innerHTML = '<div class="error-box">Error al cargar horarios. Intenta más tarde.</div>';
+                timeSlotsContainer.innerHTML = `
+                    <div class="no-availability">
+                        <div class="no-availability-title">Error al cargar</div>
+                        <div class="no-availability-message">Por favor intenta más tarde</div>
+                    </div>
+                `;
             }
         }
         

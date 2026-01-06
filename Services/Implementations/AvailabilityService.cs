@@ -62,9 +62,16 @@ public class AvailabilityService : IAvailabilityService
             .ToListAsync();
 
         // Generar slots cada 30 minutos
-        while (currentTime.Add(slotDuration) <= workingHours.EndTime)
+        // El slot completo debe estar dentro del horario de trabajo
+        // No generar slots que terminen después del EndTime
+        while (currentTime < workingHours.EndTime)
         {
             var endTime = currentTime.Add(slotDuration);
+            
+            // Si el slot termina después del horario de trabajo, no incluirlo
+            if (endTime > workingHours.EndTime)
+                break;
+            
             var isAvailable = true;
 
             // Verificar si está bloqueado
