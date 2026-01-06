@@ -173,9 +173,9 @@
                         <h2 class="text-xl font-bold text-gray-800">Horarios</h2>
                     </div>
                     <div class="space-y-2">
-                        @if (barber?.WorkingHours != null && barber.WorkingHours.Any())
+                        @if (barber?.WorkingHours != null && barber.WorkingHours.Any(wh => wh.IsActive))
                         {
-                            @foreach (var wh in barber.WorkingHours.OrderBy(w => w.DayOfWeek))
+                            @foreach (var wh in barber.WorkingHours.Where(wh => wh.IsActive).OrderBy(w => w.DayOfWeek))
                             {
                                 <div class="flex justify-between items-center py-2 px-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                                     <span class="font-medium text-gray-700">@GetDayName(wh.DayOfWeek)</span>
