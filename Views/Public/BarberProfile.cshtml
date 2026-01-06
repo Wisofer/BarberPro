@@ -451,11 +451,58 @@
         }
         
         /* Service Cards */
+        .services-search {
+            margin-bottom: 12px;
+        }
+        
+        .services-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .services-search-input:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+        }
+        
+        .services-search-input::placeholder {
+            color: #9ca3af;
+        }
+        
         .services-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-bottom: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 4px;
+        }
+        
+        /* Scrollbar personalizado para servicios */
+        .services-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .services-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .services-container::-webkit-scrollbar-thumb {
+            background: #25D366;
+            border-radius: 10px;
+        }
+        
+        .services-container::-webkit-scrollbar-thumb:hover {
+            background: #1da851;
         }
         
         .service-card {
@@ -580,10 +627,13 @@
                         <label class="form-label">
                             Servicios <span class="optional">(Opcional)</span>
                         </label>
+                        <div class="services-search">
+                            <input type="text" id="serviceSearch" class="services-search-input" placeholder="🔍 Buscar servicio...">
+                        </div>
                         <div class="services-container" id="servicesContainer">
                             @foreach (var service in barber.Services.Where(s => s.IsActive))
                             {
-                                <div class="service-card" data-service-id="@service.Id" data-service-price="@service.Price" data-service-duration="@service.DurationMinutes">
+                                <div class="service-card" data-service-id="@service.Id" data-service-price="@service.Price" data-service-duration="@service.DurationMinutes" data-service-name="@service.Name.ToLower()">
                                     <input type="checkbox" class="service-checkbox" id="service_@service.Id" value="@service.Id">
                                     <label for="service_@service.Id" class="service-info">
                                         <div class="service-name">@service.Name</div>
@@ -716,8 +766,55 @@
             }
         }
         
+        // Búsqueda de servicios
+        function filterServices() {
+            const searchInput = document.getElementById('serviceSearch');
+            if (!searchInput) return;
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const serviceCards = document.querySelectorAll('.service-card');
+            
+            let visibleCount = 0;
+            serviceCards.forEach(card => {
+                const serviceName = card.dataset.serviceName || '';
+                if (serviceName.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Si no hay resultados, mostrar mensaje
+            const container = document.getElementById('servicesContainer');
+            if (!container) return;
+            
+            let noResults = container.querySelector('.no-results');
+            if (visibleCount === 0 && searchTerm.length > 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.className = 'no-results';
+                    noResults.style.cssText = 'text-align: center; padding: 40px 20px; color: #6c757d;';
+                    noResults.innerHTML = `
+                        <div style="font-size: 18px; font-weight: 600; color: #495057; margin-bottom: 8px;">No se encontraron servicios</div>
+                        <div style="font-size: 14px;">Intenta con otro término de búsqueda</div>
+                    `;
+                    container.appendChild(noResults);
+                }
+                noResults.style.display = 'block';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+        
         // Agregar event listeners a los checkboxes
         document.addEventListener('DOMContentLoaded', function() {
+            // Búsqueda de servicios
+            const searchInput = document.getElementById('serviceSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterServices);
+            }
+            
             const checkboxes = document.querySelectorAll('.service-checkbox');
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', updateServiceSelection);
@@ -726,7 +823,7 @@
             // También permitir click en la card completa
             document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', function(e) {
-                    if (e.target.type !== 'checkbox') {
+                    if (e.target.type !== 'checkbox' && e.target.tagName !== 'INPUT') {
                         const checkbox = this.querySelector('.service-checkbox');
                         checkbox.checked = !checkbox.checked;
                         updateServiceSelection();
