@@ -638,7 +638,7 @@
                                     <label for="service_@service.Id" class="service-info">
                                         <div class="service-name">@service.Name</div>
                                         <div class="service-details">
-                                            <span class="service-price">$@service.Price.ToString("N2")</span>
+                                            <span class="service-price">C$@service.Price.ToString("N2")</span>
                                             <span>•</span>
                                             <span>@service.DurationMinutes min</span>
                                         </div>
@@ -648,7 +648,7 @@
                         </div>
                         <div class="service-total" id="serviceTotal" style="display: none;">
                             <div class="service-total-label">Total</div>
-                            <div class="service-total-amount" id="totalAmount">$0.00</div>
+                            <div class="service-total-amount" id="totalAmount">C$0.00</div>
                             <div class="service-total-duration" id="totalDuration">0 min</div>
                         </div>
                     </div>
@@ -759,7 +759,7 @@
             // Mostrar/ocultar total
             if (selectedCount > 0) {
                 totalDiv.style.display = 'block';
-                document.getElementById('totalAmount').textContent = `$${totalPrice.toFixed(2)}`;
+                document.getElementById('totalAmount').textContent = `C$${totalPrice.toFixed(2)}`;
                 document.getElementById('totalDuration').textContent = `${totalDuration} min`;
             } else {
                 totalDiv.style.display = 'none';
