@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<AppointmentServiceEntity> AppointmentServices { get; set; }
     public DbSet<WorkingHours> WorkingHours { get; set; }
     public DbSet<BlockedTime> BlockedTimes { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
@@ -109,6 +110,25 @@ public class ApplicationDbContext : DbContext
             
             // Un barbero solo puede tener un horario por día
             entity.HasIndex(e => new { e.BarberId, e.DayOfWeek }).IsUnique();
+        });
+
+        // Configuración de AppointmentServiceEntity (tabla intermedia)
+        modelBuilder.Entity<AppointmentServiceEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.Appointment)
+                .WithMany()
+                .HasForeignKey(e => e.AppointmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Service)
+                .WithMany()
+                .HasForeignKey(e => e.ServiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Evitar duplicados: un servicio no puede estar dos veces en la misma cita
+            entity.HasIndex(e => new { e.AppointmentId, e.ServiceId }).IsUnique();
         });
 
         // Configuración de BlockedTime

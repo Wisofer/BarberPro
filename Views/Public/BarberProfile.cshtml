@@ -449,6 +449,93 @@
             border-color: #25D366;
             background: white;
         }
+        
+        /* Service Cards */
+        .services-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .service-card {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .service-card:hover {
+            border-color: #25D366;
+            background: #f0fdf4;
+        }
+        
+        .service-card.selected {
+            border-color: #25D366;
+            background: #f0fdf4;
+        }
+        
+        .service-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: #25D366;
+        }
+        
+        .service-info {
+            flex: 1;
+        }
+        
+        .service-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        
+        .service-details {
+            font-size: 13px;
+            color: #6c757d;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .service-price {
+            color: #25D366;
+            font-weight: 600;
+        }
+        
+        .service-total {
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: #f0fdf4;
+            border: 2px solid #25D366;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .service-total-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        
+        .service-total-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #25D366;
+        }
+        
+        .service-total-duration {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -486,20 +573,34 @@
         <!-- Formulario -->
         <div class="form-section">
             <form id="appointmentForm">
-                <!-- Servicio (Opcional) -->
+                <!-- Servicios (Opcional) -->
                 @if (barber?.Services != null && barber.Services.Any(s => s.IsActive))
                 {
                     <div class="form-group">
                         <label class="form-label">
-                            Servicio <span class="optional">(Opcional)</span>
+                            Servicios <span class="optional">(Opcional)</span>
                         </label>
-                        <select id="serviceSelect" class="form-select">
-                            <option value="">Sin servicio específico</option>
+                        <div class="services-container" id="servicesContainer">
                             @foreach (var service in barber.Services.Where(s => s.IsActive))
                             {
-                                <option value="@service.Id">@service.Name - $@service.Price.ToString("N2")</option>
+                                <div class="service-card" data-service-id="@service.Id" data-service-price="@service.Price" data-service-duration="@service.DurationMinutes">
+                                    <input type="checkbox" class="service-checkbox" id="service_@service.Id" value="@service.Id">
+                                    <label for="service_@service.Id" class="service-info">
+                                        <div class="service-name">@service.Name</div>
+                                        <div class="service-details">
+                                            <span class="service-price">$@service.Price.ToString("N2")</span>
+                                            <span>•</span>
+                                            <span>@service.DurationMinutes min</span>
+                                        </div>
+                                    </label>
+                                </div>
                             }
-                        </select>
+                        </div>
+                        <div class="service-total" id="serviceTotal" style="display: none;">
+                            <div class="service-total-label">Total</div>
+                            <div class="service-total-amount" id="totalAmount">$0.00</div>
+                            <div class="service-total-duration" id="totalDuration">0 min</div>
+                        </div>
                     </div>
                 }
                 
@@ -582,6 +683,57 @@
         const slug = '@slug';
         let selectedDate = null;
         let selectedTime = null;
+        
+        // Manejar selección de servicios
+        function updateServiceSelection() {
+            const checkboxes = document.querySelectorAll('.service-checkbox');
+            const totalDiv = document.getElementById('serviceTotal');
+            let totalPrice = 0;
+            let totalDuration = 0;
+            let selectedCount = 0;
+            
+            checkboxes.forEach(checkbox => {
+                const card = checkbox.closest('.service-card');
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                    const price = parseFloat(card.dataset.servicePrice);
+                    const duration = parseInt(card.dataset.serviceDuration);
+                    totalPrice += price;
+                    totalDuration += duration;
+                    selectedCount++;
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+            
+            // Mostrar/ocultar total
+            if (selectedCount > 0) {
+                totalDiv.style.display = 'block';
+                document.getElementById('totalAmount').textContent = `$${totalPrice.toFixed(2)}`;
+                document.getElementById('totalDuration').textContent = `${totalDuration} min`;
+            } else {
+                totalDiv.style.display = 'none';
+            }
+        }
+        
+        // Agregar event listeners a los checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.service-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateServiceSelection);
+            });
+            
+            // También permitir click en la card completa
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.service-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        updateServiceSelection();
+                    }
+                });
+            });
+        });
         
         // Generar opciones de fecha (próximos 7 días)
         function generateDateOptions() {
@@ -721,7 +873,9 @@
         document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const serviceId = document.getElementById('serviceSelect')?.value || '';
+            // Obtener servicios seleccionados
+            const selectedServices = Array.from(document.querySelectorAll('.service-checkbox:checked'))
+                .map(cb => parseInt(cb.value));
             const clientName = document.getElementById('clientName').value;
             const clientPhone = document.getElementById('clientPhone').value;
             
@@ -753,7 +907,7 @@
                     },
                     body: JSON.stringify({
                         barberSlug: slug,
-                        serviceId: serviceId ? parseInt(serviceId) : null,
+                        serviceIds: selectedServices.length > 0 ? selectedServices : null,
                         clientName: clientName,
                         clientPhone: clientPhone,
                         date: selectedDate,

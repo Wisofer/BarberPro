@@ -13,5 +13,6 @@ public interface IFinanceService
     Task<TransactionsResponse> GetExpensesAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null, int page = 1, int pageSize = 50);
     Task<TransactionDto> CreateExpenseAsync(int barberId, CreateExpenseRequest request);
     Task CreateIncomeFromAppointmentAsync(int barberId, int appointmentId, decimal amount, string description);
+    Task CreateMultipleIncomesFromAppointmentAsync(int barberId, int appointmentId, List<(int ServiceId, string ServiceName, decimal Price)> services, string clientName);
 }
 

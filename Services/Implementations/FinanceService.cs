@@ -4,6 +4,7 @@ using BarberPro.Models.DTOs.Responses;
 using BarberPro.Models.Entities;
 using BarberPro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BarberPro.Services.Implementations;
 
@@ -168,6 +169,43 @@ public class FinanceService : IFinanceService
         };
 
         _context.Transactions.Add(transaction);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task CreateMultipleIncomesFromAppointmentAsync(int barberId, int appointmentId, List<(int ServiceId, string ServiceName, decimal Price)> services, string clientName)
+    {
+        if (services == null || services.Count == 0)
+            return;
+
+        // Verificar que no existan transacciones para esta cita con estos servicios
+        var existingServiceIds = await _context.Transactions
+            .Where(t => t.BarberId == barberId && t.AppointmentId == appointmentId)
+            .Select(t => t.Description)
+            .ToListAsync();
+
+        // Crear una transacción por cada servicio
+        foreach (var (serviceId, serviceName, price) in services)
+        {
+            var description = $"Cita - {serviceName} - {clientName}";
+            
+            // Verificar si ya existe una transacción con esta descripción para esta cita
+            if (existingServiceIds.Contains(description))
+                continue; // Ya existe, no crear duplicado
+
+            var transaction = new Transaction
+            {
+                BarberId = barberId,
+                Type = TransactionType.Income,
+                Amount = price,
+                Description = description,
+                Category = "Service",
+                Date = DateTime.UtcNow,
+                AppointmentId = appointmentId
+            };
+
+            _context.Transactions.Add(transaction);
+        }
+
         await _context.SaveChangesAsync();
     }
 }

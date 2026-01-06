@@ -154,7 +154,7 @@ builder.Services.AddSession(options =>
 // Registrar servicios nuevos (API)
 builder.Services.AddScoped<BarberPro.Services.Interfaces.IAuthService, BarberPro.Services.Implementations.AuthService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IAppointmentService, BarberPro.Services.Implementations.AppointmentService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IFinanceService, FinanceService>();

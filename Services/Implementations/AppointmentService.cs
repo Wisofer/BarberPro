@@ -40,20 +40,25 @@ public class AppointmentService : IAppointmentService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        // Validar servicio si se proporciona
-        Service? service = null;
-        int durationMinutes = 30; // Duración por defecto si no hay servicio (30 minutos)
+        // Validar servicios si se proporcionan
+        List<Service> selectedServices = new List<Service>();
+        int durationMinutes = 30; // Duración por defecto si no hay servicios
         
-        if (request.ServiceId.HasValue)
+        if (request.ServiceIds != null && request.ServiceIds.Length > 0)
         {
-            service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barber.Id && s.IsActive);
-            if (service == null)
-                throw new KeyNotFoundException("Servicio no encontrado");
-            durationMinutes = service.DurationMinutes;
+            // Validar que todos los servicios pertenezcan al barbero y estén activos
+            selectedServices = await _context.Services
+                .Where(s => request.ServiceIds.Contains(s.Id) && s.BarberId == barber.Id && s.IsActive)
+                .ToListAsync();
+            
+            if (selectedServices.Count != request.ServiceIds.Length)
+                throw new KeyNotFoundException("Uno o más servicios no encontrados o no pertenecen al barbero");
+            
+            // Calcular duración total sumando todos los servicios
+            durationMinutes = selectedServices.Sum(s => s.DurationMinutes);
         }
 
-        // Validar disponibilidad (usar duración del servicio o 30 min por defecto)
+        // Validar disponibilidad (usar duración total de servicios o 30 min por defecto)
         var isAvailable = await ValidateAppointmentAvailabilityAsync(
             barber.Id, request.Date, request.Time, durationMinutes);
         if (!isAvailable)
@@ -64,11 +69,11 @@ public class AppointmentService : IAppointmentService
         if (appointmentDateTime < DateTime.Now)
             throw new InvalidOperationException("No se pueden crear citas en el pasado");
 
-        // Crear la cita
+        // Crear la cita (ServiceId será el primero o null)
         var appointment = new Appointment
         {
             BarberId = barber.Id,
-            ServiceId = request.ServiceId, // Puede ser null
+            ServiceId = selectedServices.FirstOrDefault()?.Id, // Primer servicio o null
             ClientName = request.ClientName,
             ClientPhone = request.ClientPhone,
             Date = request.Date,
@@ -78,6 +83,21 @@ public class AppointmentService : IAppointmentService
 
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync();
+
+        // Guardar los servicios seleccionados en la tabla intermedia
+        if (selectedServices.Count > 0)
+        {
+            foreach (var service in selectedServices)
+            {
+                var appointmentService = new AppointmentServiceEntity
+                {
+                    AppointmentId = appointment.Id,
+                    ServiceId = service.Id
+                };
+                _context.AppointmentServices.Add(appointmentService);
+            }
+            await _context.SaveChangesAsync();
+        }
 
         return await GetAppointmentByIdAsync(appointment.Id) ?? throw new Exception("Error al crear la cita");
     }
@@ -162,19 +182,40 @@ public class AppointmentService : IAppointmentService
         // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
         service = service ?? appointment.Service;
 
-        // Si cambia el estado a Confirmed o Completed, crear ingreso automáticamente (solo si hay servicio y no se ha creado ya)
+        // Si cambia el estado a Confirmed o Completed, crear ingresos automáticamente
         if (request.Status.HasValue && 
             (request.Status.Value == AppointmentStatus.Confirmed || request.Status.Value == AppointmentStatus.Completed) && 
             appointment.Status != AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Completed && 
-            service != null)
+            appointment.Status != AppointmentStatus.Completed)
         {
-            // Crear ingreso automático solo si hay servicio con precio
-            await _financeService.CreateIncomeFromAppointmentAsync(
-                appointment.BarberId,
-                appointment.Id,
-                service.Price,
-                $"Cita - {service.Name} - {appointment.ClientName}");
+            // Obtener todos los servicios asociados a esta cita desde la tabla intermedia
+            var appointmentServices = await _context.AppointmentServices
+                .Include(aps => aps.Service)
+                .Where(aps => aps.AppointmentId == appointment.Id)
+                .ToListAsync();
+
+            if (appointmentServices.Count > 0)
+            {
+                // Crear múltiples ingresos (uno por cada servicio)
+                var servicesList = appointmentServices
+                    .Select(aps => (aps.ServiceId, aps.Service.Name, aps.Service.Price))
+                    .ToList();
+                
+                await _financeService.CreateMultipleIncomesFromAppointmentAsync(
+                    appointment.BarberId,
+                    appointment.Id,
+                    servicesList,
+                    appointment.ClientName);
+            }
+            else if (service != null)
+            {
+                // Fallback: si no hay servicios en la tabla intermedia pero hay ServiceId, crear un ingreso
+                await _financeService.CreateIncomeFromAppointmentAsync(
+                    appointment.BarberId,
+                    appointment.Id,
+                    service.Price,
+                    $"Cita - {service.Name} - {appointment.ClientName}");
+            }
         }
 
         // Actualizar campos
@@ -280,20 +321,25 @@ public class AppointmentService : IAppointmentService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        // Validar servicio si se proporciona
-        Service? service = null;
-        int durationMinutes = 30; // Duración por defecto si no hay servicio (30 minutos)
+        // Validar servicios si se proporcionan
+        List<Service> selectedServices = new List<Service>();
+        int durationMinutes = 30; // Duración por defecto si no hay servicios
         
-        if (request.ServiceId.HasValue)
+        if (request.ServiceIds != null && request.ServiceIds.Length > 0)
         {
-            service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barberId && s.IsActive);
-            if (service == null)
-                throw new KeyNotFoundException("Servicio no encontrado");
-            durationMinutes = service.DurationMinutes;
+            // Validar que todos los servicios pertenezcan al barbero y estén activos
+            selectedServices = await _context.Services
+                .Where(s => request.ServiceIds.Contains(s.Id) && s.BarberId == barberId && s.IsActive)
+                .ToListAsync();
+            
+            if (selectedServices.Count != request.ServiceIds.Length)
+                throw new KeyNotFoundException("Uno o más servicios no encontrados o no pertenecen al barbero");
+            
+            // Calcular duración total sumando todos los servicios
+            durationMinutes = selectedServices.Sum(s => s.DurationMinutes);
         }
 
-        // Validar disponibilidad (usar duración del servicio o 30 min por defecto)
+        // Validar disponibilidad (usar duración total de servicios o 30 min por defecto)
         var isAvailable = await ValidateAppointmentAvailabilityAsync(
             barberId, request.Date, request.Time, durationMinutes);
         if (!isAvailable)
@@ -304,11 +350,11 @@ public class AppointmentService : IAppointmentService
         if (appointmentDateTime < DateTime.Now)
             throw new InvalidOperationException("No se pueden crear citas en el pasado");
 
-        // Crear la cita
+        // Crear la cita (ServiceId será el primero o null)
         var appointment = new Appointment
         {
             BarberId = barberId,
-            ServiceId = request.ServiceId,
+            ServiceId = selectedServices.FirstOrDefault()?.Id, // Primer servicio o null
             ClientName = request.ClientName,
             ClientPhone = request.ClientPhone,
             Date = request.Date,
