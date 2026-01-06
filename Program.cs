@@ -153,6 +153,7 @@ builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IFinanceService, FinanceService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
 
 // Registrar servicios antiguos (MVC web - mantener compatibilidad)
 builder.Services.AddScoped<BarberPro.Services.IServices.IAuthService, BarberPro.Services.AuthService>();

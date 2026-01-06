@@ -23,6 +23,7 @@ public class BarberController : ControllerBase
     private readonly IFinanceService _financeService;
     private readonly IDashboardService _dashboardService;
     private readonly IAuthService _authService;
+    private readonly IWorkingHoursService _workingHoursService;
     private readonly ILogger<BarberController> _logger;
 
     public BarberController(
@@ -32,6 +33,7 @@ public class BarberController : ControllerBase
         IFinanceService financeService,
         IDashboardService dashboardService,
         IAuthService authService,
+        IWorkingHoursService workingHoursService,
         ILogger<BarberController> logger)
     {
         _barberService = barberService;
@@ -40,6 +42,7 @@ public class BarberController : ControllerBase
         _financeService = financeService;
         _dashboardService = dashboardService;
         _authService = authService;
+        _workingHoursService = workingHoursService;
         _logger = logger;
     }
 
@@ -386,6 +389,82 @@ public class BarberController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al cambiar contraseña");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener todos los horarios de trabajo del barbero
+    /// </summary>
+    [HttpGet("working-hours")]
+    public async Task<ActionResult<List<WorkingHoursDto>>> GetWorkingHours()
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var workingHours = await _workingHoursService.GetWorkingHoursAsync(barberId);
+            return Ok(workingHours);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener horarios de trabajo");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Actualizar o crear horarios de trabajo (upsert)
+    /// Si el horario para ese día ya existe, lo actualiza; si no, lo crea
+    /// </summary>
+    [HttpPut("working-hours")]
+    public async Task<ActionResult<List<WorkingHoursDto>>> UpdateWorkingHours([FromBody] UpdateWorkingHoursBatchRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (request.WorkingHours == null || !request.WorkingHours.Any())
+            return BadRequest(new { message = "Debe incluir al menos un horario" });
+
+        try
+        {
+            var barberId = GetBarberId();
+            var workingHours = await _workingHoursService.UpdateWorkingHoursAsync(barberId, request.WorkingHours);
+            return Ok(workingHours);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar horarios de trabajo");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Eliminar un horario de trabajo específico
+    /// </summary>
+    [HttpDelete("working-hours/{id}")]
+    public async Task<ActionResult> DeleteWorkingHours(int id)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var deleted = await _workingHoursService.DeleteWorkingHoursAsync(barberId, id);
+            
+            if (!deleted)
+                return NotFound(new { message = "Horario de trabajo no encontrado" });
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar horario de trabajo");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
