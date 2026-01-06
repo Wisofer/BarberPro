@@ -31,6 +31,10 @@ public class AppointmentService : IAppointmentService
 
     public async Task<AppointmentDto> CreateAppointmentAsync(CreateAppointmentRequest request)
     {
+        // Validar que barberSlug esté presente (para creación pública)
+        if (string.IsNullOrEmpty(request.BarberSlug))
+            throw new InvalidOperationException("El slug del barbero es requerido para creación pública");
+
         // Validar que el barbero existe
         var barber = await _barberService.GetBarberBySlugAsync(request.BarberSlug);
         if (barber == null)
@@ -165,6 +169,43 @@ public class AppointmentService : IAppointmentService
         return await GetAppointmentByIdAsync(id) ?? throw new Exception("Error al actualizar la cita");
     }
 
+    public async Task<AppointmentDto> UpdateAppointmentForBarberAsync(int barberId, int appointmentId, UpdateAppointmentRequest request)
+    {
+        var appointment = await _context.Appointments
+            .Include(a => a.Service)
+            .FirstOrDefaultAsync(a => a.Id == appointmentId && a.BarberId == barberId);
+        
+        if (appointment == null)
+            throw new KeyNotFoundException("Cita no encontrada o no pertenece al barbero");
+
+        // Si cambia el estado a Confirmed, crear ingreso automáticamente
+        if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
+            appointment.Status != AppointmentStatus.Confirmed)
+        {
+            // Crear ingreso automático
+            await _financeService.CreateIncomeFromAppointmentAsync(
+                appointment.BarberId,
+                appointment.Id,
+                appointment.Service.Price,
+                $"Cita - {appointment.Service.Name} - {appointment.ClientName}");
+        }
+
+        // Actualizar campos
+        if (request.Status.HasValue)
+            appointment.Status = (AppointmentStatus)request.Status.Value;
+
+        if (request.Date.HasValue)
+            appointment.Date = request.Date.Value;
+
+        if (request.Time.HasValue)
+            appointment.Time = request.Time.Value;
+
+        appointment.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return await GetAppointmentByIdAsync(appointmentId) ?? throw new Exception("Error al actualizar la cita");
+    }
+
     public async Task<bool> DeleteAppointmentAsync(int id)
     {
         var appointment = await _context.Appointments.FindAsync(id);
@@ -175,6 +216,62 @@ public class AppointmentService : IAppointmentService
         await _context.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<bool> DeleteAppointmentForBarberAsync(int barberId, int appointmentId)
+    {
+        var appointment = await _context.Appointments
+            .FirstOrDefaultAsync(a => a.Id == appointmentId && a.BarberId == barberId);
+        
+        if (appointment == null)
+            return false;
+
+        _context.Appointments.Remove(appointment);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<AppointmentDto> CreateAppointmentForBarberAsync(int barberId, CreateAppointmentRequest request)
+    {
+        // Obtener el barbero para validar que existe
+        var barber = await _barberService.GetBarberByIdAsync(barberId);
+        if (barber == null)
+            throw new KeyNotFoundException("Barbero no encontrado");
+
+        // Validar que el servicio existe y pertenece al barbero
+        var service = await _context.Services
+            .FirstOrDefaultAsync(s => s.Id == request.ServiceId && s.BarberId == barberId && s.IsActive);
+        if (service == null)
+            throw new KeyNotFoundException("Servicio no encontrado");
+
+        // Validar disponibilidad
+        var isAvailable = await ValidateAppointmentAvailabilityAsync(
+            barberId, request.Date, request.Time, service.DurationMinutes);
+        if (!isAvailable)
+            throw new InvalidOperationException("El horario no está disponible");
+
+        // Validar que no sea en el pasado
+        var appointmentDateTime = request.Date.ToDateTime(request.Time);
+        if (appointmentDateTime < DateTime.Now)
+            throw new InvalidOperationException("No se pueden crear citas en el pasado");
+
+        // Crear la cita
+        var appointment = new Appointment
+        {
+            BarberId = barberId,
+            ServiceId = request.ServiceId,
+            ClientName = request.ClientName,
+            ClientPhone = request.ClientPhone,
+            Date = request.Date,
+            Time = request.Time,
+            Status = AppointmentStatus.Pending
+        };
+
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+
+        return await GetAppointmentByIdAsync(appointment.Id) ?? throw new Exception("Error al crear la cita");
     }
 
     public async Task<bool> ValidateAppointmentAvailabilityAsync(int barberId, DateOnly date, TimeOnly time, int durationMinutes, int? excludeAppointmentId = null)

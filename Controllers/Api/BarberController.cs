@@ -177,7 +177,7 @@ public class BarberController : ControllerBase
     }
 
     /// <summary>
-    /// Crear cita manual
+    /// Crear cita manual (el barbero puede crear citas sin necesidad de barberSlug)
     /// </summary>
     [HttpPost("appointments")]
     public async Task<ActionResult<AppointmentDto>> CreateAppointment([FromBody] CreateAppointmentRequest request)
@@ -187,7 +187,11 @@ public class BarberController : ControllerBase
 
         try
         {
-            var appointment = await _appointmentService.CreateAppointmentAsync(request);
+            var barberId = GetBarberId();
+            // El barbero no necesita pasar barberSlug, se usa su barberId del token
+            // Ignorar barberSlug si viene en el request
+            request.BarberSlug = null;
+            var appointment = await _appointmentService.CreateAppointmentForBarberAsync(barberId, request);
             return CreatedAtAction(nameof(GetAppointments), null, appointment);
         }
         catch (KeyNotFoundException ex)
@@ -206,7 +210,7 @@ public class BarberController : ControllerBase
     }
 
     /// <summary>
-    /// Actualizar cita
+    /// Actualizar cita (solo del barbero autenticado)
     /// </summary>
     [HttpPut("appointments/{id}")]
     public async Task<ActionResult<AppointmentDto>> UpdateAppointment(int id, [FromBody] UpdateAppointmentRequest request)
@@ -216,12 +220,13 @@ public class BarberController : ControllerBase
 
         try
         {
-            var appointment = await _appointmentService.UpdateAppointmentAsync(id, request);
+            var barberId = GetBarberId();
+            var appointment = await _appointmentService.UpdateAppointmentForBarberAsync(barberId, id, request);
             return Ok(appointment);
         }
-        catch (KeyNotFoundException)
+        catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = "Cita no encontrada" });
+            return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {
@@ -231,16 +236,17 @@ public class BarberController : ControllerBase
     }
 
     /// <summary>
-    /// Eliminar cita
+    /// Eliminar cita (solo del barbero autenticado)
     /// </summary>
     [HttpDelete("appointments/{id}")]
     public async Task<ActionResult> DeleteAppointment(int id)
     {
         try
         {
-            var deleted = await _appointmentService.DeleteAppointmentAsync(id);
+            var barberId = GetBarberId();
+            var deleted = await _appointmentService.DeleteAppointmentForBarberAsync(barberId, id);
             if (!deleted)
-                return NotFound(new { message = "Cita no encontrada" });
+                return NotFound(new { message = "Cita no encontrada o no pertenece al barbero" });
 
             return NoContent();
         }

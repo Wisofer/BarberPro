@@ -7,8 +7,8 @@ namespace BarberPro.Models.DTOs.Requests;
 /// </summary>
 public class CreateAppointmentRequest
 {
-    [Required(ErrorMessage = "El slug del barbero es requerido")]
-    public string BarberSlug { get; set; } = string.Empty;
+    // Opcional: solo requerido para creación pública, no para barbero autenticado
+    public string? BarberSlug { get; set; }
 
     [Required(ErrorMessage = "El servicio es requerido")]
     public int ServiceId { get; set; }
