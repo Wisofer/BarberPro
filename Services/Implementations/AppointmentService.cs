@@ -148,16 +148,30 @@ public class AppointmentService : IAppointmentService
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada");
 
+        // Actualizar servicio si se proporciona
+        Service? service = null;
+        if (request.ServiceId.HasValue)
+        {
+            service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == appointment.BarberId && s.IsActive);
+            if (service == null)
+                throw new KeyNotFoundException("Servicio no encontrado");
+            appointment.ServiceId = request.ServiceId.Value;
+        }
+
+        // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
+        service = service ?? appointment.Service;
+
         // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
         if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed && appointment.Service != null)
+            appointment.Status != AppointmentStatus.Confirmed && service != null)
         {
             // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(
                 appointment.BarberId,
                 appointment.Id,
-                appointment.Service.Price,
-                $"Cita - {appointment.Service.Name} - {appointment.ClientName}");
+                service.Price,
+                $"Cita - {service.Name} - {appointment.ClientName}");
         }
 
         // Actualizar campos
@@ -185,16 +199,30 @@ public class AppointmentService : IAppointmentService
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada o no pertenece al barbero");
 
+        // Actualizar servicio si se proporciona
+        Service? service = null;
+        if (request.ServiceId.HasValue)
+        {
+            service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Id == request.ServiceId.Value && s.BarberId == barberId && s.IsActive);
+            if (service == null)
+                throw new KeyNotFoundException("Servicio no encontrado");
+            appointment.ServiceId = request.ServiceId.Value;
+        }
+
+        // Obtener el servicio actualizado (el que se asignó o el que ya tenía)
+        service = service ?? appointment.Service;
+
         // Si cambia el estado a Confirmed, crear ingreso automáticamente (solo si hay servicio)
         if (request.Status.HasValue && request.Status.Value == AppointmentStatus.Confirmed && 
-            appointment.Status != AppointmentStatus.Confirmed && appointment.Service != null)
+            appointment.Status != AppointmentStatus.Confirmed && service != null)
         {
             // Crear ingreso automático solo si hay servicio con precio
             await _financeService.CreateIncomeFromAppointmentAsync(
                 appointment.BarberId,
                 appointment.Id,
-                appointment.Service.Price,
-                $"Cita - {appointment.Service.Name} - {appointment.ClientName}");
+                service.Price,
+                $"Cita - {service.Name} - {appointment.ClientName}");
         }
 
         // Actualizar campos
