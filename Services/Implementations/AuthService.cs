@@ -63,7 +63,7 @@ public class AuthService : IAuthService
                     Phone = user.Barber.Phone,
                     Slug = user.Barber.Slug,
                     IsActive = user.Barber.IsActive,
-                    QrUrl = QrHelper.GenerateBarberUrl(user.Barber.Slug),
+                    QrUrl = QrHelper.GenerateBarberUrl(user.Barber.Slug, _configuration),
                     CreatedAt = user.Barber.CreatedAt
                 } : null
             },
@@ -83,6 +83,24 @@ public class AuthService : IAuthService
         return await _context.Users
             .Include(u => u.Barber)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        var user = await GetUserByIdAsync(userId);
+        if (user == null)
+            return false;
+
+        // Verificar contraseña actual
+        if (!PasswordHelper.VerifyPassword(currentPassword, user.PasswordHash))
+            return false;
+
+        // Actualizar contraseña
+        user.PasswordHash = PasswordHelper.HashPassword(newPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+        
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
 

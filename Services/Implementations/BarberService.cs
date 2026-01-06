@@ -106,7 +106,7 @@ public class BarberService : IBarberService
             Phone = barber.Phone,
             Slug = barber.Slug,
             IsActive = barber.IsActive,
-            QrUrl = QrHelper.GenerateBarberUrl(barber.Slug),
+            QrUrl = QrHelper.GenerateBarberUrl(barber.Slug, _configuration),
             CreatedAt = barber.CreatedAt,
             Email = barber.User?.Email
         };
@@ -134,7 +134,7 @@ public class BarberService : IBarberService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        return QrHelper.GenerateBarberUrl(barber.Slug);
+        return QrHelper.GenerateBarberUrl(barber.Slug, _configuration);
     }
 
     public async Task<List<BarberDto>> GetAllBarbersAsync(bool? isActive = null)

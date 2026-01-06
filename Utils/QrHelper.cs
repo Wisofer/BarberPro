@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using QRCoder;
 using System.Text;
 
@@ -11,9 +12,18 @@ public static class QrHelper
     /// <summary>
     /// Genera la URL pública del barbero
     /// </summary>
-    public static string GenerateBarberUrl(string slug, string baseUrl = "https://app.mibarberia.com")
+    public static string GenerateBarberUrl(string slug, IConfiguration? configuration = null)
     {
-        return $"{baseUrl}/b/{slug}";
+        // Si se pasa configuración, usar la URL del appsettings.json
+        if (configuration != null)
+        {
+            var baseUrl = configuration["AppSettings:PublicBarberBaseUrl"] 
+                ?? "https://barbepro.encuentrame.org";
+            return $"{baseUrl}/api/public/barbers/{slug}";
+        }
+        
+        // Fallback por defecto
+        return $"https://barbepro.encuentrame.org/api/public/barbers/{slug}";
     }
 
     /// <summary>

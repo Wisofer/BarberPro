@@ -22,6 +22,7 @@ public class BarberController : ControllerBase
     private readonly IServiceService _serviceService;
     private readonly IFinanceService _financeService;
     private readonly IDashboardService _dashboardService;
+    private readonly IAuthService _authService;
     private readonly ILogger<BarberController> _logger;
 
     public BarberController(
@@ -30,6 +31,7 @@ public class BarberController : ControllerBase
         IServiceService serviceService,
         IFinanceService financeService,
         IDashboardService dashboardService,
+        IAuthService authService,
         ILogger<BarberController> logger)
     {
         _barberService = barberService;
@@ -37,6 +39,7 @@ public class BarberController : ControllerBase
         _serviceService = serviceService;
         _financeService = financeService;
         _dashboardService = dashboardService;
+        _authService = authService;
         _logger = logger;
     }
 
@@ -355,6 +358,34 @@ public class BarberController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear egreso");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Cambiar contraseña del barbero
+    /// </summary>
+    [HttpPost("change-password")]
+    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var userId = JwtHelper.GetUserId(User);
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
+            var success = await _authService.ChangePasswordAsync(userId.Value, request.CurrentPassword, request.NewPassword);
+            if (!success)
+                return BadRequest(new { message = "La contraseña actual es incorrecta" });
+
+            return Ok(new { message = "Contraseña actualizada exitosamente" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cambiar contraseña");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
