@@ -19486,6 +19486,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Public/BarberProfile.cshtml",
+      "TargetPath": "Views\\Public\\BarberProfile.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Shared/_Loader.cshtml",
       "TargetPath": "Views\\Shared\\_Loader.cshtml",
       "FileKind": "mvc"

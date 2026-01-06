@@ -1,0 +1,366 @@
+@using BarberPro.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Agendar Cita";
+    Layout = null; // Sin layout para diseño público
+    var barber = ViewBag.Barber as BarberPublicDto;
+    var slug = ViewBag.Slug as string;
+}
+
+<!DOCTYPE html>
+<html lang="es" data-theme="business">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(barber?.Name ?? "Barbero") - Agendar Cita</title>
+    <script src="~/lib/tailwindcss/tailwind.min.js"></script>
+    <link href="~/lib/daisyui/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .text-gold {
+            color: #d4af37;
+        }
+        .bg-gold {
+            background-color: #d4af37;
+        }
+        .btn-gold {
+            background-color: #d4af37;
+            color: white;
+        }
+        .btn-gold:hover {
+            background-color: #b8941f;
+        }
+    </style>
+</head>
+<body class="bg-base-200 min-h-screen">
+    <!-- Header -->
+    <div class="bg-base-100 shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gold">@(barber?.Name ?? "Barbero")</h1>
+                    @if (!string.IsNullOrEmpty(barber?.BusinessName))
+                    {
+                        <p class="text-gray-500 mt-1">@barber.BusinessName</p>
+                    }
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">📞 @barber?.Phone</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Columna Izquierda: Información y Servicios -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Información del Barbero -->
+                <div class="bg-base-100 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-xl font-bold text-gold mb-4">Información</h2>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="text-sm text-gray-500">Nombre:</span>
+                            <p class="font-semibold">@barber?.Name</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(barber?.BusinessName))
+                        {
+                            <div>
+                                <span class="text-sm text-gray-500">Negocio:</span>
+                                <p class="font-semibold">@barber.BusinessName</p>
+                            </div>
+                        }
+                        <div>
+                            <span class="text-sm text-gray-500">Teléfono:</span>
+                            <p class="font-semibold">@barber?.Phone</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Horarios de Trabajo -->
+                <div class="bg-base-100 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-xl font-bold text-gold mb-4">Horarios de Atención</h2>
+                    <div class="space-y-2">
+                        @if (barber?.WorkingHours != null && barber.WorkingHours.Any())
+                        {
+                            @foreach (var wh in barber.WorkingHours.OrderBy(w => w.DayOfWeek))
+                            {
+                                <div class="flex justify-between items-center py-2 border-b border-base-300">
+                                    <span class="font-medium">@GetDayName(wh.DayOfWeek)</span>
+                                    <span class="text-sm text-gray-500">@wh.StartTime.ToString("HH:mm") - @wh.EndTime.ToString("HH:mm")</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-sm text-gray-500">No hay horarios configurados</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Formulario de Agendamiento -->
+            <div class="lg:col-span-2">
+                <div class="bg-base-100 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gold mb-6">Agendar Cita</h2>
+                    
+                    <form id="appointmentForm" class="space-y-6">
+                        <!-- Servicios -->
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Selecciona un Servicio</span>
+                            </label>
+                            <select id="serviceSelect" name="serviceId" class="select select-bordered w-full" required>
+                                <option value="">-- Selecciona un servicio --</option>
+                                @if (barber?.Services != null && barber.Services.Any())
+                                {
+                                    @foreach (var service in barber.Services.Where(s => s.IsActive))
+                                    {
+                                        <option value="@service.Id" data-price="@service.Price" data-duration="@service.DurationMinutes">
+                                            @service.Name - $@service.Price.ToString("N2") (@service.DurationMinutes min)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            @if (barber?.Services == null || !barber.Services.Any())
+                            {
+                                <p class="text-sm text-error mt-2">⚠️ No hay servicios disponibles. Por favor contacta al barbero.</p>
+                            }
+                        </div>
+
+                        <!-- Fecha -->
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Fecha</span>
+                            </label>
+                            <input type="date" id="appointmentDate" name="date" class="input input-bordered w-full" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <!-- Hora -->
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Hora</span>
+                            </label>
+                            <div id="timeSlots" class="grid grid-cols-4 gap-2">
+                                <p class="text-sm text-gray-500 col-span-4">Selecciona una fecha para ver horarios disponibles</p>
+                            </div>
+                        </div>
+
+                        <!-- Información del Cliente -->
+                        <div class="divider"></div>
+                        <h3 class="font-semibold text-lg mb-4">Tus Datos</h3>
+
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Nombre Completo</span>
+                            </label>
+                            <input type="text" id="clientName" name="clientName" class="input input-bordered w-full" required placeholder="Tu nombre completo" />
+                        </div>
+
+                        <div>
+                            <label class="label">
+                                <span class="label-text font-semibold">Teléfono</span>
+                            </label>
+                            <input type="tel" id="clientPhone" name="clientPhone" class="input input-bordered w-full" required placeholder="Tu número de teléfono" />
+                        </div>
+
+                        <!-- Botón de Envío -->
+                        <div class="pt-4">
+                            <button type="submit" id="submitBtn" class="btn btn-gold w-full text-lg" disabled>
+                                <span id="submitText">Agendar Cita</span>
+                                <span id="submitLoading" class="loading loading-spinner loading-sm hidden"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Éxito -->
+    <dialog id="successModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-success">✅ ¡Cita Agendada Exitosamente!</h3>
+            <p class="py-4" id="successMessage">Tu cita ha sido agendada. Te contactaremos pronto.</p>
+            <div class="modal-action">
+                <button onclick="document.getElementById('successModal').close()" class="btn">Cerrar</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Modal de Error -->
+    <dialog id="errorModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-error">❌ Error</h3>
+            <p class="py-4" id="errorMessage">Ocurrió un error al agendar la cita.</p>
+            <div class="modal-action">
+                <button onclick="document.getElementById('errorModal').close()" class="btn">Cerrar</button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        const slug = '@slug';
+        let selectedDate = null;
+        let selectedTime = null;
+
+        // Cargar disponibilidad cuando se selecciona una fecha
+        document.getElementById('appointmentDate').addEventListener('change', async function(e) {
+            selectedDate = e.target.value;
+            if (!selectedDate) return;
+
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            timeSlotsContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-4">Cargando horarios disponibles...</p>';
+
+            try {
+                const response = await fetch(`/b/${slug}/availability?date=${selectedDate}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    timeSlotsContainer.innerHTML = `<p class="text-sm text-error col-span-4">${data.error}</p>`;
+                    return;
+                }
+
+                if (data.availableSlots && data.availableSlots.length > 0) {
+                    // Filtrar solo los slots disponibles
+                    const availableOnly = data.availableSlots.filter(slot => slot.isAvailable);
+                    
+                    if (availableOnly.length > 0) {
+                        timeSlotsContainer.innerHTML = '';
+                        availableOnly.forEach(slot => {
+                            // Formatear hora (ej: "09:00:00" -> "09:00")
+                            const timeStr = slot.startTime.substring(0, 5);
+                            
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'btn btn-outline btn-sm time-slot';
+                            button.textContent = timeStr;
+                            button.dataset.time = slot.startTime;
+                            button.onclick = function() {
+                                // Remover selección anterior
+                                document.querySelectorAll('.time-slot').forEach(btn => {
+                                    btn.classList.remove('btn-primary');
+                                    btn.classList.add('btn-outline');
+                                });
+                                // Seleccionar este
+                                this.classList.remove('btn-outline');
+                                this.classList.add('btn-primary');
+                                selectedTime = this.dataset.time;
+                                document.getElementById('submitBtn').disabled = false;
+                            };
+                            timeSlotsContainer.appendChild(button);
+                        });
+                    } else {
+                        timeSlotsContainer.innerHTML = '<p class="text-sm text-warning col-span-4">⚠️ No hay horarios disponibles para esta fecha</p>';
+                    }
+                } else {
+                    timeSlotsContainer.innerHTML = '<p class="text-sm text-warning col-span-4">⚠️ No hay horarios disponibles para esta fecha</p>';
+                }
+            } catch (error) {
+                console.error('Error al cargar disponibilidad:', error);
+                timeSlotsContainer.innerHTML = '<p class="text-sm text-error col-span-4">Error al cargar horarios disponibles</p>';
+            }
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('serviceSelect').value;
+            const clientName = document.getElementById('clientName').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const date = document.getElementById('appointmentDate').value;
+
+            if (!serviceId || !clientName || !clientPhone || !date || !selectedTime) {
+                showError('Por favor completa todos los campos');
+                return;
+            }
+
+            // Deshabilitar botón
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitLoading = document.getElementById('submitLoading');
+            submitBtn.disabled = true;
+            submitText.textContent = 'Agendando...';
+            submitLoading.classList.remove('hidden');
+
+            try {
+                // selectedTime ya viene en formato "HH:mm:ss" del dataset
+                // Asegurar formato correcto para TimeOnly
+                let timeOnly = selectedTime;
+                if (!timeOnly.includes(':')) {
+                    timeOnly = `${timeOnly}:00`;
+                } else if (timeOnly.split(':').length === 2) {
+                    timeOnly = `${timeOnly}:00`;
+                }
+
+                const response = await fetch(`/b/${slug}/appointment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        barberSlug: slug,
+                        serviceId: parseInt(serviceId),
+                        clientName: clientName,
+                        clientPhone: clientPhone,
+                        date: date,
+                        time: timeOnly
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('successMessage').textContent = result.message || 'Tu cita ha sido agendada exitosamente. Te contactaremos pronto.';
+                    document.getElementById('successModal').showModal();
+                    // Limpiar formulario
+                    document.getElementById('appointmentForm').reset();
+                    document.getElementById('timeSlots').innerHTML = '<p class="text-sm text-gray-500 col-span-4">Selecciona una fecha para ver horarios disponibles</p>';
+                    selectedTime = null;
+                } else {
+                    showError(result.message || 'Error al agendar la cita');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error al agendar la cita. Por favor intenta nuevamente.');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.textContent = 'Agendar Cita';
+                submitLoading.classList.add('hidden');
+            }
+        });
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').showModal();
+        }
+
+        // Deshabilitar fechas pasadas
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('appointmentDate').setAttribute('min', today);
+    </script>
+</body>
+</html>
+
+@functions {
+    private string GetDayName(DayOfWeek dayOfWeek)
+    {
+        return dayOfWeek switch
+        {
+            DayOfWeek.Monday => "Lunes",
+            DayOfWeek.Tuesday => "Martes",
+            DayOfWeek.Wednesday => "Miércoles",
+            DayOfWeek.Thursday => "Jueves",
+            DayOfWeek.Friday => "Viernes",
+            DayOfWeek.Saturday => "Sábado",
+            DayOfWeek.Sunday => "Domingo",
+            _ => dayOfWeek.ToString()
+        };
+    }
+}
+
