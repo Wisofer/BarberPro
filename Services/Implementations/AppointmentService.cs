@@ -115,49 +115,91 @@ public class AppointmentService : IAppointmentService
         if (status.HasValue)
             query = query.Where(a => a.Status == status.Value);
 
-        return await query
+        var appointments = await query
             .OrderBy(a => a.Date)
             .ThenBy(a => a.Time)
-            .Select(a => new AppointmentDto
+            .ToListAsync();
+
+        // Obtener todos los servicios para cada cita desde la tabla intermedia
+        var appointmentIds = appointments.Select(a => a.Id).ToList();
+        var appointmentServices = await _context.AppointmentServices
+            .Include(aps => aps.Service)
+            .Where(aps => appointmentIds.Contains(aps.AppointmentId))
+            .ToListAsync();
+
+        return appointments.Select(a =>
+        {
+            var services = appointmentServices
+                .Where(aps => aps.AppointmentId == a.Id)
+                .Select(aps => new ServiceDto
+                {
+                    Id = aps.Service.Id,
+                    Name = aps.Service.Name,
+                    Price = aps.Service.Price,
+                    DurationMinutes = aps.Service.DurationMinutes,
+                    IsActive = aps.Service.IsActive
+                })
+                .ToList();
+
+            return new AppointmentDto
             {
                 Id = a.Id,
                 BarberId = a.BarberId,
                 BarberName = a.Barber.Name,
-                ServiceId = a.ServiceId,
+                ServiceId = a.ServiceId, // Primer servicio (compatibilidad)
                 ServiceName = a.Service != null ? a.Service.Name : null,
                 ServicePrice = a.Service != null ? a.Service.Price : null,
+                Services = services, // Todos los servicios
                 ClientName = a.ClientName,
                 ClientPhone = a.ClientPhone,
                 Date = a.Date,
                 Time = a.Time,
                 Status = a.Status.ToString(),
                 CreatedAt = a.CreatedAt
-            })
-            .ToListAsync();
+            };
+        }).ToList();
     }
 
     public async Task<AppointmentDto?> GetAppointmentByIdAsync(int id)
     {
-        return await _context.Appointments
+        var appointment = await _context.Appointments
             .Include(a => a.Service)
             .Include(a => a.Barber)
-            .Where(a => a.Id == id)
-            .Select(a => new AppointmentDto
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (appointment == null)
+            return null;
+
+        // Obtener todos los servicios desde la tabla intermedia
+        var services = await _context.AppointmentServices
+            .Include(aps => aps.Service)
+            .Where(aps => aps.AppointmentId == id)
+            .Select(aps => new ServiceDto
             {
-                Id = a.Id,
-                BarberId = a.BarberId,
-                BarberName = a.Barber.Name,
-                ServiceId = a.ServiceId,
-                ServiceName = a.Service != null ? a.Service.Name : null,
-                ServicePrice = a.Service != null ? a.Service.Price : null,
-                ClientName = a.ClientName,
-                ClientPhone = a.ClientPhone,
-                Date = a.Date,
-                Time = a.Time,
-                Status = a.Status.ToString(),
-                CreatedAt = a.CreatedAt
+                Id = aps.Service.Id,
+                Name = aps.Service.Name,
+                Price = aps.Service.Price,
+                DurationMinutes = aps.Service.DurationMinutes,
+                IsActive = aps.Service.IsActive
             })
-            .FirstOrDefaultAsync();
+            .ToListAsync();
+
+        return new AppointmentDto
+        {
+            Id = appointment.Id,
+            BarberId = appointment.BarberId,
+            BarberName = appointment.Barber.Name,
+            ServiceId = appointment.ServiceId, // Primer servicio (compatibilidad)
+            ServiceName = appointment.Service != null ? appointment.Service.Name : null,
+            ServicePrice = appointment.Service != null ? appointment.Service.Price : null,
+            Services = services, // Todos los servicios
+            ClientName = appointment.ClientName,
+            ClientPhone = appointment.ClientPhone,
+            Date = appointment.Date,
+            Time = appointment.Time,
+            Status = appointment.Status.ToString(),
+            CreatedAt = appointment.CreatedAt
+        };
     }
 
     public async Task<AppointmentDto> UpdateAppointmentAsync(int id, UpdateAppointmentRequest request)
