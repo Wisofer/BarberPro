@@ -1,5 +1,6 @@
 using BarberPro.Models.DTOs.Requests;
 using BarberPro.Models.DTOs.Responses;
+using BarberPro.Models.Entities;
 using BarberPro.Services.Interfaces;
 using BarberPro.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -54,31 +55,28 @@ public class EmployeeController : ControllerBase
     }
 
     /// <summary>
-    /// Obtener citas del trabajador
+    /// Obtener todas las citas del barbero dueño (el trabajador ve todas para poder aceptarlas)
     /// </summary>
     [HttpGet("appointments")]
     public async Task<ActionResult<List<AppointmentDto>>> GetAppointments([FromQuery] string? date = null)
     {
         try
         {
-            var employeeId = GetEmployeeId();
             var ownerBarberId = GetOwnerBarberId();
             
             DateOnly? dateFilter = null;
             if (!string.IsNullOrEmpty(date) && DateOnly.TryParse(date, out var parsedDate))
                 dateFilter = parsedDate;
 
-            // Obtener citas del trabajador (filtrar por EmployeeId)
+            // Obtener TODAS las citas del barbero dueño (no filtrar por EmployeeId)
+            // El trabajador necesita ver todas para poder aceptar las pendientes
             var appointments = await _appointmentService.GetBarberAppointmentsAsync(ownerBarberId, dateFilter, null);
             
-            // Filtrar solo las citas del trabajador
-            var employeeAppointments = appointments.Where(a => a.EmployeeId == employeeId).ToList();
-            
-            return Ok(employeeAppointments);
+            return Ok(appointments);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener citas del trabajador");
+            _logger.LogError(ex, "Error al obtener citas");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
@@ -112,6 +110,71 @@ public class EmployeeController : ControllerBase
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
+
+    /// <summary>
+    /// Obtener una cita por ID
+    /// </summary>
+    [HttpGet("appointments/{id}")]
+    public async Task<ActionResult<AppointmentDto>> GetAppointment(int id)
+    {
+        try
+        {
+            var ownerBarberId = GetOwnerBarberId();
+            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
+            
+            if (appointment == null || appointment.BarberId != ownerBarberId)
+                return NotFound(new { message = "Cita no encontrada o no pertenece al barbero" });
+            
+            return Ok(appointment);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener cita {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Actualizar cita (aceptar, completar, asignar servicios, etc.)
+    /// Si el trabajador acepta una cita pendiente (sin EmployeeId), se asigna automáticamente a él
+    /// </summary>
+    [HttpPut("appointments/{id}")]
+    public async Task<ActionResult<AppointmentDto>> UpdateAppointment(int id, [FromBody] UpdateAppointmentRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var employeeId = GetEmployeeId();
+            var ownerBarberId = GetOwnerBarberId();
+
+            // Verificar que la cita pertenece al barbero dueño
+            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
+            if (appointment == null || appointment.BarberId != ownerBarberId)
+                return NotFound(new { message = "Cita no encontrada o no pertenece al barbero" });
+
+            // Actualizar la cita usando el método del barbero
+            // Si la cita no tiene EmployeeId y el trabajador la acepta, se asignará automáticamente
+            var updatedAppointment = await _appointmentService.UpdateAppointmentForBarberAsync(ownerBarberId, id, request, employeeId);
+            
+            return Ok(updatedAppointment);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar cita {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
 
     /// <summary>
     /// Obtener ingresos del trabajador

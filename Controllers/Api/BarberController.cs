@@ -227,7 +227,7 @@ public class BarberController : ControllerBase
         try
         {
             var barberId = GetBarberId();
-            var appointment = await _appointmentService.UpdateAppointmentForBarberAsync(barberId, id, request);
+            var appointment = await _appointmentService.UpdateAppointmentForBarberAsync(barberId, id, request, null);
             return Ok(appointment);
         }
         catch (KeyNotFoundException ex)

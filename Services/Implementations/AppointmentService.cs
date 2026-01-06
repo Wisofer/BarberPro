@@ -282,7 +282,7 @@ public class AppointmentService : IAppointmentService
         return await GetAppointmentByIdAsync(id) ?? throw new Exception("Error al actualizar la cita");
     }
 
-    public async Task<AppointmentDto> UpdateAppointmentForBarberAsync(int barberId, int appointmentId, UpdateAppointmentRequest request)
+    public async Task<AppointmentDto> UpdateAppointmentForBarberAsync(int barberId, int appointmentId, UpdateAppointmentRequest request, int? employeeId = null)
     {
         var appointment = await _context.Appointments
             .Include(a => a.Service)
@@ -290,6 +290,13 @@ public class AppointmentService : IAppointmentService
         
         if (appointment == null)
             throw new KeyNotFoundException("Cita no encontrada o no pertenece al barbero");
+
+        // Si se proporciona employeeId y la cita no tiene trabajador asignado, asignarlo automáticamente
+        // Esto permite que un trabajador acepte una cita pendiente
+        if (employeeId.HasValue && appointment.EmployeeId == null)
+        {
+            appointment.EmployeeId = employeeId.Value;
+        }
 
         // Asignar múltiples servicios si se proporcionan (prioridad sobre ServiceId único)
         if (request.ServiceIds != null && request.ServiceIds.Length > 0)
