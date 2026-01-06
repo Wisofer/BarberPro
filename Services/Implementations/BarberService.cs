@@ -165,7 +165,7 @@ public class BarberService : IBarberService
             Phone = b.Phone,
             Slug = b.Slug,
             IsActive = b.IsActive,
-            QrUrl = QrHelper.GenerateBarberUrl(b.Slug),
+            QrUrl = QrHelper.GenerateBarberUrl(b.Slug, _configuration),
             CreatedAt = b.CreatedAt
         }).ToList();
     }

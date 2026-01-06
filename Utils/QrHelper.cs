@@ -10,7 +10,7 @@ namespace BarberPro.Utils;
 public static class QrHelper
 {
     /// <summary>
-    /// Genera la URL pública del barbero
+    /// Genera la URL pública del barbero (vista web para clientes)
     /// </summary>
     public static string GenerateBarberUrl(string slug, IConfiguration? configuration = null)
     {
@@ -19,11 +19,11 @@ public static class QrHelper
         {
             var baseUrl = configuration["AppSettings:PublicBarberBaseUrl"] 
                 ?? "https://barbepro.encuentrame.org";
-            return $"{baseUrl}/api/public/barbers/{slug}";
+            return $"{baseUrl}/b/{slug}";
         }
         
-        // Fallback por defecto
-        return $"https://barbepro.encuentrame.org/api/public/barbers/{slug}";
+        // Fallback por defecto - apunta a la vista web bonita
+        return $"https://barbepro.encuentrame.org/b/{slug}";
     }
 
     /// <summary>
