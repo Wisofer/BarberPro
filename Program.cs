@@ -20,7 +20,12 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // Agregar servicios al contenedor
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Permitir deserializar strings como nombres de enum
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddControllersWithViews(); // Mantener para MVC web
 
 // Configurar Swagger/OpenAPI
