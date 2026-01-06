@@ -114,6 +114,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
 // Configurar Authorization
 builder.Services.AddAuthorization(options =>
 {
