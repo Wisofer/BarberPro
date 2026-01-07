@@ -39,14 +39,29 @@ public class DashboardService : IDashboardService
             .Where(a => a.BarberId == barberId && a.Date == today)
             .ToListAsync();
 
+        var todayStart = today.ToDateTime(TimeOnly.MinValue);
+        var todayEnd = today.ToDateTime(TimeOnly.MaxValue);
+
+        var todayIncome = todayAppointments
+            .Where(a => (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed) && a.Service != null)
+            .Sum(a => a.Service!.Price);
+
+        // Obtener egresos del día desde transacciones
+        var todayExpenses = await _context.Transactions
+            .Where(t => t.BarberId == barberId && 
+                       t.Type == TransactionType.Expense &&
+                       t.Date >= todayStart && 
+                       t.Date <= todayEnd)
+            .SumAsync(t => (decimal?)t.Amount) ?? 0;
+
         var todayStats = new TodayStatsDto
         {
             Appointments = todayAppointments.Count,
             Completed = todayAppointments.Count(a => a.Status == AppointmentStatus.Completed),
             Pending = todayAppointments.Count(a => a.Status == AppointmentStatus.Pending),
-            Income = todayAppointments
-                .Where(a => (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed) && a.Service != null)
-                .Sum(a => a.Service!.Price)
+            Income = todayIncome,
+            Expenses = todayExpenses,
+            Profit = todayIncome - todayExpenses
         };
 
         // Estadísticas de la semana
