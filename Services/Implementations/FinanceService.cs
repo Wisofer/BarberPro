@@ -4,6 +4,7 @@ using BarberPro.Models.DTOs.Responses;
 using BarberPro.Models.Entities;
 using BarberPro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 
 namespace BarberPro.Services.Implementations;
@@ -14,10 +15,12 @@ namespace BarberPro.Services.Implementations;
 public class FinanceService : IFinanceService
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<FinanceService> _logger;
 
-    public FinanceService(ApplicationDbContext context)
+    public FinanceService(ApplicationDbContext context, ILogger<FinanceService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<FinanceSummaryDto> GetFinanceSummaryAsync(int barberId, DateTime? startDate = null, DateTime? endDate = null)
@@ -61,12 +64,22 @@ public class FinanceService : IFinanceService
         if (startDate.HasValue)
         {
             var normalizedStart = NormalizeStartDate(startDate.Value);
+            _logger.LogInformation("[DEBUG] GetIncomeAsync - startDate original: {Original} (Kind: {Kind})", startDate.Value, startDate.Value.Kind);
+            _logger.LogInformation("[DEBUG] GetIncomeAsync - normalizedStart: {Normalized} (Kind: {Kind})", normalizedStart, normalizedStart.Kind);
             query = query.Where(t => t.Date >= normalizedStart);
         }
         if (endDate.HasValue)
         {
             var normalizedEnd = NormalizeEndDate(endDate.Value);
-            query = query.Where(t => t.Date <= normalizedEnd);
+            _logger.LogInformation("[DEBUG] GetIncomeAsync - endDate original: {Original} (Kind: {Kind})", endDate.Value, endDate.Value.Kind);
+            _logger.LogInformation("[DEBUG] GetIncomeAsync - normalizedEnd: {Normalized} (Kind: {Kind})", normalizedEnd, normalizedEnd.Kind);
+            
+            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
+            // Esto asegura que solo se incluyan registros del día especificado
+            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
+            var nextDayStart = endDateOnly.AddDays(1);
+            _logger.LogInformation("[DEBUG] GetIncomeAsync - nextDayStart: {NextDay} (Kind: {Kind})", nextDayStart, nextDayStart.Kind);
+            query = query.Where(t => t.Date < nextDayStart);
         }
 
         var total = await query.SumAsync(t => t.Amount);
@@ -111,7 +124,10 @@ public class FinanceService : IFinanceService
         if (endDate.HasValue)
         {
             var normalizedEnd = NormalizeEndDate(endDate.Value);
-            query = query.Where(t => t.Date <= normalizedEnd);
+            // Agregar 1 día y usar < para incluir todo el día especificado
+            // Esto asegura que 2026-01-06T23:59:59 incluya todo el día 6, no el día 7
+            var nextDayStart = normalizedEnd.Date.AddDays(1);
+            query = query.Where(t => t.Date < nextDayStart);
         }
 
         var total = await query.SumAsync(t => t.Amount);
@@ -342,16 +358,17 @@ public class FinanceService : IFinanceService
     private DateTime NormalizeStartDate(DateTime date)
     {
         // Si la fecha tiene hora 00:00:00 (o muy cercana), asumir que es solo fecha
-        // Verificar antes de convertir a UTC para evitar problemas de zona horaria
         var timeOfDay = date.TimeOfDay;
         if (timeOfDay.TotalSeconds < 1)
         {
-            // Extraer solo la parte de fecha (año, mes, día) sin importar la zona horaria
-            var dateOnly = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
-            return dateOnly;
+            // Extraer solo la parte de fecha (año, mes, día) en UTC
+            return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
         }
-        // Si tiene hora, convertir a UTC si es necesario
-        return date.Kind == DateTimeKind.Utc ? date : date.ToUniversalTime();
+        
+        // Si tiene hora específica, crear directamente en UTC sin convertir
+        // Esto evita problemas de zona horaria cuando viene sin zona horaria especificada
+        // Extraer componentes y crear nuevo DateTime en UTC (sin conversión)
+        return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, DateTimeKind.Utc);
     }
 
     /// <summary>
@@ -360,16 +377,17 @@ public class FinanceService : IFinanceService
     private DateTime NormalizeEndDate(DateTime date)
     {
         // Si la fecha tiene hora 00:00:00 (o muy cercana), asumir que es solo fecha
-        // Verificar antes de convertir a UTC para evitar problemas de zona horaria
         var timeOfDay = date.TimeOfDay;
         if (timeOfDay.TotalSeconds < 1)
         {
-            // Extraer solo la parte de fecha y establecer al final del día
-            var dateOnly = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, DateTimeKind.Utc);
-            return dateOnly;
+            // Extraer solo la parte de fecha y establecer al final del día en UTC
+            return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, DateTimeKind.Utc);
         }
-        // Si tiene hora, convertir a UTC si es necesario
-        return date.Kind == DateTimeKind.Utc ? date : date.ToUniversalTime();
+        
+        // Si tiene hora específica, crear directamente en UTC sin convertir
+        // Esto evita problemas de zona horaria cuando viene sin zona horaria especificada
+        // Extraer componentes y crear nuevo DateTime en UTC (sin conversión)
+        return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, DateTimeKind.Utc);
     }
 }
 

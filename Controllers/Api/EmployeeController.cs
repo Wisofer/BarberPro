@@ -183,15 +183,29 @@ public class EmployeeController : ControllerBase
     /// Obtener ingresos del trabajador
     /// </summary>
     [HttpGet("finances/income")]
-    public async Task<ActionResult<TransactionsResponse>> GetIncome([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+    public async Task<ActionResult<TransactionsResponse>> GetIncome([FromQuery] string? startDate = null, [FromQuery] string? endDate = null)
     {
         try
         {
             var employeeId = GetEmployeeId();
             var ownerBarberId = GetOwnerBarberId();
 
+            // Parsear y normalizar fechas desde string
+            DateTime? parsedStartDate = null;
+            DateTime? parsedEndDate = null;
+            
+            if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var start))
+            {
+                parsedStartDate = NormalizeDateForFilter(start, isEndDate: false);
+            }
+            
+            if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var end))
+            {
+                parsedEndDate = NormalizeDateForFilter(end, isEndDate: true);
+            }
+
             // Obtener ingresos del barbero y filtrar por EmployeeId
-            var income = await _financeService.GetIncomeAsync(ownerBarberId, startDate, endDate, 1, 1000);
+            var income = await _financeService.GetIncomeAsync(ownerBarberId, parsedStartDate, parsedEndDate, 1, 1000);
             
             // Filtrar solo ingresos del trabajador
             var employeeIncome = new TransactionsResponse
@@ -239,15 +253,29 @@ public class EmployeeController : ControllerBase
     /// Obtener egresos del trabajador
     /// </summary>
     [HttpGet("finances/expenses")]
-    public async Task<ActionResult<TransactionsResponse>> GetExpenses([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+    public async Task<ActionResult<TransactionsResponse>> GetExpenses([FromQuery] string? startDate = null, [FromQuery] string? endDate = null)
     {
         try
         {
             var employeeId = GetEmployeeId();
             var ownerBarberId = GetOwnerBarberId();
 
+            // Parsear y normalizar fechas desde string
+            DateTime? parsedStartDate = null;
+            DateTime? parsedEndDate = null;
+            
+            if (!string.IsNullOrEmpty(startDate) && DateTime.TryParse(startDate, out var start))
+            {
+                parsedStartDate = NormalizeDateForFilter(start, isEndDate: false);
+            }
+            
+            if (!string.IsNullOrEmpty(endDate) && DateTime.TryParse(endDate, out var end))
+            {
+                parsedEndDate = NormalizeDateForFilter(end, isEndDate: true);
+            }
+
             // Obtener egresos del barbero y filtrar por EmployeeId
-            var expenses = await _financeService.GetExpensesAsync(ownerBarberId, startDate, endDate, 1, 1000);
+            var expenses = await _financeService.GetExpensesAsync(ownerBarberId, parsedStartDate, parsedEndDate, 1, 1000);
             
             // Filtrar solo egresos del trabajador
             var employeeExpenses = new TransactionsResponse
@@ -344,5 +372,30 @@ public class EmployeeController : ControllerBase
     }
 
     #endregion
+
+    /// <summary>
+    /// Normaliza una fecha para el filtro, asegurando que esté en UTC y maneje correctamente los formatos
+    /// </summary>
+    private DateTime NormalizeDateForFilter(DateTime date, bool isEndDate)
+    {
+        // Si la fecha viene sin hora (00:00:00), normalizar según si es inicio o fin
+        if (date.TimeOfDay.TotalSeconds < 1)
+        {
+            if (isEndDate)
+            {
+                // Fin del día: 23:59:59.999
+                return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, DateTimeKind.Utc);
+            }
+            else
+            {
+                // Inicio del día: 00:00:00
+                return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
+            }
+        }
+        
+        // Si tiene hora específica, crear directamente en UTC (asumir que viene en UTC)
+        // Extraer componentes para evitar problemas de zona horaria
+        return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, DateTimeKind.Utc);
+    }
 }
 
