@@ -49,10 +49,6 @@
       "PackagePath": "staticwebassets/js/confirm-forms.js"
     },
     {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/facturas/factura-ver.js",
-      "PackagePath": "staticwebassets/js/facturas/factura-ver.js"
-    },
-    {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-appbar.js",
       "PackagePath": "staticwebassets/js/layout/layout-appbar.js"
     },
@@ -91,10 +87,6 @@
     {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pagos-crear.js",
       "PackagePath": "staticwebassets/js/pagos-crear.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pagos/pago-crear-init.js",
-      "PackagePath": "staticwebassets/js/pagos/pago-crear-init.js"
     },
     {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-cart.js",

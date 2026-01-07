@@ -1,6 +1,5 @@
 using BarberPro.Models.DTOs.Requests;
 using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
 using BarberPro.Services.Interfaces;
 using BarberPro.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,17 +19,20 @@ public class EmployeeController : ControllerBase
     private readonly IAppointmentService _appointmentService;
     private readonly IFinanceService _financeService;
     private readonly IServiceService _serviceService;
+    private readonly IAuthService _authService;
     private readonly ILogger<EmployeeController> _logger;
 
     public EmployeeController(
         IAppointmentService appointmentService,
         IFinanceService financeService,
         IServiceService serviceService,
+        IAuthService authService,
         ILogger<EmployeeController> logger)
     {
         _appointmentService = appointmentService;
         _financeService = financeService;
         _serviceService = serviceService;
+        _authService = authService;
         _logger = logger;
     }
 
@@ -372,6 +374,34 @@ public class EmployeeController : ControllerBase
     }
 
     #endregion
+
+    /// <summary>
+    /// Cambiar contraseña del trabajador/empleado
+    /// </summary>
+    [HttpPost("change-password")]
+    public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var userId = JwtHelper.GetUserId(User);
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "Usuario no identificado" });
+
+            var success = await _authService.ChangePasswordAsync(userId.Value, request.CurrentPassword, request.NewPassword);
+            if (!success)
+                return BadRequest(new { message = "La contraseña actual es incorrecta" });
+
+            return Ok(new { message = "Contraseña actualizada exitosamente" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cambiar contraseña del empleado");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
 
     /// <summary>
     /// Normaliza una fecha para el filtro, asegurando que esté en UTC y maneje correctamente los formatos

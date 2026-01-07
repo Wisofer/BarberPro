@@ -160,7 +160,6 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/k09cny4lsn-gwnbypaunk.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/zxmkxidttc-blqxc3hrbm.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/wqeh31vhpu-gfp7u48kn9.gz
-/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/78ve7i45ws-b7gvlxyuzw.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/k57mv8lufq-7tuwbzof75.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/yqx7ig0mql-v80chxnmsu.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/v8gcq71o0i-b9rlst3wxy.gz
@@ -170,7 +169,6 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/xznbs7c1fo-xbzvzu6i6m.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/v59ubbxtam-8tfznbgwvq.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/ovdba9gjwx-jctfavohoy.gz
-/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/tgxjqg34d4-yezyw0vr1p.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/d39z1nabau-5spx5tlyfa.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/4cfo25fgm2-6msk6r3vyn.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/2mygwp2x7n-e31fb0q0xv.gz

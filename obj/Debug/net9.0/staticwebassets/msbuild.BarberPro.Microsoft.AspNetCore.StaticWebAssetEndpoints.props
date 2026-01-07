@@ -144,18 +144,6 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-hJX\u002BfBdzmsr1y4dYDmpbOJXCdSDjAmPajs2wRxNI\u002Bs4="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1296"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022hJX\u002BfBdzmsr1y4dYDmpbOJXCdSDjAmPajs2wRxNI\u002Bs4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Dec 2025 19:51:20 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/BarberPro/js/facturas/factura-ver.b7gvlxyuzw.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\facturas\factura-ver.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"b7gvlxyuzw"},{"Name":"integrity","Value":"sha256-x1zO\u002B4RKTTlj2GBQag0g6c3kHjcaR548R1NuNND4iYE="},{"Name":"label","Value":"_content/BarberPro/js/facturas/factura-ver.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"9596"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022x1zO\u002B4RKTTlj2GBQag0g6c3kHjcaR548R1NuNND4iYE=\u0022"},{"Name":"Last-Modified","Value":"Tue, 30 Dec 2025 02:04:24 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/BarberPro/js/facturas/factura-ver.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\facturas\factura-ver.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-x1zO\u002B4RKTTlj2GBQag0g6c3kHjcaR548R1NuNND4iYE="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"9596"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022x1zO\u002B4RKTTlj2GBQag0g6c3kHjcaR548R1NuNND4iYE=\u0022"},{"Name":"Last-Modified","Value":"Tue, 30 Dec 2025 02:04:24 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/BarberPro/js/layout/layout-appbar.7tuwbzof75.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-appbar.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -275,18 +263,6 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-UyjxlW4/ZfUWepBnwZAgR7W15gdCckY91Fy/XGrvxac="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"75903"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022UyjxlW4/ZfUWepBnwZAgR7W15gdCckY91Fy/XGrvxac=\u0022"},{"Name":"Last-Modified","Value":"Tue, 30 Dec 2025 02:04:24 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/BarberPro/js/pagos/pago-crear-init.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pagos\pago-crear-init.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-NkhaOx5/zWXhmvMOc1U\u002Bp1cI79Hj1Mv8rUMGimrddp4="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"4115"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022NkhaOx5/zWXhmvMOc1U\u002Bp1cI79Hj1Mv8rUMGimrddp4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Dec 2025 19:51:20 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/BarberPro/js/pagos/pago-crear-init.yezyw0vr1p.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pagos\pago-crear-init.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"yezyw0vr1p"},{"Name":"integrity","Value":"sha256-NkhaOx5/zWXhmvMOc1U\u002Bp1cI79Hj1Mv8rUMGimrddp4="},{"Name":"label","Value":"_content/BarberPro/js/pagos/pago-crear-init.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4115"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022NkhaOx5/zWXhmvMOc1U\u002Bp1cI79Hj1Mv8rUMGimrddp4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Dec 2025 19:51:20 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/BarberPro/js/pos/pos-cart.5spx5tlyfa.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-cart.js'))</AssetFile>
