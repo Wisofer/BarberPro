@@ -57,10 +57,17 @@ public class FinanceService : IFinanceService
             .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Income);
 
+        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
         if (startDate.HasValue)
-            query = query.Where(t => t.Date >= startDate.Value);
+        {
+            var normalizedStart = NormalizeStartDate(startDate.Value);
+            query = query.Where(t => t.Date >= normalizedStart);
+        }
         if (endDate.HasValue)
-            query = query.Where(t => t.Date <= endDate.Value);
+        {
+            var normalizedEnd = NormalizeEndDate(endDate.Value);
+            query = query.Where(t => t.Date <= normalizedEnd);
+        }
 
         var total = await query.SumAsync(t => t.Amount);
         var items = await query
@@ -95,10 +102,17 @@ public class FinanceService : IFinanceService
             .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Expense);
 
+        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
         if (startDate.HasValue)
-            query = query.Where(t => t.Date >= startDate.Value);
+        {
+            var normalizedStart = NormalizeStartDate(startDate.Value);
+            query = query.Where(t => t.Date >= normalizedStart);
+        }
         if (endDate.HasValue)
-            query = query.Where(t => t.Date <= endDate.Value);
+        {
+            var normalizedEnd = NormalizeEndDate(endDate.Value);
+            query = query.Where(t => t.Date <= normalizedEnd);
+        }
 
         var total = await query.SumAsync(t => t.Amount);
         var items = await query
@@ -320,6 +334,42 @@ public class FinanceService : IFinanceService
         }
 
         await _context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Normaliza la fecha de inicio: si viene sin hora, la establece a 00:00:00 del día
+    /// </summary>
+    private DateTime NormalizeStartDate(DateTime date)
+    {
+        // Si la fecha tiene hora 00:00:00 (o muy cercana), asumir que es solo fecha
+        // Verificar antes de convertir a UTC para evitar problemas de zona horaria
+        var timeOfDay = date.TimeOfDay;
+        if (timeOfDay.TotalSeconds < 1)
+        {
+            // Extraer solo la parte de fecha (año, mes, día) sin importar la zona horaria
+            var dateOnly = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Utc);
+            return dateOnly;
+        }
+        // Si tiene hora, convertir a UTC si es necesario
+        return date.Kind == DateTimeKind.Utc ? date : date.ToUniversalTime();
+    }
+
+    /// <summary>
+    /// Normaliza la fecha de fin: si viene sin hora, la establece a 23:59:59 del día
+    /// </summary>
+    private DateTime NormalizeEndDate(DateTime date)
+    {
+        // Si la fecha tiene hora 00:00:00 (o muy cercana), asumir que es solo fecha
+        // Verificar antes de convertir a UTC para evitar problemas de zona horaria
+        var timeOfDay = date.TimeOfDay;
+        if (timeOfDay.TotalSeconds < 1)
+        {
+            // Extraer solo la parte de fecha y establecer al final del día
+            var dateOnly = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, DateTimeKind.Utc);
+            return dateOnly;
+        }
+        // Si tiene hora, convertir a UTC si es necesario
+        return date.Kind == DateTimeKind.Utc ? date : date.ToUniversalTime();
     }
 }
 
