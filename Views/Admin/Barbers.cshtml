@@ -12,11 +12,8 @@
             <h1 class="text-2xl sm:text-3xl font-bold text-gold mb-1">Gestión de Barberos</h1>
             <p class="text-sm text-gray-400">Administra todos los barberos del sistema</p>
         </div>
-        <button onclick="showCreateBarberModal()" class="btn btn-primary gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuevo Barbero
+        <button id="btnCrearBarbero" class="btn btn-primary">
+            Crear
         </button>
     </div>
 
@@ -43,8 +40,8 @@
     <!-- Búsqueda y Filtros -->
     <div class="mb-4 flex gap-2 flex-wrap">
         <input type="text" id="searchBarbers" placeholder="Buscar por nombre, negocio o teléfono..." 
-               class="input input-bordered flex-1 min-w-[200px]" onkeyup="filterBarbers()">
-        <select id="filterStatus" class="select select-bordered" onchange="filterBarbers()">
+               class="input input-bordered flex-1 min-w-[200px]">
+        <select id="filterStatus" class="select select-bordered">
             <option value="">Todos los estados</option>
             <option value="active">Solo activos</option>
             <option value="inactive">Solo inactivos</option>
@@ -54,55 +51,54 @@
     <!-- Tabla de Barberos -->
     <div class="bg-base-100 rounded-lg border border-base-300 shadow-sm">
         <div class="overflow-x-auto">
-            <table class="table table-sm">
+            <table id="barbersTable" class="table table-sm table-zebra">
                 <thead>
                     <tr>
-                        <th class="text-xs">Nombre</th>
-                        <th class="text-xs">Negocio</th>
-                        <th class="text-xs">Teléfono</th>
-                        <th class="text-xs text-center">Citas</th>
-                        <th class="text-xs text-right">Ingresos</th>
-                        <th class="text-xs text-center">Estado</th>
-                        <th class="text-xs text-center">Acciones</th>
+                        <th class="text-xs font-semibold">Nombre</th>
+                        <th class="text-xs font-semibold">Negocio</th>
+                        <th class="text-xs font-semibold">Teléfono</th>
+                        <th class="text-xs font-semibold text-center w-20">Citas</th>
+                        <th class="text-xs font-semibold text-right w-32">Ingresos</th>
+                        <th class="text-xs font-semibold text-center w-24">Estado</th>
+                        <th class="text-xs font-semibold text-center w-40">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="barbersTableBody">
                     @foreach (var barber in barbers)
                     {
-                        <tr data-barber-id="@barber.Id" data-name="@barber.Name.ToLower()" data-business="@(barber.BusinessName?.ToLower() ?? "")" data-phone="@barber.Phone.ToLower()" data-status="@(barber.IsActive ? "active" : "inactive")">
+                        <tr data-barber-id="@barber.Id" data-name="@barber.Name.ToLower()" data-business="@(barber.BusinessName?.ToLower() ?? "")" data-phone="@(barber.Phone?.ToLower() ?? "")" data-status="@(barber.IsActive ? "active" : "inactive")">
                             <td class="text-sm font-medium">@barber.Name</td>
                             <td class="text-xs text-gray-500">@(barber.BusinessName ?? "-")</td>
-                            <td class="text-xs text-gray-500">-</td>
-                            <td class="text-xs">@barber.Phone</td>
-                            <td class="text-center text-sm">@barber.TotalAppointments</td>
-                            <td class="text-right text-sm text-gold">$@barber.TotalRevenue.ToString("N2")</td>
+                            <td class="text-xs text-gray-500">@(barber.Phone ?? "-")</td>
+                            <td class="text-center text-sm font-medium">@barber.TotalAppointments</td>
+                            <td class="text-right text-sm font-semibold text-gold">$@barber.TotalRevenue.ToString("N2")</td>
                             <td class="text-center">
                                 @if (barber.IsActive)
                                 {
-                                    <span class="badge badge-success badge-xs">Activo</span>
+                                    <span class="badge badge-success badge-sm">Activo</span>
                                 }
                                 else
                                 {
-                                    <span class="badge badge-error badge-xs">Inactivo</span>
+                                    <span class="badge badge-error badge-sm">Inactivo</span>
                                 }
                             </td>
                             <td class="text-center">
-                                <div class="flex gap-1 justify-center">
-                                    <button onclick="viewBarberDetails(@barber.Id, '@Html.Raw(barber.Name.Replace("'", "\\'"))')" 
-                                            class="btn btn-xs btn-primary" title="Ver Detalles">
+                                <div class="flex gap-1 justify-center items-center">
+                                    <button data-action="view" data-id="@barber.Id" data-name="@barber.Name"
+                                            class="btn btn-xs btn-primary min-w-[32px] h-8" title="Ver Detalles">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
                                     </button>
-                                    <button onclick="editBarber(@barber.Id, '@Html.Raw(barber.Name.Replace("'", "\\'"))', '@Html.Raw((barber.BusinessName ?? "").Replace("'", "\\'"))', '@Html.Raw(barber.Phone.Replace("'", "\\'"))')" 
-                                            class="btn btn-xs btn-info" title="Editar">
+                                    <button data-action="edit" data-id="@barber.Id" data-name="@barber.Name" data-business="@(barber.BusinessName ?? "")" data-phone="@(barber.Phone ?? "")"
+                                            class="btn btn-xs btn-info min-w-[32px] h-8" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                     </button>
-                                    <button onclick="toggleBarberStatus(@barber.Id, @barber.IsActive.ToString().ToLower())" 
-                                            class="btn btn-xs @(barber.IsActive ? "btn-warning" : "btn-success")" 
+                                    <button data-action="toggle" data-id="@barber.Id" data-active="@barber.IsActive.ToString().ToLower()"
+                                            class="btn btn-xs @(barber.IsActive ? "btn-warning" : "btn-success") min-w-[32px] h-8" 
                                             title="@(barber.IsActive ? "Desactivar" : "Activar")">
                                         @if (barber.IsActive)
                                         {
@@ -117,6 +113,12 @@
                                             </svg>
                                         }
                                     </button>
+                                    <button data-action="delete" data-id="@barber.Id" data-name="@barber.Name"
+                                            class="btn btn-xs btn-error min-w-[32px] h-8" title="Eliminar">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -127,63 +129,319 @@
     </div>
 </div>
 
-<!-- Modal para crear/editar barbero (reutilizar del Dashboard) -->
-<script>
-    function filterBarbers() {
-        const search = document.getElementById('searchBarbers').value.toLowerCase();
-        const statusFilter = document.getElementById('filterStatus').value;
-        const rows = document.querySelectorAll('#barbersTableBody tr');
+
+<!-- Modal para Crear Barbero -->
+<dialog id="modalCrearBarbero" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4 text-gold">Crear Nuevo Barbero</h3>
+        <form id="formCrearBarbero" class="space-y-4">
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Email</span>
+                </label>
+                <input type="email" name="email" class="input input-bordered" required placeholder="barbero@example.com"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Contraseña</span>
+                </label>
+                <div class="flex gap-2">
+                    <input type="password" id="passwordInput" name="password" class="input input-bordered flex-1" required placeholder="Mínimo 6 caracteres" minlength="6"/>
+                    <button type="button" id="btnGeneratePassword" class="btn btn-outline btn-sm" title="Generar contraseña">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </button>
+                    <button type="button" id="copyPasswordBtn" class="btn btn-outline btn-sm" title="Copiar contraseña" style="display: none;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Nombre</span>
+                </label>
+                <input type="text" name="name" class="input input-bordered" required placeholder="Juan Pérez"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Nombre del Negocio (Opcional)</span>
+                </label>
+                <input type="text" name="businessName" class="input input-bordered" placeholder="Barbería Central"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Teléfono</span>
+                </label>
+                <input type="tel" name="phone" class="input input-bordered" required placeholder="1234567890"/>
+            </div>
+            <div class="modal-action">
+                <button type="button" id="btnCloseCreateModal" class="btn btn-ghost">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear Barbero</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+
+<!-- Modal para Editar Barbero -->
+<dialog id="modalEditarBarbero" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4 text-gold">Editar Barbero</h3>
+        <form id="formEditarBarbero" class="space-y-4">
+            <input type="hidden" id="editBarberId" name="id"/>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Nombre</span>
+                </label>
+                <input type="text" id="editBarberName" name="name" class="input input-bordered" required placeholder="Juan Pérez"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Nombre del Negocio (Opcional)</span>
+                </label>
+                <input type="text" id="editBarberBusiness" name="businessName" class="input input-bordered" placeholder="Barbería Central"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Teléfono</span>
+                </label>
+                <input type="tel" id="editBarberPhone" name="phone" class="input input-bordered" required placeholder="1234567890"/>
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">Nueva Contraseña (Opcional)</span>
+                    <span class="label-text-alt text-gray-400">Dejar vacío para mantener la contraseña actual</span>
+                </label>
+                <div class="flex gap-2">
+                    <input type="password" id="editPasswordInput" name="password" class="input input-bordered flex-1" placeholder="Mínimo 6 caracteres" minlength="6"/>
+                    <button type="button" id="btnGenerateEditPassword" class="btn btn-outline btn-sm" title="Generar contraseña">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </button>
+                    <button type="button" id="copyEditPasswordBtn" class="btn btn-outline btn-sm" title="Copiar contraseña" style="display: none;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-action">
+                <button type="button" id="btnCloseEditModal" class="btn btn-ghost">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Modal para Eliminar Barbero -->
+<dialog id="modalEliminarBarbero" class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4 text-error">Eliminar Barbero</h3>
+        <p class="mb-4">¿Estás seguro de que deseas eliminar a <strong id="barberNameToDelete">este barbero</strong>?</p>
+        <p class="text-sm text-warning mb-6">Esta acción no se puede deshacer. Se eliminarán todos los datos asociados al barbero, incluyendo citas, servicios y transacciones.</p>
+        <div class="modal-action">
+            <button id="btnCancelDelete" class="btn btn-ghost">Cancelar</button>
+            <button id="btnConfirmDelete" class="btn btn-error">Eliminar</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Modal para ver detalles del barbero -->
+<dialog id="modalVerBarbero" class="modal">
+    <div class="modal-box w-11/12 max-w-7xl max-h-[90vh] overflow-y-auto">
+        <h3 class="font-bold text-2xl mb-6 text-gold" id="barberDetailsTitle">Detalles del Barbero</h3>
         
-        rows.forEach(row => {
-            const name = row.dataset.name || '';
-            const business = row.dataset.business || '';
-            const phone = row.dataset.phone || '';
-            const status = row.dataset.status || '';
-            
-            const matchesSearch = name.includes(search) || business.includes(search) || phone.includes(search);
-            const matchesStatus = !statusFilter || status === statusFilter;
-            
-            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
-        });
-    }
+        <!-- Loading -->
+        <div id="barberDetailsLoading" class="text-center py-12">
+            <span class="loading loading-spinner loading-lg"></span>
+            <p class="mt-4 text-gray-500">Cargando información...</p>
+        </div>
+        
+        <!-- Contenido -->
+        <div id="barberDetailsContent" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Columna Izquierda: Información del Barbero -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Información del Barbero -->
+                    <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                        <h4 class="font-bold text-lg mb-4 text-gold border-b border-base-300 pb-2">Información del Barbero</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Nombre</label>
+                                <p class="font-semibold text-base mt-1" id="detailBarberName">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Email</label>
+                                <p class="font-medium text-sm mt-1 break-all" id="detailBarberEmail">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Negocio</label>
+                                <p class="font-medium text-base mt-1" id="detailBarberBusiness">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Teléfono</label>
+                                <p class="font-medium text-base mt-1" id="detailBarberPhone">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Slug</label>
+                                <p class="font-mono text-sm mt-1 text-gray-400" id="detailBarberSlug">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Estado</label>
+                                <p class="font-medium text-base mt-1" id="detailBarberStatus">-</p>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase tracking-wide">Fecha de Registro</label>
+                                <p class="font-medium text-sm mt-1" id="detailBarberCreated">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Servicios -->
+                    <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                        <h4 class="font-bold text-lg mb-4 text-gold border-b border-base-300 pb-2">Servicios</h4>
+                        <div id="detailServices" class="space-y-2">
+                            <p class="text-sm text-gray-500">Cargando servicios...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Columna Derecha: Estadísticas y Finanzas -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Estadísticas del Día -->
+                    <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                        <h4 class="font-bold text-lg mb-4 text-gold border-b border-base-300 pb-2">Hoy</h4>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Citas</div>
+                                <div class="text-2xl font-bold text-gold" id="detailTodayAppointments">0</div>
+                            </div>
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Completadas</div>
+                                <div class="text-2xl font-bold text-success" id="detailTodayCompleted">0</div>
+                            </div>
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Pendientes</div>
+                                <div class="text-2xl font-bold text-warning" id="detailTodayPending">0</div>
+                            </div>
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Ingresos</div>
+                                <div class="text-2xl font-bold text-gold" id="detailTodayIncome">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estadísticas de la Semana y Mes -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Esta Semana -->
+                        <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                            <h4 class="font-bold text-base mb-3 text-gold">Esta Semana</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Citas</div>
+                                    <div class="text-xl font-bold text-gold" id="detailWeekAppointments">0</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Ingresos</div>
+                                    <div class="text-xl font-bold text-success" id="detailWeekIncome">$0.00</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Egresos</div>
+                                    <div class="text-xl font-bold text-error" id="detailWeekExpenses">$0.00</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Ganancia</div>
+                                    <div class="text-xl font-bold text-gold" id="detailWeekProfit">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Este Mes -->
+                        <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                            <h4 class="font-bold text-base mb-3 text-gold">Este Mes</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Citas</div>
+                                    <div class="text-xl font-bold text-gold" id="detailMonthAppointments">0</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Ingresos</div>
+                                    <div class="text-xl font-bold text-success" id="detailMonthIncome">$0.00</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Egresos</div>
+                                    <div class="text-xl font-bold text-error" id="detailMonthExpenses">$0.00</div>
+                                </div>
+                                <div class="bg-base-100 rounded-lg p-3 text-center border border-base-300">
+                                    <div class="text-xs text-gray-500 mb-1">Ganancia</div>
+                                    <div class="text-xl font-bold text-gold" id="detailMonthProfit">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen Financiero Total -->
+                    <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                        <h4 class="font-bold text-lg mb-4 text-gold border-b border-base-300 pb-2">Resumen Financiero Total</h4>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Ingresos Totales</div>
+                                <div class="text-2xl font-bold text-success" id="detailTotalIncome">$0.00</div>
+                            </div>
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Egresos Totales</div>
+                                <div class="text-2xl font-bold text-error" id="detailTotalExpenses">$0.00</div>
+                            </div>
+                            <div class="bg-base-100 rounded-lg p-4 text-center border border-base-300">
+                                <div class="text-xs text-gray-500 mb-2">Ganancia Neta</div>
+                                <div class="text-2xl font-bold text-gold" id="detailNetProfit">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Citas Recientes y Próximas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Citas Recientes -->
+                        <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                            <h4 class="font-bold text-base mb-3 text-gold border-b border-base-300 pb-2">Citas Recientes</h4>
+                            <div id="detailRecentAppointments" class="space-y-2">
+                                <p class="text-sm text-gray-500">Cargando citas...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Próximas Citas -->
+                        <div class="bg-base-200 rounded-xl p-5 border border-base-300">
+                            <h4 class="font-bold text-base mb-3 text-gold border-b border-base-300 pb-2">Próximas Citas</h4>
+                            <div id="detailUpcomingAppointments" class="space-y-2">
+                                <p class="text-sm text-gray-500">Cargando citas...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-action mt-6">
+            <button id="btnCloseViewModal" class="btn btn-gold">Cerrar</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 
-    // Reutilizar funciones del Dashboard para crear/editar barbero
-    function showCreateBarberModal() {
-        // Redirigir al dashboard donde está el modal, o implementar aquí
-        window.location.href = '/admin/dashboard#createBarber';
-    }
-
-    function viewBarberDetails(id, name) {
-        window.location.href = `/admin/dashboard#barber-${id}`;
-    }
-
-    function editBarber(id, name, business, phone) {
-        // Implementar edición
-        alert(`Editar barbero: ${name}`);
-    }
-
-    function toggleBarberStatus(id, isActive) {
-        if (!confirm(`¿Estás seguro de ${isActive ? 'desactivar' : 'activar'} este barbero?`)) {
-            return;
-        }
-
-        fetch(`/admin/barbers/${id}/status`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isActive: !isActive })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert(data.message || 'Error al actualizar estado');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Error al actualizar estado');
-        });
-    }
-</script>
+<script src="~/js/admin/barbers-management.js"></script>
 

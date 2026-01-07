@@ -13,6 +13,7 @@
     <!-- Tabs -->
     <div class="tabs tabs-boxed mb-6">
         <a class="tab tab-active" onclick="showTab('general')">General</a>
+        <a class="tab" onclick="showTab('appearance')">Apariencia</a>
         <a class="tab" onclick="showTab('categories')">Categorías</a>
         <a class="tab" onclick="showTab('notifications')">Notificaciones</a>
     </div>
@@ -42,6 +43,89 @@
                     <select class="select select-bordered">
                         <option>UTC-6 (Nicaragua)</option>
                     </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Apariencia -->
+    <div id="tab-appearance" class="tab-content hidden">
+        <div class="bg-base-100 rounded-lg border border-base-300 p-6">
+            <h2 class="text-xl font-bold mb-4">Apariencia</h2>
+            <p class="text-sm text-gray-500 mb-6">El tema se guarda automáticamente y se mantiene entre sesiones.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Tema de la Aplicación</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mb-4">Selecciona un tema para personalizar la apariencia de la aplicación</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Tema Oscuro (Business) -->
+                        <div class="border-2 border-base-300 rounded-lg p-4 hover:border-primary transition-colors cursor-pointer" onclick="cambiarTema('business')" id="theme-business">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Oscuro</h3>
+                                    <p class="text-xs text-gray-500">Tema oscuro profesional</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-base-300 border-2 border-base-content flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <button id="btnTemaOscuro" class="btn btn-sm btn-outline w-full">Seleccionar</button>
+                        </div>
+                        
+                        <!-- Tema Claro (Corporate) -->
+                        <div class="border-2 border-base-300 rounded-lg p-4 hover:border-primary transition-colors cursor-pointer" onclick="cambiarTema('corporate')" id="theme-corporate">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Claro</h3>
+                                    <p class="text-xs text-gray-500">Tema claro y limpio</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-base-300 border-2 border-base-content flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <button id="btnTemaClaro" class="btn btn-sm btn-outline w-full">Seleccionar</button>
+                        </div>
+                        
+                        <!-- Tema Night -->
+                        <div class="border-2 border-base-300 rounded-lg p-4 hover:border-primary transition-colors cursor-pointer" onclick="cambiarTema('night')" id="theme-night">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Night</h3>
+                                    <p class="text-xs text-gray-500">Tema nocturno oscuro</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-base-300 border-2 border-base-content flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <button id="btnTemaNight" class="btn btn-sm btn-outline w-full">Seleccionar</button>
+                        </div>
+                        
+                        <!-- Tema Luxury -->
+                        <div class="border-2 border-base-300 rounded-lg p-4 hover:border-primary transition-colors cursor-pointer" onclick="cambiarTema('luxury')" id="theme-luxury">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Luxury</h3>
+                                    <p class="text-xs text-gray-500">Tema elegante y lujoso</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-lg bg-base-300 border-2 border-base-content flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <button id="btnTemaLuxury" class="btn btn-sm btn-outline w-full">Seleccionar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,37 +210,119 @@
 
 <script>
     function showTab(tabName) {
-        // Ocultar todos los tabs
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.add('hidden');
-        });
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('tab-active');
-        });
+        var tabs = document.querySelectorAll('.tab-content');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].classList.add('hidden');
+        }
+        var tabButtons = document.querySelectorAll('.tab');
+        for (var i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove('tab-active');
+        }
         
-        // Mostrar el tab seleccionado
-        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
         event.target.classList.add('tab-active');
+        
+        // Si es el tab de apariencia, inicializar los botones de tema
+        if (tabName === 'appearance') {
+            inicializarTemas();
+        }
     }
 
     function addCategory() {
-        const input = document.getElementById('newCategory');
-        const category = input.value.trim();
+        var input = document.getElementById('newCategory');
+        var category = input.value.trim();
         
         if (!category) {
             alert('Ingresa un nombre para la categoría');
             return;
         }
         
-        const list = document.getElementById('categoriesList');
-        const newItem = document.createElement('div');
+        var list = document.getElementById('categoriesList');
+        var newItem = document.createElement('div');
         newItem.className = 'flex items-center justify-between p-3 bg-base-200 rounded-lg';
-        newItem.innerHTML = `
-            <span>${category}</span>
-            <button class="btn btn-xs btn-error" onclick="this.parentElement.remove()">Eliminar</button>
-        `;
+        newItem.innerHTML = '<span>' + category + '</span><button class="btn btn-xs btn-error" onclick="this.parentElement.remove()">Eliminar</button>';
         list.appendChild(newItem);
         input.value = '';
     }
+
+    // Gestión de Temas
+    function cambiarTema(tema) {
+        if (window.aplicarTema) {
+            window.aplicarTema(tema);
+        } else {
+            document.documentElement.setAttribute('data-theme', tema);
+            try {
+                localStorage.setItem('tema', tema);
+            } catch (e) {
+                console.warn('Error al guardar tema:', e);
+            }
+        }
+        actualizarBotonesTema(tema);
+        
+        // Intentar guardar en servidor (opcional)
+        fetch('/admin/settings/theme', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ theme: tema })
+        }).catch(function(err) {
+            console.warn('No se pudo guardar tema en servidor:', err);
+        });
+    }
+
+    function actualizarBotonesTema(tema) {
+        var botones = {
+            'business': document.getElementById('btnTemaOscuro'),
+            'corporate': document.getElementById('btnTemaClaro'),
+            'night': document.getElementById('btnTemaNight'),
+            'luxury': document.getElementById('btnTemaLuxury')
+        };
+        
+        var cards = {
+            'business': document.getElementById('theme-business'),
+            'corporate': document.getElementById('theme-corporate'),
+            'night': document.getElementById('theme-night'),
+            'luxury': document.getElementById('theme-luxury')
+        };
+        
+        for (var key in botones) {
+            if (botones[key]) {
+                if (key === tema) {
+                    botones[key].classList.remove('btn-outline');
+                    botones[key].classList.add('btn-primary');
+                    botones[key].textContent = 'Seleccionado';
+                } else {
+                    botones[key].classList.add('btn-outline');
+                    botones[key].classList.remove('btn-primary');
+                    botones[key].textContent = 'Seleccionar';
+                }
+            }
+        }
+        
+        for (var key in cards) {
+            if (cards[key]) {
+                if (key === tema) {
+                    cards[key].classList.add('border-primary');
+                    cards[key].classList.remove('border-base-300');
+                } else {
+                    cards[key].classList.remove('border-primary');
+                    cards[key].classList.add('border-base-300');
+                }
+            }
+        }
+    }
+
+    function inicializarTemas() {
+        try {
+            var temaGuardado = localStorage.getItem('tema') || 'business';
+            actualizarBotonesTema(temaGuardado);
+        } catch (e) {
+            console.warn('Error al inicializar temas:', e);
+        }
+    }
+
+    // Inicializar temas al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        inicializarTemas();
+    });
 </script>
 

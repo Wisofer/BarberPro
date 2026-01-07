@@ -168,7 +168,6 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/donnlzsxk3-rfgunx8bd0.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/v7szm46mf3-n5nwka8oir.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/xznbs7c1fo-xbzvzu6i6m.gz
-/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/96ao9iy85k-a3r8po9son.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/v59ubbxtam-8tfznbgwvq.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/ovdba9gjwx-jctfavohoy.gz
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/tgxjqg34d4-yezyw0vr1p.gz
@@ -205,3 +204,6 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberPro.genruntimeconfig.cache
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/ref/BarberPro.dll
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz
+/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/96ao9iy85k-a6lirnuayo.gz
+/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/c13tqqeoss-13z3tdvk0u.gz
+/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/lcv5uyx6vt-8lxzcclvsd.gz

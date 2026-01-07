@@ -25,6 +25,14 @@
       "PackagePath": "staticwebassets/images/logo4.png"
     },
     {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/admin/barbers-management.js",
+      "PackagePath": "staticwebassets/js/admin/barbers-management.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/admin/employees-management.js",
+      "PackagePath": "staticwebassets/js/admin/employees-management.js"
+    },
+    {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
       "PackagePath": "staticwebassets/js/appointment-booking.js"
     },

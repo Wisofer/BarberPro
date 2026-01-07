@@ -36,25 +36,41 @@
     <!-- Filtros -->
     <div class="mb-4 flex gap-2 flex-wrap">
         <input type="text" id="searchEmployees" placeholder="Buscar por nombre o email..." 
-               class="input input-bordered flex-1 min-w-[200px]" onkeyup="filterEmployees()">
-        <select id="filterBarber" class="select select-bordered" onchange="filterEmployees()">
+               class="input input-bordered flex-1 min-w-[200px]">
+        <select id="filterBarber" class="select select-bordered">
             <option value="">Todos los barberos</option>
             @foreach (var barber in barbers)
             {
                 <option value="@barber.Id">@barber.Name</option>
             }
         </select>
-        <select id="filterStatus" class="select select-bordered" onchange="filterEmployees()">
+        <select id="filterStatus" class="select select-bordered">
             <option value="">Todos los estados</option>
             <option value="active">Solo activos</option>
             <option value="inactive">Solo inactivos</option>
         </select>
     </div>
 
+    <!-- Botones de Exportación -->
+    <div class="mb-4 flex gap-2 justify-end">
+        <button id="btnExportExcel" class="btn btn-sm btn-success gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Exportar Excel
+        </button>
+        <button id="btnExportPDF" class="btn btn-sm btn-error gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            Exportar PDF
+        </button>
+    </div>
+
     <!-- Tabla de Empleados -->
     <div class="bg-base-100 rounded-lg border border-base-300 shadow-sm">
         <div class="overflow-x-auto">
-            <table class="table table-sm">
+            <table id="employeesTable" class="table table-sm">
                 <thead>
                     <tr>
                         <th class="text-xs">Nombre</th>
@@ -87,7 +103,7 @@
                             <td class="text-xs text-gray-500">@employee.CreatedAt.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 <div class="flex gap-1 justify-center">
-                                    <button onclick="viewEmployeeDetails(@employee.Id, @employee.OwnerBarberId)" 
+                                    <button data-action="view" data-employee-id="@employee.Id" data-barber-id="@employee.OwnerBarberId"
                                             class="btn btn-xs btn-primary" title="Ver Detalles">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -104,30 +120,5 @@
     </div>
 </div>
 
-<script>
-    function filterEmployees() {
-        const search = document.getElementById('searchEmployees').value.toLowerCase();
-        const barberFilter = document.getElementById('filterBarber').value;
-        const statusFilter = document.getElementById('filterStatus').value;
-        const rows = document.querySelectorAll('#employeesTableBody tr');
-        
-        rows.forEach(row => {
-            const name = row.dataset.name || '';
-            const email = row.dataset.email || '';
-            const barberId = row.dataset.barberId || '';
-            const status = row.dataset.status || '';
-            
-            const matchesSearch = name.includes(search) || email.includes(search);
-            const matchesBarber = !barberFilter || barberId === barberFilter;
-            const matchesStatus = !statusFilter || status === statusFilter;
-            
-            row.style.display = (matchesSearch && matchesBarber && matchesStatus) ? '' : 'none';
-        });
-    }
-
-    function viewEmployeeDetails(employeeId, barberId) {
-        // Redirigir al dashboard del barbero donde se puede ver el empleado
-        window.location.href = `/admin/dashboard#barber-${barberId}`;
-    }
-</script>
+<script src="~/js/admin/employees-management.js"></script>
 

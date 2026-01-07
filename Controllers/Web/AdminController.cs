@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using BarberPro.Utils;
 using BarberPro.Services.Interfaces;
 using BarberPro.Models.DTOs.Requests;
+using System.Linq;
 
 namespace BarberPro.Controllers.Web;
 
@@ -424,10 +425,183 @@ public class AdminController : Controller
         ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
         return View();
     }
+
+    [HttpPost("admin/settings/theme")]
+    public IActionResult SaveTheme([FromBody] SaveThemeRequest request)
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { success = false, message = "No autorizado" });
+        }
+
+        if (request == null || string.IsNullOrWhiteSpace(request.Theme))
+        {
+            return Json(new { success = false, message = "Tema no válido" });
+        }
+
+        // Validar que el tema sea uno de los permitidos
+        var temasPermitidos = new[] { "business", "corporate", "night", "luxury" };
+        if (!temasPermitidos.Contains(request.Theme.ToLower()))
+        {
+            return Json(new { success = false, message = "Tema no válido" });
+        }
+
+        try
+        {
+            // Guardar en sesión (opcional, ya que se guarda en localStorage)
+            HttpContext.Session.SetString("Tema", request.Theme);
+            
+            return Json(new { success = true, message = "Tema guardado exitosamente" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"Error al guardar tema: {ex.Message}" });
+        }
+    }
+
+    #region API para Gráficos
+
+    [HttpGet("admin/api/charts/income")]
+    public async Task<IActionResult> GetIncomeChartData()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { labels = new string[0], values = new decimal[0] });
+        }
+
+        try
+        {
+            var labels = new List<string>();
+            var values = new List<decimal>();
+
+            for (int i = 6; i >= 0; i--)
+            {
+                var date = DateTime.UtcNow.AddDays(-i);
+                var startDate = date.Date;
+                var endDate = startDate.AddDays(1).AddTicks(-1);
+
+                var income = await _financeService.GetIncomeAsync(0, startDate, endDate, 1, 1000);
+                var total = income.Items.Sum(t => t.Amount);
+
+                labels.Add(date.ToString("dd/MM"));
+                values.Add(total);
+            }
+
+            return Json(new { labels, values });
+        }
+        catch
+        {
+            return Json(new { labels = new string[0], values = new decimal[0] });
+        }
+    }
+
+    [HttpGet("admin/api/charts/appointments-status")]
+    public async Task<IActionResult> GetAppointmentsStatusChartData()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { labels = new string[0], values = new int[0] });
+        }
+
+        try
+        {
+            var dashboard = await _dashboardService.GetAdminDashboardAsync();
+            return Json(new
+            {
+                labels = new[] { "Pendientes", "Confirmadas", "Completadas", "Canceladas" },
+                values = new[]
+                {
+                    dashboard.PendingAppointments,
+                    dashboard.ConfirmedAppointments,
+                    dashboard.TotalAppointments - dashboard.PendingAppointments - dashboard.ConfirmedAppointments - dashboard.CancelledAppointments,
+                    dashboard.CancelledAppointments
+                }
+            });
+        }
+        catch
+        {
+            return Json(new { labels = new string[0], values = new int[0] });
+        }
+    }
+
+    [HttpGet("admin/api/charts/top-barbers")]
+    public async Task<IActionResult> GetTopBarbersChartData()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { labels = new string[0], values = new decimal[0] });
+        }
+
+        try
+        {
+            var dashboard = await _dashboardService.GetAdminDashboardAsync();
+            var topBarbers = dashboard.RecentBarbers
+                .OrderByDescending(b => b.TotalRevenue)
+                .Take(5)
+                .ToList();
+
+            return Json(new
+            {
+                labels = topBarbers.Select(b => b.Name).ToArray(),
+                values = topBarbers.Select(b => b.TotalRevenue).ToArray()
+            });
+        }
+        catch
+        {
+            return Json(new { labels = new string[0], values = new decimal[0] });
+        }
+    }
+
+    [HttpGet("admin/api/charts/appointments-by-day")]
+    public async Task<IActionResult> GetAppointmentsByDayChartData()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { labels = new string[0], values = new int[0] });
+        }
+
+        try
+        {
+            var labels = new List<string>();
+            var values = new List<int>();
+
+            // Obtener todos los barberos
+            var barbers = await _barberService.GetAllBarbersAsync();
+
+            for (int i = 6; i >= 0; i--)
+            {
+                var date = DateTime.UtcNow.AddDays(-i);
+                var dateOnly = DateOnly.FromDateTime(date);
+
+                int totalCount = 0;
+                foreach (var barber in barbers)
+                {
+                    var appointments = await _appointmentService.GetBarberAppointmentsAsync(barber.Id, dateOnly, null);
+                    totalCount += appointments.Count;
+                }
+
+                labels.Add(date.ToString("dd/MM"));
+                values.Add(totalCount);
+            }
+
+            return Json(new { labels, values });
+        }
+        catch
+        {
+            return Json(new { labels = new string[0], values = new int[0] });
+        }
+    }
+
+    #endregion
 }
 
 public class UpdateBarberStatusRequest
 {
     public bool IsActive { get; set; }
+}
+
+public class SaveThemeRequest
+{
+    public string Theme { get; set; } = string.Empty;
 }
 

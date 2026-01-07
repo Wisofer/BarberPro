@@ -123,6 +123,17 @@ public class BarberService : IBarberService
         barber.Phone = request.Phone;
         barber.UpdatedAt = DateTime.UtcNow;
 
+        // Actualizar contraseña si se proporciona
+        if (!string.IsNullOrWhiteSpace(request.Password))
+        {
+            var user = await _context.Users.FindAsync(barber.UserId);
+            if (user != null)
+            {
+                user.PasswordHash = PasswordHelper.HashPassword(request.Password);
+                user.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         return await GetBarberProfileAsync(barberId);
