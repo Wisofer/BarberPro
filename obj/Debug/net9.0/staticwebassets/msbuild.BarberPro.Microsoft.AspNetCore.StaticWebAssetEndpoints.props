@@ -72,6 +72,18 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-6GCQtbrK8IRFIQ7wOXMLKVvNWf0XC2KfniNCvw9KQr4="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"380732"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u00226GCQtbrK8IRFIQ7wOXMLKVvNWf0XC2KfniNCvw9KQr4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 29 Dec 2025 19:51:20 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/BarberPro/js/appointment-booking.4ltvmifha4.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\appointment-booking.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"4ltvmifha4"},{"Name":"integrity","Value":"sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="},{"Name":"label","Value":"_content/BarberPro/js/appointment-booking.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"18056"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\u0022"},{"Name":"Last-Modified","Value":"Wed, 07 Jan 2026 05:46:06 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/BarberPro/js/appointment-booking.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\appointment-booking.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"18056"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\u0022"},{"Name":"Last-Modified","Value":"Wed, 07 Jan 2026 05:46:06 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/BarberPro/js/cache/cache-manager.gwnbypaunk.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\cache\cache-manager.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>

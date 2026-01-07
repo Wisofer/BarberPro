@@ -353,6 +353,20 @@
             }
         }
         
+        /* Estilos para tabs */
+        .tab-content {
+            display: block;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+        
+        /* Estilos para sidebar activo */
+        .sidebar-item.active {
+            background-color: hsl(var(--p) / 0.1);
+            color: hsl(var(--p));
+        }
+        
         /* Los tooltips se manejan con JavaScript (layout-sidebar-tooltips.js) */
         
         /* Estilos para títulos del menú (Caja, Admin) */
@@ -457,15 +471,63 @@
                 }
 
                 <ul class="menu menu-sm px-2 gap-1">
-                    @* Menú simplificado para BarberPro - Solo opciones esenciales *@
+                    @* Menú de Administración - Panel completo *@
                     @if (esAdmin)
                     {
                         <li>
-                            <a href="/admin/dashboard" class="sidebar-item" data-tooltip="Dashboard">
+                            <a href="/admin/dashboard" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")" data-tooltip="Dashboard">
                                 <span class="text-lg">📊</span>
                                 <span class="sidebar-text">Dashboard</span>
                             </a>
                         </li>
+                        
+                        <li class="menu-title sidebar-text">
+                            <span>Gestión</span>
+                        </li>
+                        
+                        <li>
+                            <a href="/admin/barbers" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Barbers" ? "active" : "")" data-tooltip="Barberos">
+                                <span class="text-lg">👥</span>
+                                <span class="sidebar-text">Barberos</span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="/admin/employees" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Employees" ? "active" : "")" data-tooltip="Empleados">
+                                <span class="text-lg">👤</span>
+                                <span class="sidebar-text">Empleados</span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="/admin/appointments" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Appointments" ? "active" : "")" data-tooltip="Citas">
+                                <span class="text-lg">📅</span>
+                                <span class="sidebar-text">Citas</span>
+                            </a>
+                        </li>
+                        
+                        <li class="menu-title sidebar-text">
+                            <span>Análisis</span>
+                        </li>
+                        
+                        <li>
+                            <a href="/admin/reports" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")" data-tooltip="Reportes">
+                                <span class="text-lg">📈</span>
+                                <span class="sidebar-text">Reportes</span>
+                            </a>
+                        </li>
+                        
+                        <li class="menu-title sidebar-text">
+                            <span>Sistema</span>
+                        </li>
+                        
+                        <li>
+                            <a href="/admin/settings" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")" data-tooltip="Configuración">
+                                <span class="text-lg">⚙️</span>
+                                <span class="sidebar-text">Configuración</span>
+                            </a>
+                        </li>
+                        
                         <li>
                             <a href="/swagger" class="sidebar-item" data-tooltip="API Swagger" target="_blank">
                                 <span class="text-lg">🔌</span>

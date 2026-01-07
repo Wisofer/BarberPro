@@ -1,0 +1,133 @@
+@using BarberPro.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Gestión de Empleados";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var employees = ViewBag.Employees as List<EmployeeDto> ?? new List<EmployeeDto>();
+    var barbers = ViewBag.Barbers as List<BarberDto> ?? new List<BarberDto>();
+}
+
+<div class="container mx-auto p-4 sm:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gold mb-1">Gestión de Empleados</h1>
+        <p class="text-sm text-gray-400">Administra todos los empleados del sistema</p>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Total Empleados</div>
+            <div class="text-2xl font-bold text-gold">@employees.Count</div>
+        </div>
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Activos</div>
+            <div class="text-2xl font-bold text-success">@employees.Count(e => e.IsActive)</div>
+        </div>
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Inactivos</div>
+            <div class="text-2xl font-bold text-error">@employees.Count(e => !e.IsActive)</div>
+        </div>
+        <div class="bg-base-200 rounded-lg p-4 border border-base-300">
+            <div class="text-xs text-gray-500 mb-1">Barberos con Empleados</div>
+            <div class="text-2xl font-bold text-gold">@employees.Select(e => e.OwnerBarberId).Distinct().Count()</div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="mb-4 flex gap-2 flex-wrap">
+        <input type="text" id="searchEmployees" placeholder="Buscar por nombre o email..." 
+               class="input input-bordered flex-1 min-w-[200px]" onkeyup="filterEmployees()">
+        <select id="filterBarber" class="select select-bordered" onchange="filterEmployees()">
+            <option value="">Todos los barberos</option>
+            @foreach (var barber in barbers)
+            {
+                <option value="@barber.Id">@barber.Name</option>
+            }
+        </select>
+        <select id="filterStatus" class="select select-bordered" onchange="filterEmployees()">
+            <option value="">Todos los estados</option>
+            <option value="active">Solo activos</option>
+            <option value="inactive">Solo inactivos</option>
+        </select>
+    </div>
+
+    <!-- Tabla de Empleados -->
+    <div class="bg-base-100 rounded-lg border border-base-300 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th class="text-xs">Nombre</th>
+                        <th class="text-xs">Email</th>
+                        <th class="text-xs">Teléfono</th>
+                        <th class="text-xs">Barbero Dueño</th>
+                        <th class="text-xs text-center">Estado</th>
+                        <th class="text-xs">Fecha Registro</th>
+                        <th class="text-xs text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                    @foreach (var employee in employees)
+                    {
+                        <tr data-employee-id="@employee.Id" data-name="@employee.Name.ToLower()" data-email="@employee.Email.ToLower()" data-barber-id="@employee.OwnerBarberId" data-status="@(employee.IsActive ? "active" : "inactive")">
+                            <td class="text-sm font-medium">@employee.Name</td>
+                            <td class="text-xs text-gray-500">@employee.Email</td>
+                            <td class="text-xs">@(employee.Phone ?? "-")</td>
+                            <td class="text-xs">@employee.OwnerBarberName</td>
+                            <td class="text-center">
+                                @if (employee.IsActive)
+                                {
+                                    <span class="badge badge-success badge-xs">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-error badge-xs">Inactivo</span>
+                                }
+                            </td>
+                            <td class="text-xs text-gray-500">@employee.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                <div class="flex gap-1 justify-center">
+                                    <button onclick="viewEmployeeDetails(@employee.Id, @employee.OwnerBarberId)" 
+                                            class="btn btn-xs btn-primary" title="Ver Detalles">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterEmployees() {
+        const search = document.getElementById('searchEmployees').value.toLowerCase();
+        const barberFilter = document.getElementById('filterBarber').value;
+        const statusFilter = document.getElementById('filterStatus').value;
+        const rows = document.querySelectorAll('#employeesTableBody tr');
+        
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const email = row.dataset.email || '';
+            const barberId = row.dataset.barberId || '';
+            const status = row.dataset.status || '';
+            
+            const matchesSearch = name.includes(search) || email.includes(search);
+            const matchesBarber = !barberFilter || barberId === barberFilter;
+            const matchesStatus = !statusFilter || status === statusFilter;
+            
+            row.style.display = (matchesSearch && matchesBarber && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    function viewEmployeeDetails(employeeId, barberId) {
+        // Redirigir al dashboard del barbero donde se puede ver el empleado
+        window.location.href = `/admin/dashboard#barber-${barberId}`;
+    }
+</script>
+

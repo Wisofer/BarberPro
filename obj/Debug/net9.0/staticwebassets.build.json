@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "vuXpJNrojs7mc6kv9tbdB91X7do/fPNQnLPan7ACzh4=",
+  "Hash": "KomOnhv4swzznQ6WCpY+kpzqGhofev+PiBKgIPltxQA=",
   "Source": "BarberPro",
   "BasePath": "_content/BarberPro",
   "Mode": "Default",
@@ -414,6 +414,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/tempdata-sounds.js"
+    },
+    {
+      "Identity": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz",
+      "SourceId": "BarberPro",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/",
+      "BasePath": "_content/BarberPro",
+      "RelativePath": "js/appointment-booking#[.{fingerprint=4ltvmifha4}]?.js.gz",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "Fingerprint": "dshfushr7y",
+      "Integrity": "M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js"
     },
     {
       "Identity": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/ovdba9gjwx-jctfavohoy.gz",
@@ -855,6 +876,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/images/logo4.png"
+    },
+    {
+      "Identity": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
+      "SourceId": "BarberPro",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/",
+      "BasePath": "_content/BarberPro",
+      "RelativePath": "js/appointment-booking#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "4ltvmifha4",
+      "Integrity": "iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/appointment-booking.js"
     },
     {
       "Identity": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/cache/cache-manager.js",
@@ -2493,6 +2535,304 @@
         {
           "Name": "integrity",
           "Value": "sha256-6GCQtbrK8IRFIQ7wOXMLKVvNWf0XC2KfniNCvw9KQr4="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.4ltvmifha4.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000245158127"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4078"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ltvmifha4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/appointment-booking.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.4ltvmifha4.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "18056"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ltvmifha4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/appointment-booking.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.4ltvmifha4.js.gz",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4078"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4ltvmifha4"
+        },
+        {
+          "Name": "label",
+          "Value": "js/appointment-booking.js.gz"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000245158127"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4078"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "18056"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-iDVYWXOmo1N94MIc2FnZk8g0JaHjQD9bs71pXytHdLk="
+        }
+      ]
+    },
+    {
+      "Route": "js/appointment-booking.js.gz",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/nopdzasxdz-4ltvmifha4.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4078"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 07 Jan 2026 05:46:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-M1raB/A9RCmR3LaaxFLPwn5+oOAFt4r/Z8SRxYUnKYU="
         }
       ]
     },

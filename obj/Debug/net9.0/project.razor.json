@@ -19466,6 +19466,11 @@
   "RootNamespace": "BarberPro",
   "Documents": [
     {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Appointments.cshtml",
+      "TargetPath": "Views\\Admin\\Appointments.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Shared/_Layout.cshtml",
       "TargetPath": "Views\\Shared\\_Layout.cshtml",
       "FileKind": "mvc"
@@ -19473,6 +19478,16 @@
     {
       "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Shared/_Loader.cshtml",
       "TargetPath": "Views\\Shared\\_Loader.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Settings.cshtml",
+      "TargetPath": "Views\\Admin\\Settings.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Barbers.cshtml",
+      "TargetPath": "Views\\Admin\\Barbers.cshtml",
       "FileKind": "mvc"
     },
     {
@@ -19496,8 +19511,18 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Reports.cshtml",
+      "TargetPath": "Views\\Admin\\Reports.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Dashboard.cshtml",
       "TargetPath": "Views\\Admin\\Dashboard.cshtml",
+      "FileKind": "mvc"
+    },
+    {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Employees.cshtml",
+      "TargetPath": "Views\\Admin\\Employees.cshtml",
       "FileKind": "mvc"
     }
   ],

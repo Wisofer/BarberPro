@@ -14,19 +14,25 @@ public class AdminController : Controller
     private readonly IFinanceService _financeService;
     private readonly IServiceService _serviceService;
     private readonly IAppointmentService _appointmentService;
+    private readonly IEmployeeService _employeeService;
+    private readonly IReportService _reportService;
 
     public AdminController(
         IDashboardService dashboardService, 
         IBarberService barberService,
         IFinanceService financeService,
         IServiceService serviceService,
-        IAppointmentService appointmentService)
+        IAppointmentService appointmentService,
+        IEmployeeService employeeService,
+        IReportService reportService)
     {
         _dashboardService = dashboardService;
         _barberService = barberService;
         _financeService = financeService;
         _serviceService = serviceService;
         _appointmentService = appointmentService;
+        _employeeService = employeeService;
+        _reportService = reportService;
     }
 
     [HttpGet("admin/dashboard")]
@@ -275,6 +281,148 @@ public class AdminController : Controller
         {
             return Json(new { success = false, message = $"Error al obtener citas: {ex.Message}" });
         }
+    }
+
+    [HttpGet("admin/barbers")]
+    public async Task<IActionResult> Barbers()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        try
+        {
+            var dashboard = await _dashboardService.GetAdminDashboardAsync();
+            ViewBag.Barbers = dashboard.RecentBarbers;
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+        catch (Exception)
+        {
+            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberSummaryDto>();
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+    }
+
+    [HttpGet("admin/employees")]
+    public async Task<IActionResult> Employees()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        try
+        {
+            // Obtener todos los barberos para el filtro
+            var barbers = await _barberService.GetAllBarbersAsync();
+            
+            // Obtener todos los empleados de todos los barberos
+            var allEmployees = new List<BarberPro.Models.DTOs.Responses.EmployeeDto>();
+            foreach (var barber in barbers)
+            {
+                try
+                {
+                    var employees = await _employeeService.GetEmployeesAsync(barber.Id);
+                    allEmployees.AddRange(employees);
+                }
+                catch
+                {
+                    // Continuar si hay error con un barbero específico
+                }
+            }
+
+            ViewBag.Employees = allEmployees;
+            ViewBag.Barbers = barbers;
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+        catch (Exception)
+        {
+            ViewBag.Employees = new List<BarberPro.Models.DTOs.Responses.EmployeeDto>();
+            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+    }
+
+    [HttpGet("admin/appointments")]
+    public async Task<IActionResult> Appointments()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        try
+        {
+            // Obtener todos los barberos para el filtro
+            var barbers = await _barberService.GetAllBarbersAsync();
+            
+            // Obtener todas las citas de todos los barberos
+            var allAppointments = new List<BarberPro.Models.DTOs.Responses.AppointmentDto>();
+            foreach (var barber in barbers)
+            {
+                try
+                {
+                    var appointments = await _appointmentService.GetBarberAppointmentsAsync(barber.Id);
+                    allAppointments.AddRange(appointments);
+                }
+                catch
+                {
+                    // Continuar si hay error con un barbero específico
+                }
+            }
+
+            ViewBag.Appointments = allAppointments.OrderByDescending(a => a.Date).ThenByDescending(a => a.Time).ToList();
+            ViewBag.Barbers = barbers;
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+        catch (Exception)
+        {
+            ViewBag.Appointments = new List<BarberPro.Models.DTOs.Responses.AppointmentDto>();
+            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+    }
+
+    [HttpGet("admin/reports")]
+    public async Task<IActionResult> Reports()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        try
+        {
+            var barbers = await _barberService.GetAllBarbersAsync();
+            ViewBag.Barbers = barbers;
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+        catch (Exception)
+        {
+            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+    }
+
+    [HttpGet("admin/settings")]
+    public IActionResult Settings()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+        return View();
     }
 }
 

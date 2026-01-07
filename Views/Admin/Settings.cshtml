@@ -1,0 +1,162 @@
+@{
+    ViewData["Title"] = "Configuración";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mx-auto p-4 sm:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gold mb-1">Configuración del Sistema</h1>
+        <p class="text-sm text-gray-400">Ajustes y configuraciones generales</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs tabs-boxed mb-6">
+        <a class="tab tab-active" onclick="showTab('general')">General</a>
+        <a class="tab" onclick="showTab('categories')">Categorías</a>
+        <a class="tab" onclick="showTab('notifications')">Notificaciones</a>
+    </div>
+
+    <!-- Contenido de Tabs -->
+    <!-- Tab: General -->
+    <div id="tab-general" class="tab-content">
+        <div class="bg-base-100 rounded-lg border border-base-300 p-6">
+            <h2 class="text-xl font-bold mb-4">Configuración General</h2>
+            <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Nombre del Sistema</span>
+                    </label>
+                    <input type="text" class="input input-bordered" value="BarberPro" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Versión</span>
+                    </label>
+                    <input type="text" class="input input-bordered" value="1.0.0" readonly>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Zona Horaria</span>
+                    </label>
+                    <select class="select select-bordered">
+                        <option>UTC-6 (Nicaragua)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Categorías -->
+    <div id="tab-categories" class="tab-content hidden">
+        <div class="bg-base-100 rounded-lg border border-base-300 p-6">
+            <h2 class="text-xl font-bold mb-4">Categorías de Transacciones</h2>
+            <div class="mb-4">
+                <div class="flex gap-2">
+                    <input type="text" id="newCategory" class="input input-bordered flex-1" placeholder="Nueva categoría...">
+                    <button onclick="addCategory()" class="btn btn-primary">Agregar</button>
+                </div>
+            </div>
+            <div class="space-y-2" id="categoriesList">
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Alquiler</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Servicios Públicos</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Materiales</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Salarios</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Marketing</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Service</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+                    <span>Otros</span>
+                    <button class="btn btn-xs btn-error">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Notificaciones -->
+    <div id="tab-notifications" class="tab-content hidden">
+        <div class="bg-base-100 rounded-lg border border-base-300 p-6">
+            <h2 class="text-xl font-bold mb-4">Configuración de Notificaciones</h2>
+            <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Notificaciones por Email</span>
+                        <input type="checkbox" class="toggle toggle-primary" checked>
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Notificaciones de Nuevas Citas</span>
+                        <input type="checkbox" class="toggle toggle-primary" checked>
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Notificaciones de Pagos</span>
+                        <input type="checkbox" class="toggle toggle-primary" checked>
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer">
+                        <span class="label-text">Recordatorios de Citas</span>
+                        <input type="checkbox" class="toggle toggle-primary">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // Ocultar todos los tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('tab-active');
+        });
+        
+        // Mostrar el tab seleccionado
+        document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+        event.target.classList.add('tab-active');
+    }
+
+    function addCategory() {
+        const input = document.getElementById('newCategory');
+        const category = input.value.trim();
+        
+        if (!category) {
+            alert('Ingresa un nombre para la categoría');
+            return;
+        }
+        
+        const list = document.getElementById('categoriesList');
+        const newItem = document.createElement('div');
+        newItem.className = 'flex items-center justify-between p-3 bg-base-200 rounded-lg';
+        newItem.innerHTML = `
+            <span>${category}</span>
+            <button class="btn btn-xs btn-error" onclick="this.parentElement.remove()">Eliminar</button>
+        `;
+        list.appendChild(newItem);
+        input.value = '';
+    }
+</script>
+
