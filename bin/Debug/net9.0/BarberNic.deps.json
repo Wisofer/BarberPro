@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "BarberPro/1.0.0": {
+      "BarberNic/1.0.0": {
         "dependencies": {
           "ClosedXML": "0.104.1",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.0",
@@ -18,7 +18,7 @@
           "System.IdentityModel.Tokens.Jwt": "8.2.1"
         },
         "runtime": {
-          "BarberPro.dll": {}
+          "BarberNic.dll": {}
         }
       },
       "ClosedXML/0.104.1": {
@@ -818,7 +818,7 @@
     }
   },
   "libraries": {
-    "BarberPro/1.0.0": {
+    "BarberNic/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Horarios laborales del barbero por día de la semana

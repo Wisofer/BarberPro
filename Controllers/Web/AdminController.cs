@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BarberPro.Utils;
-using BarberPro.Services.Interfaces;
-using BarberPro.Models.DTOs.Requests;
+using BarberNic.Utils;
+using BarberNic.Services.Interfaces;
+using BarberNic.Models.DTOs.Requests;
 using System.Linq;
 
-namespace BarberPro.Controllers.Web;
+namespace BarberNic.Controllers.Web;
 
 [Authorize]
 public class AdminController : Controller
@@ -301,7 +301,7 @@ public class AdminController : Controller
         }
         catch (Exception)
         {
-            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberSummaryDto>();
+            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberSummaryDto>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
@@ -321,7 +321,7 @@ public class AdminController : Controller
             var barbers = await _barberService.GetAllBarbersAsync();
             
             // Obtener todos los empleados de todos los barberos
-            var allEmployees = new List<BarberPro.Models.DTOs.Responses.EmployeeDto>();
+            var allEmployees = new List<BarberNic.Models.DTOs.Responses.EmployeeDto>();
             foreach (var barber in barbers)
             {
                 try
@@ -342,8 +342,8 @@ public class AdminController : Controller
         }
         catch (Exception)
         {
-            ViewBag.Employees = new List<BarberPro.Models.DTOs.Responses.EmployeeDto>();
-            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Employees = new List<BarberNic.Models.DTOs.Responses.EmployeeDto>();
+            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
@@ -363,7 +363,7 @@ public class AdminController : Controller
             var barbers = await _barberService.GetAllBarbersAsync();
             
             // Obtener todas las citas de todos los barberos
-            var allAppointments = new List<BarberPro.Models.DTOs.Responses.AppointmentDto>();
+            var allAppointments = new List<BarberNic.Models.DTOs.Responses.AppointmentDto>();
             foreach (var barber in barbers)
             {
                 try
@@ -384,8 +384,8 @@ public class AdminController : Controller
         }
         catch (Exception)
         {
-            ViewBag.Appointments = new List<BarberPro.Models.DTOs.Responses.AppointmentDto>();
-            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Appointments = new List<BarberNic.Models.DTOs.Responses.AppointmentDto>();
+            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
@@ -408,7 +408,7 @@ public class AdminController : Controller
         }
         catch (Exception)
         {
-            ViewBag.Barbers = new List<BarberPro.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }

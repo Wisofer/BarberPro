@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BarberPro.Migrations
+namespace BarberNic.Migrations
 {
     /// <inheritdoc />
     public partial class AddEmployeeEntity : Migration

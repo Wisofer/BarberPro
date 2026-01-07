@@ -1,6 +1,6 @@
-using BarberPro.Models.Entities;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Models.DTOs.Requests;
+namespace BarberNic.Models.DTOs.Requests;
 
 /// <summary>
 /// DTO para actualizar una cita

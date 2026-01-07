@@ -1,12 +1,12 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Services.Interfaces;
-using BarberPro.Utils;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Services.Interfaces;
+using BarberNic.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BarberPro.Controllers.Api;
+namespace BarberNic.Controllers.Api;
 
 /// <summary>
 /// Controlador de rutas para trabajadores/empleados
@@ -20,6 +20,8 @@ public class EmployeeController : ControllerBase
     private readonly IFinanceService _financeService;
     private readonly IServiceService _serviceService;
     private readonly IAuthService _authService;
+    private readonly IBarberService _barberService;
+    private readonly IEmployeeService _employeeService;
     private readonly ILogger<EmployeeController> _logger;
 
     public EmployeeController(
@@ -27,16 +29,20 @@ public class EmployeeController : ControllerBase
         IFinanceService financeService,
         IServiceService serviceService,
         IAuthService authService,
+        IBarberService barberService,
+        IEmployeeService employeeService,
         ILogger<EmployeeController> logger)
     {
         _appointmentService = appointmentService;
         _financeService = financeService;
         _serviceService = serviceService;
         _authService = authService;
+        _barberService = barberService;
+        _employeeService = employeeService;
         _logger = logger;
     }
 
-    private int GetEmployeeId()
+    private async Task<int> GetEmployeeIdAsync()
     {
         var userId = JwtHelper.GetUserId(User);
         if (!userId.HasValue)
@@ -47,14 +53,31 @@ public class EmployeeController : ControllerBase
         if (string.IsNullOrEmpty(employeeIdClaim) || !int.TryParse(employeeIdClaim, out var employeeId))
             throw new UnauthorizedAccessException("ID de trabajador no encontrado en el token");
 
+        // Verificar que el empleado existe y está activo
+        var ownerBarberId = await GetOwnerBarberIdAsync();
+        var employee = await _employeeService.GetEmployeeByIdAsync(employeeId, ownerBarberId);
+        if (employee == null)
+            throw new UnauthorizedAccessException("Empleado no encontrado o fue eliminado");
+        
+        if (!employee.IsActive)
+            throw new UnauthorizedAccessException("Empleado desactivado");
+
         return employeeId;
     }
 
-    private int GetOwnerBarberId()
+    private async Task<int> GetOwnerBarberIdAsync()
     {
         var barberIdClaim = User.FindFirst("OwnerBarberId")?.Value;
         if (string.IsNullOrEmpty(barberIdClaim) || !int.TryParse(barberIdClaim, out var barberId))
             throw new UnauthorizedAccessException("ID de barbero dueño no encontrado en el token");
+
+        // Verificar que el barbero dueño existe y está activo
+        var barber = await _barberService.GetBarberByIdAsync(barberId);
+        if (barber == null)
+            throw new UnauthorizedAccessException("Barbero dueño no encontrado o fue eliminado");
+        
+        if (!barber.IsActive)
+            throw new UnauthorizedAccessException("Barbero dueño desactivado");
 
         return barberId;
     }
@@ -67,7 +90,7 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var ownerBarberId = GetOwnerBarberId();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
             
             DateOnly? dateFilter = null;
             if (!string.IsNullOrEmpty(date) && DateOnly.TryParse(date, out var parsedDate))
@@ -97,8 +120,8 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Asegurar que la cita se asocie al barbero dueño y al trabajador
             request.BarberSlug = null; // No usar slug, usar ID directamente
@@ -124,7 +147,7 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var ownerBarberId = GetOwnerBarberId();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
             
             if (appointment == null || appointment.BarberId != ownerBarberId)
@@ -151,8 +174,8 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Verificar que la cita pertenece al barbero dueño
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
@@ -189,8 +212,8 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Parsear y normalizar fechas desde string
             DateTime? parsedStartDate = null;
@@ -236,8 +259,8 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Crear ingreso asociado al barbero dueño y al trabajador
             var income = await _financeService.CreateIncomeAsync(ownerBarberId, request, employeeId);
@@ -259,8 +282,8 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Parsear y normalizar fechas desde string
             DateTime? parsedStartDate = null;
@@ -306,8 +329,8 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            var employeeId = GetEmployeeId();
-            var ownerBarberId = GetOwnerBarberId();
+            var employeeId = await GetEmployeeIdAsync();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
 
             // Crear egreso asociado al barbero dueño y al trabajador
             var expense = await _financeService.CreateExpenseAsync(ownerBarberId, request, employeeId);
@@ -332,7 +355,7 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var ownerBarberId = GetOwnerBarberId();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
             
             // Obtener servicios del barbero dueño (solo lectura)
             var services = await _serviceService.GetBarberServicesAsync(ownerBarberId);
@@ -354,7 +377,7 @@ public class EmployeeController : ControllerBase
     {
         try
         {
-            var ownerBarberId = GetOwnerBarberId();
+            var ownerBarberId = await GetOwnerBarberIdAsync();
             
             // Obtener todos los servicios del barbero y buscar el específico
             // Esto asegura que solo se pueda acceder a servicios del barbero dueño

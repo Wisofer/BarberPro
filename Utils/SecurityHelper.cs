@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 /// <summary>
 /// Helper centralizado para operaciones de seguridad y autenticación.

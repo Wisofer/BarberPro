@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Entidad para almacenar configuraciones del sistema

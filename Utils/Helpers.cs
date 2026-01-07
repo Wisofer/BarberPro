@@ -1,7 +1,7 @@
 using System.Text.Json;
-using BarberPro.Models.Entities;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 public static class Helpers
 {

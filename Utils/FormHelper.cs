@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 public static class FormHelper
 {

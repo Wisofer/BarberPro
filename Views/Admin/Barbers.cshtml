@@ -1,4 +1,4 @@
-@using BarberPro.Models.DTOs.Responses
+@using BarberNic.Models.DTOs.Responses
 @{
     ViewData["Title"] = "Gestión de Barberos";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -245,13 +245,50 @@
 
 <!-- Modal para Eliminar Barbero -->
 <dialog id="modalEliminarBarbero" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4 text-error">Eliminar Barbero</h3>
-        <p class="mb-4">¿Estás seguro de que deseas eliminar a <strong id="barberNameToDelete">este barbero</strong>?</p>
-        <p class="text-sm text-warning mb-6">Esta acción no se puede deshacer. Se eliminarán todos los datos asociados al barbero, incluyendo citas, servicios y transacciones.</p>
+    <div class="modal-box max-w-2xl">
+        <div class="text-center mb-6">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="font-bold text-3xl mb-4 text-error">ELIMINAR BARBERO PERMANENTEMENTE</h3>
+        </div>
+        
+        <div class="bg-error/10 border-2 border-error rounded-lg p-6 mb-6">
+            <p class="text-lg font-semibold mb-4 text-error">
+                ¿Estás completamente seguro de eliminar a <strong id="barberNameToDelete" class="text-2xl">este barbero</strong>?
+            </p>
+            
+            <div class="bg-base-200 rounded-lg p-4 mb-4">
+                <p class="font-bold text-base mb-3 text-warning">⚠️ ESTA ACCIÓN ELIMINARÁ PERMANENTEMENTE:</p>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li><strong>Todas las citas</strong> del barbero</li>
+                    <li><strong>Todos los servicios</strong> configurados</li>
+                    <li><strong>Todos los ingresos y egresos</strong> (transacciones financieras)</li>
+                    <li><strong>Todas las estadísticas</strong> y reportes</li>
+                    <li><strong>Todos los horarios de trabajo</strong> configurados</li>
+                    <li><strong>Todos los tiempos bloqueados</strong></li>
+                    <li><strong>Todos los empleados</strong> y sus cuentas asociadas</li>
+                    <li><strong>La cuenta de usuario</strong> del barbero (el email quedará libre)</li>
+                    <li><strong>TODOS los datos</strong> relacionados con este barbero</li>
+                </ul>
+            </div>
+            
+            <div class="bg-error/20 border border-error rounded p-4">
+                <p class="text-base font-bold text-error">
+                    ⛔ ESTA ACCIÓN NO SE PUEDE DESHACER ⛔
+                </p>
+                <p class="text-sm mt-2">
+                    Una vez eliminado, todos los datos serán borrados permanentemente de la base de datos.
+                </p>
+            </div>
+        </div>
+        
         <div class="modal-action">
-            <button id="btnCancelDelete" class="btn btn-ghost">Cancelar</button>
-            <button id="btnConfirmDelete" class="btn btn-error">Eliminar</button>
+            <button id="btnCancelDelete" class="btn btn-ghost btn-lg">Cancelar</button>
+            <button id="btnConfirmDelete" class="btn btn-error btn-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                SÍ, ELIMINAR PERMANENTEMENTE
+            </button>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using BarberPro.Data;
-using BarberPro.Models.Entities;
-using BarberPro.Services.IServices;
+using BarberNic.Data;
+using BarberNic.Models.Entities;
+using BarberNic.Services.IServices;
 
-namespace BarberPro.Services;
+namespace BarberNic.Services;
 
 public class UsuarioService : IUsuarioService
 {

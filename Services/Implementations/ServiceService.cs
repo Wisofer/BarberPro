@@ -1,10 +1,10 @@
-using BarberPro.Data;
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Services.Interfaces;
+using BarberNic.Data;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para gestión de servicios del barbero

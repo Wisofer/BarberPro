@@ -1,12 +1,12 @@
-using BarberPro.Data;
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
+using BarberNic.Utils;
 using Microsoft.EntityFrameworkCore;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para gestión de barberos
@@ -189,6 +189,21 @@ public class BarberService : IBarberService
 
         barber.IsActive = isActive;
         barber.UpdatedAt = DateTime.UtcNow;
+
+        // Si se desactiva el barbero, también desactivar todos sus empleados
+        if (!isActive)
+        {
+            var employees = await _context.Employees
+                .Where(e => e.OwnerBarberId == id && e.IsActive)
+                .ToListAsync();
+            
+            foreach (var employee in employees)
+            {
+                employee.IsActive = false;
+                employee.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         return true;
@@ -200,7 +215,85 @@ public class BarberService : IBarberService
         if (barber == null)
             return false;
 
+        // Obtener el UserId antes de eliminar
+        var userId = barber.UserId;
+
+        // 1. Obtener IDs de citas del barbero para eliminar relaciones
+        var appointmentIds = await _context.Appointments
+            .Where(a => a.BarberId == id)
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        // 2. Eliminar AppointmentServices (relaciones de citas con servicios)
+        if (appointmentIds.Any())
+        {
+            var appointmentServices = await _context.AppointmentServices
+                .Where(aps => appointmentIds.Contains(aps.AppointmentId))
+                .ToListAsync();
+            _context.AppointmentServices.RemoveRange(appointmentServices);
+        }
+
+        // 3. Eliminar Transactions (ingresos y egresos)
+        var transactions = await _context.Transactions
+            .Where(t => t.BarberId == id)
+            .ToListAsync();
+        _context.Transactions.RemoveRange(transactions);
+
+        // 4. Eliminar Appointments (citas)
+        if (appointmentIds.Any())
+        {
+            var appointments = await _context.Appointments
+                .Where(a => a.BarberId == id)
+                .ToListAsync();
+            _context.Appointments.RemoveRange(appointments);
+        }
+
+        // 5. Eliminar Services (servicios)
+        var services = await _context.Services
+            .Where(s => s.BarberId == id)
+            .ToListAsync();
+        _context.Services.RemoveRange(services);
+
+        // 6. Eliminar WorkingHours (horarios de trabajo)
+        var workingHours = await _context.WorkingHours
+            .Where(wh => wh.BarberId == id)
+            .ToListAsync();
+        _context.WorkingHours.RemoveRange(workingHours);
+
+        // 7. Eliminar BlockedTimes (tiempos bloqueados)
+        var blockedTimes = await _context.BlockedTimes
+            .Where(bt => bt.BarberId == id)
+            .ToListAsync();
+        _context.BlockedTimes.RemoveRange(blockedTimes);
+
+        // 8. Eliminar Employees y sus Users asociados
+        var employees = await _context.Employees
+            .Where(e => e.OwnerBarberId == id)
+            .Include(e => e.User)
+            .ToListAsync();
+        
+        foreach (var employee in employees)
+        {
+            // Eliminar el User del empleado si existe
+            if (employee.User != null)
+            {
+                _context.Users.Remove(employee.User);
+            }
+            // El Employee se eliminará en cascada, pero lo hacemos explícito
+            _context.Employees.Remove(employee);
+        }
+
+        // 9. Eliminar el Barber
         _context.Barbers.Remove(barber);
+
+        // 10. Eliminar el User del barbero para liberar el email
+        var user = await _context.Users.FindAsync(userId);
+        if (user != null)
+        {
+            _context.Users.Remove(user);
+        }
+
+        // Guardar todos los cambios
         await _context.SaveChangesAsync();
 
         return true;

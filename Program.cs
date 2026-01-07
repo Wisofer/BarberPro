@@ -1,10 +1,10 @@
-using BarberPro.Data;
-using BarberPro.Models.Entities;
-using BarberPro.Services;
-using BarberPro.Services.IServices;
-using BarberPro.Services.Interfaces;
-using BarberPro.Services.Implementations;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.Entities;
+using BarberNic.Services;
+using BarberNic.Services.IServices;
+using BarberNic.Services.Interfaces;
+using BarberNic.Services.Implementations;
+using BarberNic.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +34,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo 
     { 
-        Title = "BarberPro API", 
+        Title = "BarberNic API", 
         Version = "v1",
         Description = "API para gestión de reservas de barberías"
     });
@@ -83,8 +83,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Configurar JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
-var issuer = jwtSettings["Issuer"] ?? "BarberPro";
-var audience = jwtSettings["Audience"] ?? "BarberProUsers";
+        var issuer = jwtSettings["Issuer"] ?? "BarberNic";
+        var audience = jwtSettings["Audience"] ?? "BarberNicUsers";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -102,7 +102,7 @@ builder.Services.AddAuthentication(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.Name = "BarberPro.Auth";
+        options.Cookie.Name = "BarberNic.Auth";
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // Para API
 {
@@ -152,9 +152,9 @@ builder.Services.AddSession(options =>
 });
 
 // Registrar servicios nuevos (API)
-builder.Services.AddScoped<BarberPro.Services.Interfaces.IAuthService, BarberPro.Services.Implementations.AuthService>();
+        builder.Services.AddScoped<BarberNic.Services.Interfaces.IAuthService, BarberNic.Services.Implementations.AuthService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
-builder.Services.AddScoped<IAppointmentService, BarberPro.Services.Implementations.AppointmentService>();
+        builder.Services.AddScoped<IAppointmentService, BarberNic.Services.Implementations.AppointmentService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IFinanceService, FinanceService>();
@@ -166,7 +166,7 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
 // Registrar servicios antiguos (MVC web - mantener compatibilidad)
-builder.Services.AddScoped<BarberPro.Services.IServices.IAuthService, BarberPro.Services.AuthService>();
+        builder.Services.AddScoped<BarberNic.Services.IServices.IAuthService, BarberNic.Services.AuthService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IConfiguracionService, ConfiguracionService>();
 
@@ -209,7 +209,7 @@ else
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BarberPro API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BarberNic API v1");
         c.RoutePrefix = "swagger"; // Swagger disponible en /swagger
     });
 }

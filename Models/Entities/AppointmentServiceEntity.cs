@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Tabla intermedia para relación muchos-a-muchos entre Appointment y Service

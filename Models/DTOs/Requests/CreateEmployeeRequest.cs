@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BarberPro.Models.DTOs.Requests;
+namespace BarberNic.Models.DTOs.Requests;
 
 /// <summary>
 /// DTO para crear un trabajador/empleado

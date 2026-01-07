@@ -1,7 +1,7 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
 
-namespace BarberPro.Services.Interfaces;
+namespace BarberNic.Services.Interfaces;
 
 /// <summary>
 /// Interfaz para el servicio de trabajadores/empleados

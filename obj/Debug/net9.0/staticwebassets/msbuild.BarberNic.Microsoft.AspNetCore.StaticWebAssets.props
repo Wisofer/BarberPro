@@ -2,9 +2,9 @@
   <ItemGroup>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\notifications.css'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>css/notifications.css</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -20,9 +20,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\tailwind.css'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>css/tailwind.css</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -38,9 +38,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo1.png'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>images/logo1.png</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -48,17 +48,17 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>dhpkutwqo6</Fingerprint>
-      <Integrity>AbBIvwqKIMNWoc0cGh/Z5Es+8g4G0d7X0d81iNDSsIQ=</Integrity>
+      <Fingerprint>828v618ctw</Fingerprint>
+      <Integrity>kCTr3ZcMbrtAr1IxK2sc2ttcPW4gsKY+zDbnq5Zt/fc=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo1.png'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo2.png'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>images/logo2.png</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -66,53 +66,35 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>rnjz7zj8pc</Fingerprint>
-      <Integrity>ua4ViiLvkFOE8+BzRX+RHxAmu/o0P8ouZFGpjKKVwBs=</Integrity>
+      <Fingerprint>znpcy33g8z</Fingerprint>
+      <Integrity>EXVqQRd1m0jpOoLMjg/2unn+ggoLXkmQPuNBArteHQA=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo2.png'))</OriginalItemSpec>
     </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo3.jpeg'))">
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo3.png'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>images/logo3.jpeg</RelativePath>
+      <BasePath>_content/BarberNic</BasePath>
+      <RelativePath>images/logo3.png</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
       <AssetRole>Primary</AssetRole>
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>a8ww83bp20</Fingerprint>
-      <Integrity>1rCvCL1422eApKfEU4bQXPPOaIlLf44opEMymTZyewA=</Integrity>
+      <Fingerprint>fp4chxu53w</Fingerprint>
+      <Integrity>LWgmC+23zOKxS8xCBaS1C4S33MMWHgu8Y/89RSZOgLE=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo3.jpeg'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo4.png'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>images/logo4.png</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>c72numcldy</Fingerprint>
-      <Integrity>6GCQtbrK8IRFIQ7wOXMLKVvNWf0XC2KfniNCvw9KQr4=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo4.png'))</OriginalItemSpec>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\logo3.png'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\admin\barbers-management.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/admin/barbers-management.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -128,9 +110,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\admin\employees-management.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/admin/employees-management.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -146,9 +128,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\appointment-booking.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/appointment-booking.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -164,9 +146,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\cache\cache-manager.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/cache/cache-manager.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -182,9 +164,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\configuraciones\configuraciones.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/configuraciones/configuraciones.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -200,9 +182,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\confirm-forms.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/confirm-forms.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -218,9 +200,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-appbar.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-appbar.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -236,9 +218,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-keepalive.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-keepalive.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -254,9 +236,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-notifications.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-notifications.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -272,9 +254,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-sidebar.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-sidebar.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -290,9 +272,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-sidebar-inline.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-sidebar-inline.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -308,9 +290,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-sidebar-tooltips.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-sidebar-tooltips.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -326,9 +308,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-sidebar-utils.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-sidebar-utils.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -344,9 +326,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\layout\layout-theme.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/layout/layout-theme.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -362,9 +344,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\notifications.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/notifications.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -380,9 +362,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pagos-crear.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/pagos-crear.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -396,227 +378,11 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pagos-crear.js'))</OriginalItemSpec>
     </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-cart.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-cart.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>5spx5tlyfa</Fingerprint>
-      <Integrity>xYmkAFpLOPgQC2tCSVWTASLY3WvzLW9BrjGCr7GBTA8=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-cart.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-descuentos.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-descuentos.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>6msk6r3vyn</Fingerprint>
-      <Integrity>IjAT8H8/i3+JdirPPVsvDkjWX0n+nKcUy+WiaibglMU=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-descuentos.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-init.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-init.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>e31fb0q0xv</Fingerprint>
-      <Integrity>Sj6pK4TFaRdJlED9lChG8wNBOyhZTSyDBzjn/hVhwgY=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-init.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-mesas.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-mesas.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>x3z9e7igae</Fingerprint>
-      <Integrity>A3yiYO7AbYCG26yYF+o7MdehCxl94I/l4vaN/FiQ4GY=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-mesas.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-modals.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-modals.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>nk84tqv1jr</Fingerprint>
-      <Integrity>Zxm/IE0bA+k3he8zZHZBntkl/ZbEuKJXxxJp/6aMzMI=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-modals.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-orders.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-orders.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>kag3wmxqcm</Fingerprint>
-      <Integrity>xMJ3Y4XwoIKrOe+geaCV3DViWerlPVCvhdBilWrGJ88=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-orders.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-sales.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-sales.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>vehqc358sn</Fingerprint>
-      <Integrity>WV1EB8g9K8r4xVNWy9bvGF6dPA62EcaM0o6X0Qcj7Bs=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-sales.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-search.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-search.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>ak0mpq2qoc</Fingerprint>
-      <Integrity>plKCSPTNcmDHTDhxXbUCyMoMbDxkVQnXQjMJiXHrfug=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-search.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-state.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-state.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>gudmme09c3</Fingerprint>
-      <Integrity>mP1Qw2wvM75oqgVGgFcgmPYVN3xEWjPUaKWEhCUGrkU=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-state.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-stock.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-stock.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>fvpe9yciz0</Fingerprint>
-      <Integrity>eytTBQ2x29llHnwb9en+WAVqrycT0UsIKAPRVZ9A6Eg=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-stock.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-tabs.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-tabs.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>j37lq6hog6</Fingerprint>
-      <Integrity>0aYYqrylc6yuJsuXLvyxkbR6IkD4QRjyG+fT29q2QA0=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-tabs.js'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-utils.js'))">
-      <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
-      <RelativePath>js/pos/pos-utils.js</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>yeefwk88o9</Fingerprint>
-      <Integrity>RplFBZv9Bny5IUwSIKdX8oBu1SAMaeZ7yxYKXur4I4U=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\pos\pos-utils.js'))</OriginalItemSpec>
-    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\precio-protection.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/precio-protection.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -632,9 +398,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\tempdata-sounds.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>js/tempdata-sounds.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -650,9 +416,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\lib\chart.js\chart.umd.min.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>lib/chart.js/chart.umd.min.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -668,9 +434,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\lib\daisyui\full.min.css'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>lib/daisyui/full.min.css</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -686,9 +452,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\lib\tailwindcss\tailwind.min.js'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>lib/tailwindcss/tailwind.min.js</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -704,9 +470,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\sounds\error.mp3'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>sounds/error.mp3</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>
@@ -722,9 +488,9 @@
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\sounds\success.mp3'))">
       <SourceType>Package</SourceType>
-      <SourceId>BarberPro</SourceId>
+      <SourceId>BarberNic</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/BarberPro</BasePath>
+      <BasePath>_content/BarberNic</BasePath>
       <RelativePath>sounds/success.mp3</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>All</AssetMode>

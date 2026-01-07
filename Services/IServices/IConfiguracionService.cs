@@ -1,4 +1,4 @@
-namespace BarberPro.Services.IServices;
+namespace BarberNic.Services.IServices;
 
 public interface IConfiguracionService
 {

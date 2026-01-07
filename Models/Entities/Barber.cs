@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Entidad que representa un barbero en el sistema

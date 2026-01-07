@@ -1,9 +1,9 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Services.Interfaces;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BarberPro.Controllers.Api;
+namespace BarberNic.Controllers.Api;
 
 /// <summary>
 /// Controlador de autenticación
@@ -32,11 +32,15 @@ public class AuthController : ControllerBase
 
         try
         {
-            var response = await _authService.LoginAsync(request);
-            if (response == null)
-                return Unauthorized(new { message = "Credenciales inválidas" });
-
-            return Ok(response);
+            var result = await _authService.LoginWithResultAsync(request);
+            
+            if (result.Success && result.Response != null)
+            {
+                return Ok(result.Response);
+            }
+            
+            // Retornar mensaje de error específico
+            return Unauthorized(new { message = result.ErrorMessage ?? "Credenciales inválidas" });
         }
         catch (Exception ex)
         {

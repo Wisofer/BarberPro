@@ -1,5 +1,5 @@
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
@@ -8,7 +8,7 @@ using QuestPDF.Infrastructure;
 using System.Text;
 using System.Text.Json;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para exportar datos

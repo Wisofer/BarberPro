@@ -1,13 +1,13 @@
-using BarberPro.Data;
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
+using BarberNic.Data;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para gestión de finanzas

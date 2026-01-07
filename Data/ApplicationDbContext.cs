@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using BarberPro.Models.Entities;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Data;
+namespace BarberNic.Data;
 
 public class ApplicationDbContext : DbContext
 {

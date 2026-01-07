@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 /// <summary>
 /// Helper para generar slugs únicos

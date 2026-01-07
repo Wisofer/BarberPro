@@ -1,8 +1,8 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Services.Interfaces;
+namespace BarberNic.Services.Interfaces;
 
 /// <summary>
 /// Interfaz para el servicio de barberos

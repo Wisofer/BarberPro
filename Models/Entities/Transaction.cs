@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Transacciones financieras (ingresos y egresos) del barbero

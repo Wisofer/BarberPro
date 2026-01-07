@@ -17,12 +17,8 @@
       "PackagePath": "staticwebassets/images/logo2.png"
     },
     {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo3.jpeg",
-      "PackagePath": "staticwebassets/images/logo3.jpeg"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo4.png",
-      "PackagePath": "staticwebassets/images/logo4.png"
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo3.png",
+      "PackagePath": "staticwebassets/images/logo3.png"
     },
     {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/admin/barbers-management.js",
@@ -89,54 +85,6 @@
       "PackagePath": "staticwebassets/js/pagos-crear.js"
     },
     {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-cart.js",
-      "PackagePath": "staticwebassets/js/pos/pos-cart.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-descuentos.js",
-      "PackagePath": "staticwebassets/js/pos/pos-descuentos.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-init.js",
-      "PackagePath": "staticwebassets/js/pos/pos-init.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-mesas.js",
-      "PackagePath": "staticwebassets/js/pos/pos-mesas.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-modals.js",
-      "PackagePath": "staticwebassets/js/pos/pos-modals.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-orders.js",
-      "PackagePath": "staticwebassets/js/pos/pos-orders.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-sales.js",
-      "PackagePath": "staticwebassets/js/pos/pos-sales.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-search.js",
-      "PackagePath": "staticwebassets/js/pos/pos-search.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-state.js",
-      "PackagePath": "staticwebassets/js/pos/pos-state.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-stock.js",
-      "PackagePath": "staticwebassets/js/pos/pos-stock.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-tabs.js",
-      "PackagePath": "staticwebassets/js/pos/pos-tabs.js"
-    },
-    {
-      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pos/pos-utils.js",
-      "PackagePath": "staticwebassets/js/pos/pos-utils.js"
-    },
-    {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/precio-protection.js",
       "PackagePath": "staticwebassets/js/precio-protection.js"
     },
@@ -165,24 +113,24 @@
       "PackagePath": "staticwebassets/sounds/success.mp3"
     },
     {
-      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.BarberPro.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.BarberNic.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
     },
     {
-      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.BarberPro.Microsoft.AspNetCore.StaticWebAssets.props",
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.BarberNic.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
     {
-      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.build.BarberPro.props",
-      "PackagePath": "build\\BarberPro.props"
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.build.BarberNic.props",
+      "PackagePath": "build\\BarberNic.props"
     },
     {
-      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildMultiTargeting.BarberPro.props",
-      "PackagePath": "buildMultiTargeting\\BarberPro.props"
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildMultiTargeting.BarberNic.props",
+      "PackagePath": "buildMultiTargeting\\BarberNic.props"
     },
     {
-      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildTransitive.BarberPro.props",
-      "PackagePath": "buildTransitive\\BarberPro.props"
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildTransitive.BarberNic.props",
+      "PackagePath": "buildTransitive\\BarberNic.props"
     }
   ],
   "ElementsToRemove": []

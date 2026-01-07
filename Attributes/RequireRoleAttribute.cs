@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
-namespace BarberPro.Attributes;
+namespace BarberNic.Attributes;
 
 /// <summary>
 /// Atributo personalizado para requerir un rol específico.

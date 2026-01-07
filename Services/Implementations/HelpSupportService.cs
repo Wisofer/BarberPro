@@ -1,7 +1,7 @@
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Services.Interfaces;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Services.Interfaces;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para ayuda y soporte

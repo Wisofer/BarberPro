@@ -1,4 +1,4 @@
-namespace BarberPro.Services.Interfaces;
+namespace BarberNic.Services.Interfaces;
 
 /// <summary>
 /// Interfaz para el servicio de exportación de datos

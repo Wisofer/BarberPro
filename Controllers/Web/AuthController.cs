@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BarberPro.Models.Entities;
-using BarberPro.Services.IServices;
-using BarberPro.Utils;
+using BarberNic.Models.Entities;
+using BarberNic.Services.IServices;
+using BarberNic.Utils;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace BarberPro.Controllers.Web;
+namespace BarberNic.Controllers.Web;
 
 public class AuthController : Controller
 {

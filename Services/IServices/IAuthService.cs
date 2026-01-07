@@ -1,6 +1,6 @@
-using BarberPro.Models.Entities;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Services.IServices;
+namespace BarberNic.Services.IServices;
 
 public interface IAuthService
 {

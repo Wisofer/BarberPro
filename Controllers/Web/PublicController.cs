@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using BarberPro.Services.Interfaces;
-using BarberPro.Models.DTOs.Requests;
+using BarberNic.Services.Interfaces;
+using BarberNic.Models.DTOs.Requests;
 
-namespace BarberPro.Controllers.Web;
+namespace BarberNic.Controllers.Web;
 
 /// <summary>
 /// Controlador para rutas públicas (sin autenticación)

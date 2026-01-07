@@ -1,12 +1,12 @@
-using BarberPro.Data;
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
+using BarberNic.Utils;
 using Microsoft.EntityFrameworkCore;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio para gestión de trabajadores/empleados

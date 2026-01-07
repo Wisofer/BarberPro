@@ -1,4 +1,4 @@
-namespace BarberPro.Models.DTOs.Responses;
+namespace BarberNic.Models.DTOs.Responses;
 
 /// <summary>
 /// DTO de información de ayuda y soporte

@@ -2,9 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using BarberPro.Models.Entities;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 /// <summary>
 /// Helper para generar y validar tokens JWT

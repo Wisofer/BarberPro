@@ -1,6 +1,6 @@
-using BarberPro.Models.DTOs.Responses;
+using BarberNic.Models.DTOs.Responses;
 
-namespace BarberPro.Services.Interfaces;
+namespace BarberNic.Services.Interfaces;
 
 /// <summary>
 /// Interfaz para el servicio de disponibilidad

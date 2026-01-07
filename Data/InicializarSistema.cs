@@ -1,10 +1,10 @@
-using BarberPro.Data;
-using BarberPro.Models.Entities;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.Entities;
+using BarberNic.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace BarberPro.Data;
+namespace BarberNic.Data;
 
 /// <summary>
 /// Inicialización del nuevo sistema (User admin)

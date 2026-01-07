@@ -3956,9 +3956,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/william/Documentos/aplicaciones/BarberPro/BarberPro.csproj",
-      "projectName": "BarberPro",
-      "projectPath": "/home/william/Documentos/aplicaciones/BarberPro/BarberPro.csproj",
+      "projectUniqueName": "/home/william/Documentos/aplicaciones/BarberPro/BarberNic.csproj",
+      "projectName": "BarberNic",
+      "projectPath": "/home/william/Documentos/aplicaciones/BarberPro/BarberNic.csproj",
       "packagesPath": "/home/william/.nuget/packages/",
       "outputPath": "/home/william/Documentos/aplicaciones/BarberPro/obj/",
       "projectStyle": "PackageReference",

@@ -1,4 +1,4 @@
-namespace BarberPro.Models.DTOs.Requests;
+namespace BarberNic.Models.DTOs.Requests;
 
 /// <summary>
 /// DTO para crear un nuevo barbero

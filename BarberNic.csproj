@@ -4,8 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>BarberPro</AssemblyName>
-    <RootNamespace>BarberPro</RootNamespace>
+    <AssemblyName>BarberNic</AssemblyName>
+    <RootNamespace>BarberNic</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

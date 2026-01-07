@@ -1,13 +1,13 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
-using BarberPro.Utils;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
+using BarberNic.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BarberPro.Controllers.Api;
+namespace BarberNic.Controllers.Api;
 
 /// <summary>
 /// Controlador de rutas del barbero
@@ -58,11 +58,20 @@ public class BarberController : ControllerBase
         _logger = logger;
     }
 
-    private int GetBarberId()
+    private async Task<int> GetBarberIdAsync()
     {
         var barberId = JwtHelper.GetBarberId(User);
         if (!barberId.HasValue)
             throw new UnauthorizedAccessException("Barbero no identificado");
+        
+        // Verificar que el barbero existe y está activo en la base de datos
+        var barber = await _barberService.GetBarberByIdAsync(barberId.Value);
+        if (barber == null)
+            throw new UnauthorizedAccessException("Barbero no encontrado o fue eliminado");
+        
+        if (!barber.IsActive)
+            throw new UnauthorizedAccessException("Barbero desactivado");
+        
         return barberId.Value;
     }
 
@@ -74,7 +83,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var dashboard = await _dashboardService.GetBarberDashboardAsync(barberId);
             return Ok(dashboard);
         }
@@ -93,7 +102,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var profile = await _barberService.GetBarberProfileAsync(barberId);
             return Ok(profile);
         }
@@ -119,7 +128,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var profile = await _barberService.UpdateBarberProfileAsync(barberId, request);
             return Ok(profile);
         }
@@ -142,7 +151,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var url = await _barberService.GetQrUrlAsync(barberId);
             var qrCode = QrHelper.GenerateQrCodeBase64(url);
 
@@ -171,7 +180,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var appointments = await _appointmentService.GetBarberAppointmentsAsync(barberId, date, status);
             return Ok(appointments);
         }
@@ -199,7 +208,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var appointment = await _appointmentService.CreateAppointmentForBarberAsync(barberId, request);
             return CreatedAtAction(nameof(GetAppointments), null, appointment);
         }
@@ -229,7 +238,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var appointment = await _appointmentService.UpdateAppointmentForBarberAsync(barberId, id, request, null);
             return Ok(appointment);
         }
@@ -252,7 +261,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
             
             if (appointment == null || appointment.BarberId != barberId)
@@ -310,7 +319,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var deleted = await _appointmentService.DeleteAppointmentForBarberAsync(barberId, id);
             if (!deleted)
                 return NotFound(new { message = "Cita no encontrada o no pertenece al barbero" });
@@ -332,7 +341,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var services = await _serviceService.GetBarberServicesAsync(barberId);
             return Ok(services);
         }
@@ -354,7 +363,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var service = await _serviceService.CreateServiceAsync(barberId, request);
             return CreatedAtAction(nameof(GetServices), null, service);
         }
@@ -376,7 +385,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var updated = await _serviceService.UpdateServiceAsync(barberId, id, request);
             
             if (!updated)
@@ -400,7 +409,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var deleted = await _serviceService.DeleteServiceAsync(barberId, id);
             
             if (!deleted)
@@ -423,7 +432,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var summary = await _financeService.GetFinanceSummaryAsync(barberId, startDate, endDate);
             return Ok(summary);
         }
@@ -442,7 +451,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             
             // Parsear y normalizar fechas desde string para evitar problemas de zona horaria
             DateTime? parsedStartDate = null;
@@ -482,7 +491,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             
             // Parsear y normalizar fechas desde string para evitar problemas de zona horaria
             DateTime? parsedStartDate = null;
@@ -525,7 +534,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var income = await _financeService.CreateIncomeAsync(barberId, request);
             return CreatedAtAction(nameof(GetIncome), null, income);
         }
@@ -547,7 +556,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var expense = await _financeService.CreateExpenseAsync(barberId, request);
             return CreatedAtAction(nameof(GetExpenses), null, expense);
         }
@@ -569,7 +578,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var expense = await _financeService.UpdateExpenseAsync(barberId, id, request);
             return Ok(expense);
         }
@@ -592,7 +601,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var deleted = await _financeService.DeleteExpenseAsync(barberId, id);
             if (!deleted)
                 return NotFound(new { message = "Egreso no encontrado o no pertenece al barbero" });
@@ -659,7 +668,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var workingHours = await _workingHoursService.GetWorkingHoursAsync(barberId);
             return Ok(workingHours);
         }
@@ -685,7 +694,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var workingHours = await _workingHoursService.UpdateWorkingHoursAsync(barberId, request.WorkingHours);
             return Ok(workingHours);
         }
@@ -712,7 +721,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var deleted = await _workingHoursService.DeleteWorkingHoursAsync(barberId, id);
             
             if (!deleted)
@@ -735,7 +744,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             DateOnly? start = null;
             DateOnly? end = null;
 
@@ -775,7 +784,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             DateOnly? start = null;
             DateOnly? end = null;
 
@@ -815,7 +824,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var fileBytes = await _exportService.ExportClientsAsync(barberId, format);
             var contentType = format.ToLower() switch
             {
@@ -847,7 +856,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var fileBytes = await _exportService.ExportBackupAsync(barberId);
             var fileName = $"backup_{DateTime.UtcNow:yyyyMMdd_HHmmss}.json";
 
@@ -892,7 +901,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var employees = await _employeeService.GetEmployeesAsync(barberId);
             return Ok(employees);
         }
@@ -911,7 +920,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var employee = await _employeeService.GetEmployeeByIdAsync(id, barberId);
             if (employee == null)
                 return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
@@ -935,7 +944,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var employee = await _employeeService.CreateEmployeeAsync(barberId, request);
             return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
         }
@@ -965,7 +974,7 @@ public class BarberController : ControllerBase
 
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var employee = await _employeeService.UpdateEmployeeAsync(id, barberId, request);
             if (employee == null)
                 return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
@@ -986,7 +995,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var deleted = await _employeeService.DeleteEmployeeAsync(id, barberId);
             if (!deleted)
                 return NotFound(new { message = "Trabajador no encontrado o no pertenece al barbero" });
@@ -1014,7 +1023,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var report = await _reportService.GetEmployeeAppointmentsReportAsync(barberId, startDate, endDate, employeeId);
             return Ok(report);
         }
@@ -1036,7 +1045,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var report = await _reportService.GetEmployeeIncomeReportAsync(barberId, startDate, endDate, employeeId);
             return Ok(report);
         }
@@ -1058,7 +1067,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var report = await _reportService.GetEmployeeExpensesReportAsync(barberId, startDate, endDate, employeeId);
             return Ok(report);
         }
@@ -1079,7 +1088,7 @@ public class BarberController : ControllerBase
     {
         try
         {
-            var barberId = GetBarberId();
+            var barberId = await GetBarberIdAsync();
             var report = await _reportService.GetEmployeeActivityReportAsync(barberId, startDate, endDate);
             return Ok(report);
         }

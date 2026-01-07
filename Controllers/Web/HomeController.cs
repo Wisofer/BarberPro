@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BarberPro.Utils;
+using BarberNic.Utils;
 
-namespace BarberPro.Controllers.Web;
+namespace BarberNic.Controllers.Web;
 
 [Authorize]
 public class HomeController : Controller

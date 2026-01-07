@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BarberPro</title>
+    <title>@ViewData["Title"] - BarberNic</title>
     <script src="~/lib/tailwindcss/tailwind.min.js"></script>
     <link href="~/lib/daisyui/full.min.css" rel="stylesheet" type="text/css" />
     <style>
@@ -78,20 +78,13 @@
             <!-- Panel Izquierdo: Branding -->
             <div class="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-12">
                 <div class="text-center">
-                    <!-- Icono de BarberPro - Navaja de barbero -->
+                    <!-- Logo BarberNic -->
                     <div class="barber-icon mb-8">
-                        <svg class="w-40 h-40 mx-auto text-gold" viewBox="0 0 100 100" fill="currentColor">
-                            <!-- Navaja de barbero estilizada -->
-                            <path d="M50 10 L30 85 L50 90 L70 85 Z" fill="currentColor" opacity="0.9"/>
-                            <path d="M50 10 L45 30 L50 50 L55 30 Z" fill="currentColor" opacity="0.7"/>
-                            <circle cx="50" cy="20" r="8" fill="#0a0a0a"/>
-                            <path d="M25 80 L30 85 L35 80" stroke="#0a0a0a" stroke-width="2" fill="none"/>
-                            <path d="M65 80 L70 85 L75 80" stroke="#0a0a0a" stroke-width="2" fill="none"/>
-                        </svg>
+                        <img src="~/images/logo3.png" alt="BarberNic Logo" class="w-40 h-40 mx-auto object-contain" />
                     </div>
                     <div class="barber-stripe mb-6"></div>
                     <h1 class="text-6xl font-black mb-4 tracking-wider" style="font-family: 'Times New Roman', serif; letter-spacing: 0.2em;">
-                        <span class="text-white">BARBER</span><span class="text-gold">PRO</span>
+                        <span class="text-white">BARBER</span><span class="text-gold">NIC</span>
                     </h1>
                     <p class="text-xl text-gold-light mb-8 font-serif italic">Sistema de Gestión Profesional</p>
                     <div class="barber-stripe mb-8"></div>
@@ -133,13 +126,9 @@
                         <!-- Logo móvil -->
                         <div class="lg:hidden text-center mb-6">
                             <div class="flex items-center justify-center gap-2 mb-4">
-                                <svg class="w-12 h-12 text-gold" viewBox="0 0 100 100" fill="currentColor">
-                                    <path d="M50 10 L30 85 L50 90 L70 85 Z" fill="currentColor" opacity="0.9"/>
-                                    <path d="M50 10 L45 30 L50 50 L55 30 Z" fill="currentColor" opacity="0.7"/>
-                                    <circle cx="50" cy="20" r="8" fill="#0a0a0a"/>
-                                </svg>
+                                <img src="~/images/logo3.png" alt="BarberNic Logo" class="w-12 h-12 object-contain" />
                                 <h1 class="text-3xl font-black tracking-wider" style="font-family: 'Times New Roman', serif;">
-                                    <span class="text-white">BARBER</span><span class="text-gold">PRO</span>
+                                    <span class="text-white">BARBER</span><span class="text-gold">NIC</span>
                                 </h1>
                             </div>
                             <div class="barber-stripe mb-4"></div>
@@ -269,12 +258,8 @@
             <div class="relative flex flex-col items-center justify-center">
                 <!-- Logo animado -->
                 <div class="mb-6 relative">
-                    <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-2xl animate-bounce-slow border-2 border-gold">
-                        <svg class="w-16 h-16 text-gold" viewBox="0 0 100 100" fill="currentColor">
-                            <path d="M50 10 L30 85 L50 90 L70 85 Z" fill="currentColor" opacity="0.9"/>
-                            <path d="M50 10 L45 30 L50 50 L55 30 Z" fill="currentColor" opacity="0.7"/>
-                            <circle cx="50" cy="20" r="8" fill="#0a0a0a"/>
-                        </svg>
+                    <div class="w-20 h-20 rounded-xl bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-2xl animate-bounce-slow border-2 border-gold overflow-hidden">
+                        <img src="~/images/logo3.png" alt="BarberNic Logo" class="w-16 h-16 object-contain" />
                     </div>
                     <!-- Anillos rotatorios -->
                     <div class="absolute inset-0 border-4 border-transparent border-t-gold rounded-xl animate-spin-slow"></div>

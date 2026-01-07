@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Qn3K6mplFZs=",
+  "dgSpecHash": "YUM8T+xgRfc=",
   "success": true,
-  "projectFilePath": "/home/william/Documentos/aplicaciones/BarberPro/BarberPro.csproj",
+  "projectFilePath": "/home/william/Documentos/aplicaciones/BarberPro/BarberNic.csproj",
   "expectedPackageFiles": [
     "/home/william/.nuget/packages/closedxml/0.104.1/closedxml.0.104.1.nupkg.sha512",
     "/home/william/.nuget/packages/closedxml.parser/1.2.0/closedxml.parser.1.2.0.nupkg.sha512",

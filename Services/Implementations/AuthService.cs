@@ -1,12 +1,12 @@
-using BarberPro.Data;
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
-using BarberPro.Services.Interfaces;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
+using BarberNic.Services.Interfaces;
+using BarberNic.Utils;
 using Microsoft.EntityFrameworkCore;
 
-namespace BarberPro.Services.Implementations;
+namespace BarberNic.Services.Implementations;
 
 /// <summary>
 /// Servicio de autenticación con JWT
@@ -37,6 +37,19 @@ public class AuthService : IAuthService
             await _context.Entry(user)
                 .Reference(u => u.Barber)
                 .LoadAsync();
+            
+            // Validar que el barbero existe y está activo
+            if (user.Barber == null)
+            {
+                // El usuario tiene rol Barber pero no tiene barbero asociado (fue eliminado)
+                return null;
+            }
+            
+            if (!user.Barber.IsActive)
+            {
+                // El barbero está desactivado
+                return null;
+            }
         }
 
         // Cargar trabajador si existe
@@ -46,12 +59,29 @@ public class AuthService : IAuthService
                 .Reference(u => u.Employee)
                 .LoadAsync();
             
-            // Cargar también el barbero dueño
-            if (user.Employee != null)
+            // Validar que el empleado existe y está activo
+            if (user.Employee == null)
             {
-                await _context.Entry(user.Employee)
-                    .Reference(e => e.OwnerBarber)
-                    .LoadAsync();
+                // El usuario tiene rol Employee pero no tiene empleado asociado (fue eliminado)
+                return null;
+            }
+            
+            if (!user.Employee.IsActive)
+            {
+                // El empleado está desactivado
+                return null;
+            }
+            
+            // Cargar también el barbero dueño
+            await _context.Entry(user.Employee)
+                .Reference(e => e.OwnerBarber)
+                .LoadAsync();
+            
+            // Validar que el barbero dueño existe y está activo
+            if (user.Employee.OwnerBarber == null || !user.Employee.OwnerBarber.IsActive)
+            {
+                // El barbero dueño no existe o está desactivado
+                return null;
             }
         }
 
@@ -117,6 +147,113 @@ public class AuthService : IAuthService
         
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<LoginResult> LoginWithResultAsync(LoginRequest request)
+    {
+        var user = await GetUserByEmailAsync(request.Email);
+        
+        // Usuario no existe
+        if (user == null)
+        {
+            return LoginResult.ErrorResult("Credenciales inválidas", LoginErrorType.InvalidCredentials);
+        }
+
+        // Usuario inactivo
+        if (!user.IsActive)
+        {
+            return LoginResult.ErrorResult("Tu cuenta está desactivada. Contacta al administrador.", LoginErrorType.UserInactive);
+        }
+
+        // Contraseña incorrecta
+        if (!PasswordHelper.VerifyPassword(request.Password, user.PasswordHash))
+        {
+            return LoginResult.ErrorResult("Credenciales inválidas", LoginErrorType.InvalidCredentials);
+        }
+
+        // Validar barbero
+        if (user.Role == UserRole.Barber)
+        {
+            await _context.Entry(user)
+                .Reference(u => u.Barber)
+                .LoadAsync();
+            
+            if (user.Barber == null)
+            {
+                return LoginResult.ErrorResult("Tu cuenta de barbero fue eliminada del sistema.", LoginErrorType.BarberDeleted);
+            }
+            
+            if (!user.Barber.IsActive)
+            {
+                return LoginResult.ErrorResult("Tu cuenta está desactivada. Contacta al administrador para reactivarla.", LoginErrorType.BarberInactive);
+            }
+        }
+
+        // Validar empleado
+        if (user.Role == UserRole.Employee)
+        {
+            await _context.Entry(user)
+                .Reference(u => u.Employee)
+                .LoadAsync();
+            
+            if (user.Employee == null)
+            {
+                return LoginResult.ErrorResult("Tu cuenta de empleado fue eliminada del sistema.", LoginErrorType.EmployeeDeleted);
+            }
+            
+            if (!user.Employee.IsActive)
+            {
+                return LoginResult.ErrorResult("Tu cuenta está desactivada. Contacta al administrador para reactivarla.", LoginErrorType.EmployeeInactive);
+            }
+            
+            // Cargar también el barbero dueño
+            await _context.Entry(user.Employee)
+                .Reference(e => e.OwnerBarber)
+                .LoadAsync();
+            
+            if (user.Employee.OwnerBarber == null)
+            {
+                return LoginResult.ErrorResult("El barbero dueño fue eliminado del sistema.", LoginErrorType.OwnerBarberDeleted);
+            }
+            
+            if (!user.Employee.OwnerBarber.IsActive)
+            {
+                return LoginResult.ErrorResult("El barbero dueño está desactivado. Tu cuenta no puede acceder hasta que sea reactivado.", LoginErrorType.OwnerBarberInactive);
+            }
+        }
+
+        // Generar token JWT
+        var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
+        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberPro";
+        var audience = _configuration["JwtSettings:Audience"] ?? "BarberProUsers";
+        var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
+
+        var token = JwtHelper.GenerateToken(user, secretKey, issuer, audience, expirationMinutes);
+
+        var response = new LoginResponse
+        {
+            Token = token,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                Barber = user.Barber != null ? new BarberDto
+                {
+                    Id = user.Barber.Id,
+                    Name = user.Barber.Name,
+                    BusinessName = user.Barber.BusinessName,
+                    Phone = user.Barber.Phone,
+                    Slug = user.Barber.Slug,
+                    IsActive = user.Barber.IsActive,
+                    QrUrl = QrHelper.GenerateBarberUrl(user.Barber.Slug, _configuration),
+                    CreatedAt = user.Barber.CreatedAt
+                } : null
+            },
+            Role = user.Role.ToString()
+        };
+
+        return LoginResult.SuccessResult(response);
     }
 }
 

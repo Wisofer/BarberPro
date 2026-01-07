@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 public static class ControllerHelper
 {

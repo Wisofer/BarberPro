@@ -1,10 +1,10 @@
-using BarberPro.Data;
-using BarberPro.Models.Entities;
-using BarberPro.Services.IServices;
+using BarberNic.Data;
+using BarberNic.Models.Entities;
+using BarberNic.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-namespace BarberPro.Services;
+namespace BarberNic.Services;
 
 public class ConfiguracionService : IConfiguracionService
 {

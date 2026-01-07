@@ -1,4 +1,4 @@
-namespace BarberPro.Models.Entities;
+namespace BarberNic.Models.Entities;
 
 /// <summary>
 /// Horarios bloqueados temporalmente (vacaciones, días libres, etc.)

@@ -1,5 +1,5 @@
 @using System.Security.Claims
-@using BarberPro.Utils
+@using BarberNic.Utils
 @{
     var estaAutenticado = User.Identity?.IsAuthenticated ?? false;
     var nombreUsuario = User.Identity?.Name ?? Context.Session.GetString("NombreUsuario") ?? "";
@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BarberPro</title>
+    <title>@ViewData["Title"] - BarberNic</title>
     <!-- Script para aplicar tema ANTES de renderizar (evita flash) -->
     <script src="~/js/layout/layout-theme.js" asp-append-version="true"></script>
     <!-- Script inline del sidebar (debe cargarse ANTES del body para evitar flash) -->
@@ -451,11 +451,11 @@
                 <a href="/" class="flex items-center gap-3 group sidebar-logo-link">
                     <div class="avatar placeholder">
                         <div class="bg-primary text-primary-content rounded-xl w-10 h-10 group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden">
-                            <img src="~/images/logo4.png" alt="Logo" class="w-full h-full object-contain" />
+                            <img src="~/images/logo3.png" alt="Logo" class="w-full h-full object-contain" />
                         </div>
                     </div>
                     <div class="sidebar-text">
-                        <span class="text-lg font-black"><span class="text-white">Barber</span><span class="text-primary">Pro</span></span>
+                        <span class="text-lg font-black"><span class="text-white">Barber</span><span class="text-primary">Nic</span></span>
                     </div>
                 </a>
             </div>
@@ -633,7 +633,7 @@
             </header>
 
             <!-- Alertas Globales de Stock Mínimo -->
-            @* Vista parcial eliminada - No aplica para BarberPro *@
+            @* Vista parcial eliminada - No aplica para BarberNic *@
 
             <!-- Main Content -->
             <main class="flex-1 bg-base-100">

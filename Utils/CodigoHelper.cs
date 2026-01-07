@@ -1,4 +1,4 @@
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 public static class CodigoHelper
 {

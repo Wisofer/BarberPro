@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using QRCoder;
 using System.Text;
 
-namespace BarberPro.Utils;
+namespace BarberNic.Utils;
 
 /// <summary>
 /// Helper para generar códigos QR

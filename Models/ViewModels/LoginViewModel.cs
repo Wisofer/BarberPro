@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BarberPro.Models.ViewModels;
+namespace BarberNic.Models.ViewModels;
 
 public class LoginViewModel
 {

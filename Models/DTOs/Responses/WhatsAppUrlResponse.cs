@@ -1,4 +1,4 @@
-namespace BarberPro.Models.DTOs.Responses;
+namespace BarberNic.Models.DTOs.Responses;
 
 /// <summary>
 /// Respuesta con URL de WhatsApp para notificar al cliente

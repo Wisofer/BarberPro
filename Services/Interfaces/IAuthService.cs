@@ -1,8 +1,8 @@
-using BarberPro.Models.DTOs.Requests;
-using BarberPro.Models.DTOs.Responses;
-using BarberPro.Models.Entities;
+using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.DTOs.Responses;
+using BarberNic.Models.Entities;
 
-namespace BarberPro.Services.Interfaces;
+namespace BarberNic.Services.Interfaces;
 
 /// <summary>
 /// Interfaz para el servicio de autenticación
@@ -10,6 +10,7 @@ namespace BarberPro.Services.Interfaces;
 public interface IAuthService
 {
     Task<LoginResponse?> LoginAsync(LoginRequest request);
+    Task<LoginResult> LoginWithResultAsync(LoginRequest request);
     Task<User?> GetUserByIdAsync(int userId);
     Task<User?> GetUserByEmailAsync(string email);
     Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);

@@ -1,9 +1,9 @@
-using BarberPro.Data;
-using BarberPro.Models.Entities;
-using BarberPro.Utils;
+using BarberNic.Data;
+using BarberNic.Models.Entities;
+using BarberNic.Utils;
 using Microsoft.EntityFrameworkCore;
 
-namespace BarberPro.Data;
+namespace BarberNic.Data;
 
 public static class InicializarUsuarioAdmin
 {
