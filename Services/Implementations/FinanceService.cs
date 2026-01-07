@@ -31,10 +31,20 @@ public class FinanceService : IFinanceService
 
         var query = _context.Transactions.Where(t => t.BarberId == barberId);
 
+        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
         if (startDate.HasValue)
-            query = query.Where(t => t.Date >= startDate.Value);
+        {
+            var normalizedStart = NormalizeStartDate(startDate.Value);
+            query = query.Where(t => t.Date >= normalizedStart);
+        }
         if (endDate.HasValue)
-            query = query.Where(t => t.Date <= endDate.Value);
+        {
+            var normalizedEnd = NormalizeEndDate(endDate.Value);
+            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
+            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
+            var nextDayStart = endDateOnly.AddDays(1);
+            query = query.Where(t => t.Date < nextDayStart);
+        }
 
         var allTransactions = await query.ToListAsync();
         var monthTransactions = await _context.Transactions
@@ -64,21 +74,15 @@ public class FinanceService : IFinanceService
         if (startDate.HasValue)
         {
             var normalizedStart = NormalizeStartDate(startDate.Value);
-            _logger.LogInformation("[DEBUG] GetIncomeAsync - startDate original: {Original} (Kind: {Kind})", startDate.Value, startDate.Value.Kind);
-            _logger.LogInformation("[DEBUG] GetIncomeAsync - normalizedStart: {Normalized} (Kind: {Kind})", normalizedStart, normalizedStart.Kind);
             query = query.Where(t => t.Date >= normalizedStart);
         }
         if (endDate.HasValue)
         {
             var normalizedEnd = NormalizeEndDate(endDate.Value);
-            _logger.LogInformation("[DEBUG] GetIncomeAsync - endDate original: {Original} (Kind: {Kind})", endDate.Value, endDate.Value.Kind);
-            _logger.LogInformation("[DEBUG] GetIncomeAsync - normalizedEnd: {Normalized} (Kind: {Kind})", normalizedEnd, normalizedEnd.Kind);
-            
             // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
             // Esto asegura que solo se incluyan registros del día especificado
             var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
             var nextDayStart = endDateOnly.AddDays(1);
-            _logger.LogInformation("[DEBUG] GetIncomeAsync - nextDayStart: {NextDay} (Kind: {Kind})", nextDayStart, nextDayStart.Kind);
             query = query.Where(t => t.Date < nextDayStart);
         }
 
@@ -124,9 +128,10 @@ public class FinanceService : IFinanceService
         if (endDate.HasValue)
         {
             var normalizedEnd = NormalizeEndDate(endDate.Value);
-            // Agregar 1 día y usar < para incluir todo el día especificado
-            // Esto asegura que 2026-01-06T23:59:59 incluya todo el día 6, no el día 7
-            var nextDayStart = normalizedEnd.Date.AddDays(1);
+            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
+            // Esto asegura que solo se incluyan registros del día especificado
+            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
+            var nextDayStart = endDateOnly.AddDays(1);
             query = query.Where(t => t.Date < nextDayStart);
         }
 
