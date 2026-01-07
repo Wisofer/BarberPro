@@ -29,6 +29,12 @@ public class ExportService : IExportService
 
     public async Task<byte[]> ExportAppointmentsAsync(int barberId, DateOnly? startDate, DateOnly? endDate, string format)
     {
+        var barber = await _context.Barbers
+            .FirstOrDefaultAsync(b => b.Id == barberId);
+
+        if (barber == null)
+            throw new KeyNotFoundException("Barbero no encontrado");
+
         var query = _context.Appointments
             .Include(a => a.Service)
             .Where(a => a.BarberId == barberId);
@@ -47,13 +53,19 @@ public class ExportService : IExportService
         {
             "csv" => GenerateCsvAppointments(appointments),
             "excel" => await GenerateExcelAppointmentsAsync(appointments),
-            "pdf" => await GeneratePdfAppointmentsAsync(appointments, startDate, endDate),
+            "pdf" => await GeneratePdfAppointmentsAsync(appointments, barber, startDate, endDate),
             _ => throw new ArgumentException($"Formato no soportado: {format}")
         };
     }
 
     public async Task<byte[]> ExportFinancesAsync(int barberId, DateOnly? startDate, DateOnly? endDate, string format)
     {
+        var barber = await _context.Barbers
+            .FirstOrDefaultAsync(b => b.Id == barberId);
+
+        if (barber == null)
+            throw new KeyNotFoundException("Barbero no encontrado");
+
         var query = _context.Transactions
             .Where(t => t.BarberId == barberId);
 
@@ -70,13 +82,19 @@ public class ExportService : IExportService
         {
             "csv" => GenerateCsvFinances(transactions),
             "excel" => await GenerateExcelFinancesAsync(transactions),
-            "pdf" => await GeneratePdfFinancesAsync(transactions, startDate, endDate),
+            "pdf" => await GeneratePdfFinancesAsync(transactions, barber, startDate, endDate),
             _ => throw new ArgumentException($"Formato no soportado: {format}")
         };
     }
 
     public async Task<byte[]> ExportClientsAsync(int barberId, string format)
     {
+        var barber = await _context.Barbers
+            .FirstOrDefaultAsync(b => b.Id == barberId);
+
+        if (barber == null)
+            throw new KeyNotFoundException("Barbero no encontrado");
+
         var clients = await _context.Appointments
             .Include(a => a.Service)
             .Where(a => a.BarberId == barberId)
@@ -97,7 +115,7 @@ public class ExportService : IExportService
         {
             "csv" => GenerateCsvClients(clients),
             "excel" => await GenerateExcelClientsAsync(clients),
-            "pdf" => await GeneratePdfClientsAsync(clients),
+            "pdf" => await GeneratePdfClientsAsync(clients, barber),
             _ => throw new ArgumentException($"Formato no soportado: {format}")
         };
     }
@@ -226,8 +244,19 @@ public class ExportService : IExportService
         return Task.FromResult(stream.ToArray());
     }
 
-    private Task<byte[]> GeneratePdfAppointmentsAsync(List<Appointment> appointments, DateOnly? startDate, DateOnly? endDate)
+    private Task<byte[]> GeneratePdfAppointmentsAsync(List<Appointment> appointments, Barber barber, DateOnly? startDate, DateOnly? endDate)
     {
+        var totalAppointments = appointments.Count;
+        var confirmedAppointments = appointments.Count(a => a.Status == AppointmentStatus.Confirmed);
+        var totalRevenue = appointments
+            .Where(a => a.Status == AppointmentStatus.Confirmed)
+            .Sum(a => a.Service.Price);
+        var averagePrice = confirmedAppointments > 0 ? totalRevenue / confirmedAppointments : 0;
+        var currentDate = DateTime.Now.ToString("dd/MM/yyyy");
+        var periodText = startDate.HasValue || endDate.HasValue
+            ? $"{startDate?.ToString("dd/MM/yyyy") ?? "Inicio"} - {endDate?.ToString("dd/MM/yyyy") ?? "Fin"}"
+            : "Todos los registros";
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -235,44 +264,117 @@ public class ExportService : IExportService
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
 
-                page.Header().Text("Reporte de Citas").FontSize(20).Bold();
+                // Header con título del sistema
+                page.Header().Column(column =>
+                {
+                    column.Item().Text("BARBERNIC - REPORTE DE CITAS")
+                        .FontSize(24)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+                    
+                    column.Item().PaddingTop(10);
+                    
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Barbero: {barber.BusinessName ?? barber.Name}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+                        row.RelativeItem().AlignRight().Text($"Fecha: {currentDate}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+                    });
+                });
+
                 page.Content().Column(column =>
                 {
-                    if (startDate.HasValue || endDate.HasValue)
+                    column.Spacing(15);
+
+                    // Período
+                    column.Item().Text($"Período: {periodText}")
+                        .FontSize(11)
+                        .FontColor(Colors.Grey.Darken2);
+
+                    // Estadísticas
+                    column.Item().PaddingTop(5).PaddingBottom(10).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
+                    
+                    column.Item().PaddingBottom(8).Text("ESTADÍSTICAS")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+
+                    column.Item().Row(row =>
                     {
-                        column.Item().Text($"Período: {startDate?.ToString("dd/MM/yyyy") ?? "Inicio"} - {endDate?.ToString("dd/MM/yyyy") ?? "Fin"}");
-                    }
+                        row.RelativeItem().Text($"Citas registradas: {totalAppointments}")
+                            .FontSize(11);
+                        row.RelativeItem().Text($"Citas confirmadas: {confirmedAppointments}")
+                            .FontSize(11);
+                    });
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Ingresos totales: ${totalRevenue:F2}")
+                            .FontSize(11)
+                            .Bold();
+                        row.RelativeItem().Text($"Precio promedio: ${averagePrice:F2}")
+                            .FontSize(11);
+                    });
+
+                    column.Item().PaddingTop(10).PaddingBottom(5);
+
+                    // Tabla de citas
+                    column.Item().PaddingBottom(8).Text("HISTORIAL DE CITAS")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
 
                     column.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1.5f);
+                            columns.RelativeColumn(2.5f);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1.5f);
                         });
 
+                        // Header de la tabla
                         table.Header(header =>
                         {
-                            header.Cell().Text("Fecha").Bold();
-                            header.Cell().Text("Hora").Bold();
-                            header.Cell().Text("Cliente").Bold();
-                            header.Cell().Text("Servicio").Bold();
-                            header.Cell().Text("Precio").Bold();
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Fecha").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Hora").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Cliente").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Servicio").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Precio").Bold().FontSize(10);
                         });
 
+                        // Filas de datos
                         foreach (var apt in appointments)
                         {
-                            table.Cell().Text(apt.Date.ToString("dd/MM/yyyy"));
-                            table.Cell().Text(apt.Time.ToString("HH:mm"));
-                            table.Cell().Text(apt.ClientName);
-                            table.Cell().Text(apt.Service.Name);
-                            table.Cell().Text($"${apt.Service.Price:F2}");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Date.ToString("dd/MM/yyyy")).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Time.ToString("HH:mm")).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.ClientName).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Service.Name).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${apt.Service.Price:F2}").FontSize(9);
                         }
                     });
+
+                    // Nota legal
+                    column.Item().PaddingTop(20).BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(10);
+                    column.Item().PaddingBottom(5).Text("NOTA LEGAL")
+                        .FontSize(10)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken2);
+                    column.Item().Text("Este reporte es generado automáticamente por BarberNic. La información presentada es de carácter informativo y refleja los datos registrados en el sistema hasta la fecha de generación del reporte.")
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken1)
+                        .LineHeight(1.4f);
                 });
+
+                // Footer
+                page.Footer().AlignCenter().Text($"© {DateTime.Now.Year} BarberNic - Sistema de Gestión de Barberías")
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Medium);
             });
         });
 
@@ -319,8 +421,19 @@ public class ExportService : IExportService
         return Task.FromResult(stream.ToArray());
     }
 
-    private Task<byte[]> GeneratePdfFinancesAsync(List<Transaction> transactions, DateOnly? startDate, DateOnly? endDate)
+    private Task<byte[]> GeneratePdfFinancesAsync(List<Transaction> transactions, Barber barber, DateOnly? startDate, DateOnly? endDate)
     {
+        var income = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
+        var expenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
+        var profit = income - expenses;
+        var totalTransactions = transactions.Count;
+        var incomeCount = transactions.Count(t => t.Type == TransactionType.Income);
+        var expenseCount = transactions.Count(t => t.Type == TransactionType.Expense);
+        var currentDate = DateTime.Now.ToString("dd/MM/yyyy");
+        var periodText = startDate.HasValue || endDate.HasValue
+            ? $"{startDate?.ToString("dd/MM/yyyy") ?? "Inicio"} - {endDate?.ToString("dd/MM/yyyy") ?? "Fin"}"
+            : "Todos los registros";
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -328,47 +441,136 @@ public class ExportService : IExportService
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
 
-                page.Header().Text("Reporte Financiero").FontSize(20).Bold();
+                // Header con título del sistema
+                page.Header().Column(column =>
+                {
+                    column.Item().Text("BARBERNIC - REPORTE FINANCIERO")
+                        .FontSize(24)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+                    
+                    column.Item().PaddingTop(10);
+                    
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Barbero: {barber.BusinessName ?? barber.Name}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+                        row.RelativeItem().AlignRight().Text($"Fecha: {currentDate}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+                    });
+                });
+
                 page.Content().Column(column =>
                 {
-                    if (startDate.HasValue || endDate.HasValue)
-                    {
-                        column.Item().Text($"Período: {startDate?.ToString("dd/MM/yyyy") ?? "Inicio"} - {endDate?.ToString("dd/MM/yyyy") ?? "Fin"}");
-                    }
+                    column.Spacing(15);
 
-                    var income = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
-                    var expenses = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
-                    column.Item().Text($"Ingresos: ${income:F2}");
-                    column.Item().Text($"Egresos: ${expenses:F2}");
-                    column.Item().Text($"Ganancia: ${income - expenses:F2}").Bold();
+                    // Período
+                    column.Item().Text($"Período: {periodText}")
+                        .FontSize(11)
+                        .FontColor(Colors.Grey.Darken2);
+
+                    // Estadísticas
+                    column.Item().PaddingTop(5).PaddingBottom(10).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
+                    
+                    column.Item().PaddingBottom(8).Text("ESTADÍSTICAS")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Transacciones registradas: {totalTransactions}")
+                            .FontSize(11);
+                        row.RelativeItem().Text($"Ingresos: {incomeCount}")
+                            .FontSize(11);
+                    });
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Egresos: {expenseCount}")
+                            .FontSize(11);
+                        row.RelativeItem().Text($"Ganancia neta: ${profit:F2}")
+                            .FontSize(11)
+                            .Bold()
+                            .FontColor(profit >= 0 ? Colors.Green.Darken2 : Colors.Red.Darken2);
+                    });
+
+                    column.Item().PaddingTop(10).PaddingBottom(5);
+
+                    // Resumen financiero
+                    column.Item().PaddingBottom(8).Text("RESUMEN FINANCIERO")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Ingresos totales: ${income:F2}")
+                            .FontSize(12)
+                            .Bold()
+                            .FontColor(Colors.Green.Darken2);
+                        row.RelativeItem().Text($"Egresos totales: ${expenses:F2}")
+                            .FontSize(12)
+                            .Bold()
+                            .FontColor(Colors.Red.Darken2);
+                    });
+
+                    column.Item().PaddingTop(10).PaddingBottom(5);
+
+                    // Tabla de transacciones
+                    column.Item().PaddingBottom(8).Text("HISTORIAL DE TRANSACCIONES")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
 
                     column.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1.5f);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(3);
                         });
 
+                        // Header de la tabla
                         table.Header(header =>
                         {
-                            header.Cell().Text("Fecha").Bold();
-                            header.Cell().Text("Tipo").Bold();
-                            header.Cell().Text("Monto").Bold();
-                            header.Cell().Text("Descripción").Bold();
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Fecha").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Tipo").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Monto").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Descripción").Bold().FontSize(10);
                         });
 
+                        // Filas de datos
                         foreach (var t in transactions)
                         {
-                            table.Cell().Text(t.Date.ToString("dd/MM/yyyy"));
-                            table.Cell().Text(t.Type.ToString());
-                            table.Cell().Text($"${t.Amount:F2}");
-                            table.Cell().Text(t.Description);
+                            var amountColor = t.Type == TransactionType.Income ? Colors.Green.Darken2 : Colors.Red.Darken2;
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(t.Date.ToString("dd/MM/yyyy")).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(t.Type == TransactionType.Income ? "Ingreso" : "Egreso").FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${t.Amount:F2}").FontSize(9).FontColor(amountColor);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(t.Description ?? "-").FontSize(9);
                         }
                     });
+
+                    // Nota legal
+                    column.Item().PaddingTop(20).BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(10);
+                    column.Item().PaddingBottom(5).Text("NOTA LEGAL")
+                        .FontSize(10)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken2);
+                    column.Item().Text("Este reporte es generado automáticamente por BarberNic. La información financiera presentada es de carácter informativo y refleja los datos registrados en el sistema hasta la fecha de generación del reporte.")
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken1)
+                        .LineHeight(1.4f);
                 });
+
+                // Footer
+                page.Footer().AlignCenter().Text($"© {DateTime.Now.Year} BarberNic - Sistema de Gestión de Barberías")
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Medium);
             });
         });
 
@@ -417,8 +619,14 @@ public class ExportService : IExportService
         return Task.FromResult(stream.ToArray());
     }
 
-    private Task<byte[]> GeneratePdfClientsAsync(List<ClientExportDto> clients)
+    private Task<byte[]> GeneratePdfClientsAsync(List<ClientExportDto> clients, Barber barber)
     {
+        var totalClients = clients.Count;
+        var totalAppointments = clients.Sum(c => c.TotalAppointments);
+        var totalRevenue = clients.Sum(c => c.TotalSpent);
+        var averageAppointments = totalClients > 0 ? (double)totalAppointments / totalClients : 0;
+        var currentDate = DateTime.Now.ToString("dd/MM/yyyy");
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -426,36 +634,112 @@ public class ExportService : IExportService
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
 
-                page.Header().Text("Reporte de Clientes").FontSize(20).Bold();
-                page.Content().Table(table =>
+                // Header con título del sistema
+                page.Header().Column(column =>
                 {
-                    table.ColumnsDefinition(columns =>
+                    column.Item().Text("BARBERNIC - REPORTE DE CLIENTES")
+                        .FontSize(24)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+                    
+                    column.Item().PaddingTop(10);
+                    
+                    column.Item().Row(row =>
                     {
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
+                        row.RelativeItem().Text($"Barbero: {barber.BusinessName ?? barber.Name}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
+                        row.RelativeItem().AlignRight().Text($"Fecha: {currentDate}")
+                            .FontSize(12)
+                            .FontColor(Colors.Grey.Darken1);
                     });
-
-                    table.Header(header =>
-                    {
-                        header.Cell().Text("Cliente").Bold();
-                        header.Cell().Text("Teléfono").Bold();
-                        header.Cell().Text("Total Citas").Bold();
-                        header.Cell().Text("Última Cita").Bold();
-                        header.Cell().Text("Total Gastado").Bold();
-                    });
-
-                    foreach (var client in clients)
-                    {
-                        table.Cell().Text(client.ClientName);
-                        table.Cell().Text(client.ClientPhone);
-                        table.Cell().Text(client.TotalAppointments.ToString());
-                        table.Cell().Text(client.LastAppointment.ToString("dd/MM/yyyy"));
-                        table.Cell().Text($"${client.TotalSpent:F2}");
-                    }
                 });
+
+                page.Content().Column(column =>
+                {
+                    column.Spacing(15);
+
+                    // Estadísticas
+                    column.Item().PaddingTop(5).PaddingBottom(10).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
+                    
+                    column.Item().PaddingBottom(8).Text("ESTADÍSTICAS")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Clientes registrados: {totalClients}")
+                            .FontSize(11);
+                        row.RelativeItem().Text($"Total de citas: {totalAppointments}")
+                            .FontSize(11);
+                    });
+
+                    column.Item().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Ingresos totales: ${totalRevenue:F2}")
+                            .FontSize(11)
+                            .Bold();
+                        row.RelativeItem().Text($"Promedio de citas por cliente: {averageAppointments:F1}")
+                            .FontSize(11);
+                    });
+
+                    column.Item().PaddingTop(10).PaddingBottom(5);
+
+                    // Tabla de clientes
+                    column.Item().PaddingBottom(8).Text("HISTORIAL DE CLIENTES")
+                        .FontSize(14)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken3);
+
+                    column.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2.5f);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1.5f);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(2);
+                        });
+
+                        // Header de la tabla
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Cliente").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Teléfono").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Total Citas").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Última Cita").Bold().FontSize(10);
+                            header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Total Gastado").Bold().FontSize(10);
+                        });
+
+                        // Filas de datos
+                        foreach (var client in clients)
+                        {
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.ClientName).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.ClientPhone).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.TotalAppointments.ToString()).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.LastAppointment.ToString("dd/MM/yyyy")).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${client.TotalSpent:F2}").FontSize(9);
+                        }
+                    });
+
+                    // Nota legal
+                    column.Item().PaddingTop(20).BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(10);
+                    column.Item().PaddingBottom(5).Text("NOTA LEGAL")
+                        .FontSize(10)
+                        .Bold()
+                        .FontColor(Colors.Grey.Darken2);
+                    column.Item().Text("Este reporte es generado automáticamente por BarberNic. La información de clientes presentada es de carácter informativo y refleja los datos registrados en el sistema hasta la fecha de generación del reporte.")
+                        .FontSize(8)
+                        .FontColor(Colors.Grey.Darken1)
+                        .LineHeight(1.4f);
+                });
+
+                // Footer
+                page.Footer().AlignCenter().Text($"© {DateTime.Now.Year} BarberNic - Sistema de Gestión de Barberías")
+                    .FontSize(8)
+                    .FontColor(Colors.Grey.Medium);
             });
         });
 
