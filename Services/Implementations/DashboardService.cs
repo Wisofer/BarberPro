@@ -14,12 +14,14 @@ public class DashboardService : IDashboardService
     private readonly ApplicationDbContext _context;
     private readonly IBarberService _barberService;
     private readonly IFinanceService _financeService;
+    private readonly IReportService _reportService;
 
-    public DashboardService(ApplicationDbContext context, IBarberService barberService, IFinanceService financeService)
+    public DashboardService(ApplicationDbContext context, IBarberService barberService, IFinanceService financeService, IReportService reportService)
     {
         _context = context;
         _barberService = barberService;
         _financeService = financeService;
+        _reportService = reportService;
     }
 
     public async Task<BarberDashboardDto> GetBarberDashboardAsync(int barberId)
@@ -156,6 +158,12 @@ public class DashboardService : IDashboardService
             })
             .ToListAsync();
 
+        // Obtener estadísticas de empleados para el mes actual
+        var employeeStats = await _reportService.GetEmployeeStatsForDashboardAsync(
+            barberId,
+            startOfMonth.ToDateTime(TimeOnly.MinValue),
+            endOfMonth.ToDateTime(TimeOnly.MaxValue));
+
         return new BarberDashboardDto
         {
             Barber = barber,
@@ -163,7 +171,8 @@ public class DashboardService : IDashboardService
             ThisWeek = weekStats,
             ThisMonth = monthStats,
             RecentAppointments = recentAppointments,
-            UpcomingAppointments = upcomingAppointments
+            UpcomingAppointments = upcomingAppointments,
+            EmployeeStats = employeeStats
         };
     }
 

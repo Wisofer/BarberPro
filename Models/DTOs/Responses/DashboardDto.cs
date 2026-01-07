@@ -11,6 +11,7 @@ public class BarberDashboardDto
     public PeriodStatsDto ThisMonth { get; set; } = null!;
     public List<AppointmentDto> RecentAppointments { get; set; } = new();
     public List<AppointmentDto> UpcomingAppointments { get; set; } = new();
+    public EmployeeStatsDto? EmployeeStats { get; set; } // Nuevo: Estadísticas de empleados
 }
 
 /// <summary>

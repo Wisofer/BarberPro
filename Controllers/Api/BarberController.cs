@@ -27,6 +27,7 @@ public class BarberController : ControllerBase
     private readonly IExportService _exportService;
     private readonly IHelpSupportService _helpSupportService;
     private readonly IEmployeeService _employeeService;
+    private readonly IReportService _reportService;
     private readonly ILogger<BarberController> _logger;
 
     public BarberController(
@@ -40,6 +41,7 @@ public class BarberController : ControllerBase
         IExportService exportService,
         IHelpSupportService helpSupportService,
         IEmployeeService employeeService,
+        IReportService reportService,
         ILogger<BarberController> logger)
     {
         _barberService = barberService;
@@ -52,6 +54,7 @@ public class BarberController : ControllerBase
         _exportService = exportService;
         _helpSupportService = helpSupportService;
         _employeeService = employeeService;
+        _reportService = reportService;
         _logger = logger;
     }
 
@@ -950,6 +953,97 @@ public class BarberController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al eliminar trabajador {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    #endregion
+
+    #region Reportes de Empleados
+
+    /// <summary>
+    /// Obtener reporte de citas por empleado
+    /// </summary>
+    [HttpGet("reports/employees/appointments")]
+    public async Task<ActionResult<EmployeeAppointmentsReportDto>> GetEmployeeAppointmentsReport(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] int? employeeId = null)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var report = await _reportService.GetEmployeeAppointmentsReportAsync(barberId, startDate, endDate, employeeId);
+            return Ok(report);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener reporte de citas por empleado");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener reporte de ingresos por empleado
+    /// </summary>
+    [HttpGet("reports/employees/income")]
+    public async Task<ActionResult<EmployeeIncomeReportDto>> GetEmployeeIncomeReport(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] int? employeeId = null)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var report = await _reportService.GetEmployeeIncomeReportAsync(barberId, startDate, endDate, employeeId);
+            return Ok(report);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener reporte de ingresos por empleado");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener reporte de egresos por empleado
+    /// </summary>
+    [HttpGet("reports/employees/expenses")]
+    public async Task<ActionResult<EmployeeExpensesReportDto>> GetEmployeeExpensesReport(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] int? employeeId = null)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var report = await _reportService.GetEmployeeExpensesReportAsync(barberId, startDate, endDate, employeeId);
+            return Ok(report);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener reporte de egresos por empleado");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener reporte general de actividad de empleados
+    /// </summary>
+    [HttpGet("reports/employees/activity")]
+    public async Task<ActionResult<EmployeeActivityReportDto>> GetEmployeeActivityReport(
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        try
+        {
+            var barberId = GetBarberId();
+            var report = await _reportService.GetEmployeeActivityReportAsync(barberId, startDate, endDate);
+            return Ok(report);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener reporte de actividad de empleados");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
