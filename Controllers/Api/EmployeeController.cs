@@ -19,15 +19,18 @@ public class EmployeeController : ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
     private readonly IFinanceService _financeService;
+    private readonly IServiceService _serviceService;
     private readonly ILogger<EmployeeController> _logger;
 
     public EmployeeController(
         IAppointmentService appointmentService,
         IFinanceService financeService,
+        IServiceService serviceService,
         ILogger<EmployeeController> logger)
     {
         _appointmentService = appointmentService;
         _financeService = financeService;
+        _serviceService = serviceService;
         _logger = logger;
     }
 
@@ -287,5 +290,59 @@ public class EmployeeController : ControllerBase
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
+
+    #region Servicios (Solo Lectura)
+
+    /// <summary>
+    /// Obtener todos los servicios del barbero dueño (solo lectura)
+    /// El trabajador puede ver los servicios para crear citas, pero no puede crear, editar ni borrar
+    /// </summary>
+    [HttpGet("services")]
+    public async Task<ActionResult<List<ServiceDto>>> GetServices()
+    {
+        try
+        {
+            var ownerBarberId = GetOwnerBarberId();
+            
+            // Obtener servicios del barbero dueño (solo lectura)
+            var services = await _serviceService.GetBarberServicesAsync(ownerBarberId);
+            
+            return Ok(services);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener servicios");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener un servicio por ID (solo lectura)
+    /// </summary>
+    [HttpGet("services/{id}")]
+    public async Task<ActionResult<ServiceDto>> GetService(int id)
+    {
+        try
+        {
+            var ownerBarberId = GetOwnerBarberId();
+            
+            // Obtener todos los servicios del barbero y buscar el específico
+            // Esto asegura que solo se pueda acceder a servicios del barbero dueño
+            var services = await _serviceService.GetBarberServicesAsync(ownerBarberId);
+            var service = services.FirstOrDefault(s => s.Id == id);
+            
+            if (service == null)
+                return NotFound(new { message = "Servicio no encontrado o no pertenece al barbero" });
+            
+            return Ok(service);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener servicio {Id}", id);
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    #endregion
 }
 
