@@ -30,21 +30,7 @@ public class FinanceService : IFinanceService
         var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
 
         var query = _context.Transactions.Where(t => t.BarberId == barberId);
-
-        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
-        if (startDate.HasValue)
-        {
-            var normalizedStart = NormalizeStartDate(startDate.Value);
-            query = query.Where(t => t.Date >= normalizedStart);
-        }
-        if (endDate.HasValue)
-        {
-            var normalizedEnd = NormalizeEndDate(endDate.Value);
-            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
-            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
-            var nextDayStart = endDateOnly.AddDays(1);
-            query = query.Where(t => t.Date < nextDayStart);
-        }
+        query = ApplyDateFilters(query, startDate, endDate);
 
         var allTransactions = await query.ToListAsync();
         var monthTransactions = await _context.Transactions
@@ -70,21 +56,7 @@ public class FinanceService : IFinanceService
             .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Income);
 
-        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
-        if (startDate.HasValue)
-        {
-            var normalizedStart = NormalizeStartDate(startDate.Value);
-            query = query.Where(t => t.Date >= normalizedStart);
-        }
-        if (endDate.HasValue)
-        {
-            var normalizedEnd = NormalizeEndDate(endDate.Value);
-            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
-            // Esto asegura que solo se incluyan registros del día especificado
-            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
-            var nextDayStart = endDateOnly.AddDays(1);
-            query = query.Where(t => t.Date < nextDayStart);
-        }
+        query = ApplyDateFilters(query, startDate, endDate);
 
         var total = await query.SumAsync(t => t.Amount);
         var items = await query
@@ -119,21 +91,7 @@ public class FinanceService : IFinanceService
             .Include(t => t.Employee)
             .Where(t => t.BarberId == barberId && t.Type == TransactionType.Expense);
 
-        // Normalizar fechas: si vienen sin hora, ajustar al inicio/fin del día
-        if (startDate.HasValue)
-        {
-            var normalizedStart = NormalizeStartDate(startDate.Value);
-            query = query.Where(t => t.Date >= normalizedStart);
-        }
-        if (endDate.HasValue)
-        {
-            var normalizedEnd = NormalizeEndDate(endDate.Value);
-            // Extraer solo la fecha (sin hora) y agregar 1 día para el límite
-            // Esto asegura que solo se incluyan registros del día especificado
-            var endDateOnly = new DateTime(normalizedEnd.Year, normalizedEnd.Month, normalizedEnd.Day, 0, 0, 0, DateTimeKind.Utc);
-            var nextDayStart = endDateOnly.AddDays(1);
-            query = query.Where(t => t.Date < nextDayStart);
-        }
+        query = ApplyDateFilters(query, startDate, endDate);
 
         var total = await query.SumAsync(t => t.Amount);
         var items = await query
@@ -178,26 +136,9 @@ public class FinanceService : IFinanceService
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
-        // Cargar Employee si existe
-        if (employeeId.HasValue)
-        {
-            await _context.Entry(transaction)
-                .Reference(t => t.Employee)
-                .LoadAsync();
-        }
+        await LoadEmployeeIfExistsAsync(transaction, employeeId);
 
-        return new TransactionDto
-        {
-            Id = transaction.Id,
-            Type = transaction.Type.ToString(),
-            Amount = transaction.Amount,
-            Description = transaction.Description,
-            Category = transaction.Category,
-            Date = transaction.Date,
-            AppointmentId = transaction.AppointmentId,
-            EmployeeId = transaction.EmployeeId,
-            EmployeeName = transaction.Employee != null ? transaction.Employee.Name : null
-        };
+        return MapToTransactionDto(transaction);
     }
 
     public async Task<TransactionDto> UpdateExpenseAsync(int barberId, int expenseId, UpdateExpenseRequest request)
@@ -274,26 +215,9 @@ public class FinanceService : IFinanceService
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
-        // Cargar Employee si existe
-        if (employeeId.HasValue)
-        {
-            await _context.Entry(transaction)
-                .Reference(t => t.Employee)
-                .LoadAsync();
-        }
+        await LoadEmployeeIfExistsAsync(transaction, employeeId);
 
-        return new TransactionDto
-        {
-            Id = transaction.Id,
-            Type = transaction.Type.ToString(),
-            Amount = transaction.Amount,
-            Description = transaction.Description,
-            Category = transaction.Category,
-            Date = transaction.Date,
-            AppointmentId = transaction.AppointmentId,
-            EmployeeId = transaction.EmployeeId,
-            EmployeeName = transaction.Employee != null ? transaction.Employee.Name : null
-        };
+        return MapToTransactionDto(transaction);
     }
 
     public async Task CreateIncomeFromAppointmentAsync(int barberId, int appointmentId, decimal amount, string description)
@@ -357,6 +281,70 @@ public class FinanceService : IFinanceService
         await _context.SaveChangesAsync();
     }
 
+    #region Private Helper Methods
+
+    /// <summary>
+    /// Aplica filtros de fecha a una consulta de transacciones
+    /// </summary>
+    private IQueryable<Transaction> ApplyDateFilters(IQueryable<Transaction> query, DateTime? startDate, DateTime? endDate)
+    {
+        if (startDate.HasValue)
+        {
+            var normalizedStart = NormalizeStartDate(startDate.Value);
+            query = query.Where(t => t.Date >= normalizedStart);
+        }
+        
+        if (endDate.HasValue)
+        {
+            var normalizedEnd = NormalizeEndDate(endDate.Value);
+            var nextDayStart = CalculateNextDayStart(normalizedEnd);
+            query = query.Where(t => t.Date < nextDayStart);
+        }
+
+        return query;
+    }
+
+    /// <summary>
+    /// Calcula el inicio del día siguiente para usar como límite superior en filtros de fecha
+    /// </summary>
+    private DateTime CalculateNextDayStart(DateTime endDate)
+    {
+        var endDateOnly = new DateTime(endDate.Year, endDate.Month, endDate.Day, 0, 0, 0, DateTimeKind.Utc);
+        return endDateOnly.AddDays(1);
+    }
+
+    /// <summary>
+    /// Mapea una entidad Transaction a TransactionDto
+    /// </summary>
+    private static TransactionDto MapToTransactionDto(Transaction t)
+    {
+        return new TransactionDto
+        {
+            Id = t.Id,
+            Type = t.Type.ToString(),
+            Amount = t.Amount,
+            Description = t.Description,
+            Category = t.Category,
+            Date = t.Date,
+            AppointmentId = t.AppointmentId,
+            EmployeeId = t.EmployeeId,
+            EmployeeName = t.Employee != null ? t.Employee.Name : null
+        };
+    }
+
+    /// <summary>
+    /// Carga el Employee asociado a una transacción si existe
+    /// </summary>
+    private async Task LoadEmployeeIfExistsAsync(Transaction transaction, int? employeeId)
+    {
+        if (employeeId.HasValue)
+        {
+            await _context.Entry(transaction)
+                .Reference(t => t.Employee)
+                .LoadAsync();
+        }
+    }
+
     /// <summary>
     /// Normaliza la fecha de inicio: si viene sin hora, la establece a 00:00:00 del día
     /// </summary>
@@ -394,5 +382,7 @@ public class FinanceService : IFinanceService
         // Extraer componentes y crear nuevo DateTime en UTC (sin conversión)
         return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Millisecond, DateTimeKind.Utc);
     }
+
+    #endregion
 }
 
