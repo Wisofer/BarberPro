@@ -42,11 +42,14 @@ public class DashboardService : IDashboardService
         var todayStart = today.ToDateTime(TimeOnly.MinValue);
         var todayEnd = today.ToDateTime(TimeOnly.MaxValue);
 
-        var todayIncome = todayAppointments
-            .Where(a => (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed) && a.Service != null)
-            .Sum(a => a.Service!.Price);
+        // Obtener ingresos y egresos del día desde transacciones para ser consistente con semana y mes
+        var todayIncome = await _context.Transactions
+            .Where(t => t.BarberId == barberId && 
+                       t.Type == TransactionType.Income &&
+                       t.Date >= todayStart && 
+                       t.Date <= todayEnd)
+            .SumAsync(t => (decimal?)t.Amount) ?? 0;
 
-        // Obtener egresos del día desde transacciones
         var todayExpenses = await _context.Transactions
             .Where(t => t.BarberId == barberId && 
                        t.Type == TransactionType.Expense &&
@@ -65,6 +68,9 @@ public class DashboardService : IDashboardService
         };
 
         // Estadísticas de la semana
+        var weekStart = startOfWeek.ToDateTime(TimeOnly.MinValue);
+        var weekEnd = endOfWeek.ToDateTime(TimeOnly.MaxValue);
+
         var weekAppointments = await _context.Appointments
             .Include(a => a.Service)
             .Where(a => a.BarberId == barberId && 
@@ -73,13 +79,10 @@ public class DashboardService : IDashboardService
                        (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed))
             .ToListAsync();
 
-        var weekFinance = await _financeService.GetFinanceSummaryAsync(barberId, 
-            startOfWeek.ToDateTime(TimeOnly.MinValue), 
-            endOfWeek.ToDateTime(TimeOnly.MaxValue));
+        var weekFinance = await _financeService.GetFinanceSummaryAsync(barberId, weekStart, weekEnd);
 
-        var weekIncome = weekAppointments
-            .Where(a => a.Service != null)
-            .Sum(a => a.Service!.Price);
+        // Usar ingresos de transacciones para ser consistente con el mes
+        var weekIncome = weekFinance.TotalIncome;
         var weekUniqueClients = weekAppointments
             .Select(a => a.ClientPhone)
             .Distinct()
@@ -90,8 +93,8 @@ public class DashboardService : IDashboardService
         {
             Appointments = weekAppointments.Count,
             Income = weekIncome,
-            Expenses = weekFinance.ExpensesThisMonth,
-            Profit = weekIncome - weekFinance.ExpensesThisMonth,
+            Expenses = weekFinance.TotalExpenses, // Usar TotalExpenses del período, no ExpensesThisMonth
+            Profit = weekIncome - weekFinance.TotalExpenses,
             UniqueClients = weekUniqueClients,
             AveragePerClient = weekAveragePerClient
         };
