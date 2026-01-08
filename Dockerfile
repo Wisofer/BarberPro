@@ -6,8 +6,8 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore "BarberPro.csproj" --disable-parallel
-RUN dotnet publish "BarberPro.csproj" -c Release -o /app/publish --no-restore 
+RUN dotnet restore "BarberNic.csproj" --disable-parallel
+RUN dotnet publish "BarberNic.csproj" -c Release -o /app/publish --no-restore 
 
 # Server Stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
@@ -23,4 +23,4 @@ ENV GENERIC_TIMEZONE=America/Managua
 
 COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "BarberPro.dll"]
+ENTRYPOINT ["dotnet", "BarberNic.dll"]
