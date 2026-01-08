@@ -29,33 +29,52 @@ public class ExportService : IExportService
 
     public async Task<byte[]> ExportAppointmentsAsync(int barberId, DateOnly? startDate, DateOnly? endDate, string format)
     {
-        var barber = await _context.Barbers
-            .FirstOrDefaultAsync(b => b.Id == barberId);
-
-        if (barber == null)
-            throw new KeyNotFoundException("Barbero no encontrado");
-
-        var query = _context.Appointments
-            .Include(a => a.Service)
-            .Where(a => a.BarberId == barberId);
-
-        if (startDate.HasValue)
-            query = query.Where(a => a.Date >= startDate.Value);
-        if (endDate.HasValue)
-            query = query.Where(a => a.Date <= endDate.Value);
-
-        var appointments = await query
-            .OrderBy(a => a.Date)
-            .ThenBy(a => a.Time)
-            .ToListAsync();
-
-        return format.ToLower() switch
+        try
         {
-            "csv" => GenerateCsvAppointments(appointments),
-            "excel" => await GenerateExcelAppointmentsAsync(appointments),
-            "pdf" => await GeneratePdfAppointmentsAsync(appointments, barber, startDate, endDate),
-            _ => throw new ArgumentException($"Formato no soportado: {format}")
-        };
+            var barber = await _context.Barbers
+                .FirstOrDefaultAsync(b => b.Id == barberId);
+
+            if (barber == null)
+                throw new KeyNotFoundException("Barbero no encontrado");
+
+            var query = _context.Appointments
+                .Include(a => a.Service)
+                .Where(a => a.BarberId == barberId);
+
+            if (startDate.HasValue)
+                query = query.Where(a => a.Date >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(a => a.Date <= endDate.Value);
+
+            var appointments = await query
+                .OrderBy(a => a.Date)
+                .ThenBy(a => a.Time)
+                .ToListAsync();
+            
+            // Cargar servicios adicionales desde la tabla intermedia
+            List<AppointmentServiceEntity> appointmentServices = new List<AppointmentServiceEntity>();
+            if (appointments.Any())
+            {
+                var appointmentIds = appointments.Select(a => a.Id).ToList();
+                appointmentServices = await _context.AppointmentServices
+                    .Include(aps => aps.Service)
+                    .Where(aps => appointmentIds.Contains(aps.AppointmentId))
+                    .ToListAsync();
+            }
+
+            return format.ToLower() switch
+            {
+                "csv" => GenerateCsvAppointments(appointments, appointmentServices),
+                "excel" => await GenerateExcelAppointmentsAsync(appointments, appointmentServices),
+                "pdf" => await GeneratePdfAppointmentsAsync(appointments, barber, startDate, endDate, appointmentServices),
+                _ => throw new ArgumentException($"Formato no soportado: {format}")
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en ExportAppointmentsAsync: {Message}", ex.Message);
+            throw;
+        }
     }
 
     public async Task<byte[]> ExportFinancesAsync(int barberId, DateOnly? startDate, DateOnly? endDate, string format)
@@ -95,9 +114,20 @@ public class ExportService : IExportService
         if (barber == null)
             throw new KeyNotFoundException("Barbero no encontrado");
 
-        var clients = await _context.Appointments
+        var appointments = await _context.Appointments
             .Include(a => a.Service)
             .Where(a => a.BarberId == barberId)
+            .ToListAsync();
+        
+        // Cargar servicios desde la tabla intermedia
+        var appointmentIds = appointments.Select(a => a.Id).ToList();
+        var appointmentServices = await _context.AppointmentServices
+            .Include(aps => aps.Service)
+            .Where(aps => appointmentIds.Contains(aps.AppointmentId))
+            .ToListAsync();
+        
+        // Calcular totales por cliente considerando múltiples servicios
+        var clients = appointments
             .GroupBy(a => new { a.ClientName, a.ClientPhone })
             .Select(g => new ClientExportDto
             {
@@ -106,10 +136,25 @@ public class ExportService : IExportService
                 TotalAppointments = g.Count(),
                 LastAppointment = g.Max(a => a.Date),
                 TotalSpent = g.Where(a => a.Status == AppointmentStatus.Confirmed)
-                    .Sum(a => a.Service.Price)
+                    .Sum(a =>
+                    {
+                        // Buscar servicios en la tabla intermedia
+                        var services = appointmentServices
+                            .Where(aps => aps.AppointmentId == a.Id)
+                            .Select(aps => aps.Service)
+                            .Where(s => s != null)
+                            .ToList();
+                        
+                        if (services.Any())
+                        {
+                            return services.Sum(s => s.Price);
+                        }
+                        // Si no hay servicios en la tabla intermedia, usar el servicio directo
+                        return a.Service?.Price ?? 0;
+                    })
             })
             .OrderByDescending(c => c.TotalAppointments)
-            .ToListAsync();
+            .ToList();
 
         return format.ToLower() switch
         {
@@ -133,6 +178,13 @@ public class ExportService : IExportService
         var appointments = await _context.Appointments
             .Include(a => a.Service)
             .Where(a => a.BarberId == barberId)
+            .ToListAsync();
+        
+        // Cargar servicios desde la tabla intermedia
+        var appointmentIds = appointments.Select(a => a.Id).ToList();
+        var appointmentServices = await _context.AppointmentServices
+            .Include(aps => aps.Service)
+            .Where(aps => appointmentIds.Contains(aps.AppointmentId))
             .ToListAsync();
 
         var transactions = await _context.Transactions
@@ -166,17 +218,33 @@ public class ExportService : IExportService
                 wh.EndTime,
                 wh.IsActive
             }),
-            Appointments = appointments.Select(a => new
+            Appointments = appointments.Select(a =>
             {
-                a.Id,
-                a.ClientName,
-                a.ClientPhone,
-                a.Date,
-                a.Time,
-                a.Status,
-                ServiceName = a.Service.Name,
-                ServicePrice = a.Service.Price,
-                a.CreatedAt
+                // Obtener servicios: primero de AppointmentServices, si no existe usar Service directo
+                var services = appointmentServices
+                    .Where(aps => aps.AppointmentId == a.Id)
+                    .Select(aps => aps.Service)
+                    .Where(s => s != null)
+                    .ToList();
+                
+                if (!services.Any() && a.Service != null)
+                {
+                    services = new List<Service> { a.Service };
+                }
+                
+                return new
+                {
+                    a.Id,
+                    a.ClientName,
+                    a.ClientPhone,
+                    a.Date,
+                    a.Time,
+                    a.Status,
+                    Services = services.Select(s => new { s.Name, s.Price }).ToList(),
+                    ServiceName = services.Any() ? string.Join(" + ", services.Select(s => s.Name)) : "Sin servicio",
+                    ServicePrice = services.Any() ? services.Sum(s => s.Price) : 0,
+                    a.CreatedAt
+                };
             }),
             Transactions = transactions.Select(t => new
             {
@@ -198,20 +266,40 @@ public class ExportService : IExportService
     }
 
     // Métodos privados para generar archivos
-    private byte[] GenerateCsvAppointments(List<Appointment> appointments)
+    private byte[] GenerateCsvAppointments(List<Appointment> appointments, List<AppointmentServiceEntity> appointmentServices)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Fecha,Hora,Cliente,Teléfono,Servicio,Precio,Estado");
 
         foreach (var apt in appointments)
         {
-            sb.AppendLine($"{apt.Date:yyyy-MM-dd},{apt.Time:HH:mm},{apt.ClientName},{apt.ClientPhone},{apt.Service.Name},{apt.Service.Price:F2},{apt.Status}");
+            // Obtener servicios: primero de AppointmentServices, si no existe usar Service directo
+            var services = appointmentServices
+                .Where(aps => aps.AppointmentId == apt.Id)
+                .Select(aps => aps.Service)
+                .Where(s => s != null)
+                .ToList();
+            
+            if (!services.Any() && apt.Service != null)
+            {
+                services = new List<Service> { apt.Service };
+            }
+            
+            var serviceName = services.Any() 
+                ? string.Join(" + ", services.Select(s => s.Name))
+                : "Sin servicio";
+            
+            var servicePrice = services.Any()
+                ? services.Sum(s => s.Price)
+                : 0;
+            
+            sb.AppendLine($"{apt.Date:yyyy-MM-dd},{apt.Time:HH:mm},{apt.ClientName},{apt.ClientPhone},{serviceName},{servicePrice:F2},{apt.Status}");
         }
 
         return Encoding.UTF8.GetBytes(sb.ToString());
     }
 
-    private Task<byte[]> GenerateExcelAppointmentsAsync(List<Appointment> appointments)
+    private Task<byte[]> GenerateExcelAppointmentsAsync(List<Appointment> appointments, List<AppointmentServiceEntity> appointmentServices)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Citas");
@@ -227,12 +315,32 @@ public class ExportService : IExportService
         var row = 2;
         foreach (var apt in appointments)
         {
+            // Obtener servicios: primero de AppointmentServices, si no existe usar Service directo
+            var services = appointmentServices
+                .Where(aps => aps.AppointmentId == apt.Id)
+                .Select(aps => aps.Service)
+                .Where(s => s != null)
+                .ToList();
+            
+            if (!services.Any() && apt.Service != null)
+            {
+                services = new List<Service> { apt.Service };
+            }
+            
+            var serviceName = services.Any() 
+                ? string.Join(" + ", services.Select(s => s.Name))
+                : "Sin servicio";
+            
+            var servicePrice = services.Any()
+                ? services.Sum(s => s.Price)
+                : 0;
+            
             worksheet.Cell(row, 1).Value = apt.Date.ToString("yyyy-MM-dd");
             worksheet.Cell(row, 2).Value = apt.Time.ToString("HH:mm");
             worksheet.Cell(row, 3).Value = apt.ClientName;
             worksheet.Cell(row, 4).Value = apt.ClientPhone;
-            worksheet.Cell(row, 5).Value = apt.Service.Name;
-            worksheet.Cell(row, 6).Value = apt.Service.Price;
+            worksheet.Cell(row, 5).Value = serviceName;
+            worksheet.Cell(row, 6).Value = servicePrice;
             worksheet.Cell(row, 7).Value = apt.Status.ToString();
             row++;
         }
@@ -244,13 +352,31 @@ public class ExportService : IExportService
         return Task.FromResult(stream.ToArray());
     }
 
-    private Task<byte[]> GeneratePdfAppointmentsAsync(List<Appointment> appointments, Barber barber, DateOnly? startDate, DateOnly? endDate)
+    private Task<byte[]> GeneratePdfAppointmentsAsync(List<Appointment> appointments, Barber barber, DateOnly? startDate, DateOnly? endDate, List<AppointmentServiceEntity> appointmentServices)
     {
         var totalAppointments = appointments.Count;
         var confirmedAppointments = appointments.Count(a => a.Status == AppointmentStatus.Confirmed);
+        
+        // Calcular ingresos totales considerando múltiples servicios por cita
         var totalRevenue = appointments
             .Where(a => a.Status == AppointmentStatus.Confirmed)
-            .Sum(a => a.Service.Price);
+            .Sum(a =>
+            {
+                // Buscar servicios en la tabla intermedia
+                var services = appointmentServices
+                    .Where(aps => aps.AppointmentId == a.Id)
+                    .Select(aps => aps.Service)
+                    .Where(s => s != null)
+                    .ToList();
+                
+                if (services.Any())
+                {
+                    return services.Sum(s => s.Price);
+                }
+                // Si no hay servicios en la tabla intermedia, usar el servicio directo
+                return a.Service?.Price ?? 0;
+            });
+        
         var averagePrice = confirmedAppointments > 0 ? totalRevenue / confirmedAppointments : 0;
         var currentDate = DateTime.Now.ToString("dd/MM/yyyy");
         var periodText = startDate.HasValue || endDate.HasValue
@@ -351,11 +477,34 @@ public class ExportService : IExportService
                         // Filas de datos
                         foreach (var apt in appointments)
                         {
+                            // Obtener servicios: primero de AppointmentServices, si no existe usar Service directo
+                            var services = appointmentServices
+                                .Where(aps => aps.AppointmentId == apt.Id)
+                                .Select(aps => aps.Service)
+                                .Where(s => s != null)
+                                .ToList();
+                            
+                            if (!services.Any() && apt.Service != null)
+                            {
+                                services = new List<Service> { apt.Service };
+                            }
+                            
+                            // Si hay múltiples servicios, mostrar el primero y el total
+                            var serviceName = services.Any() 
+                                ? (services.Count > 1 
+                                    ? $"{services[0].Name} (+{services.Count - 1} más)"
+                                    : services[0].Name)
+                                : "Sin servicio";
+                            
+                            var servicePrice = services.Any()
+                                ? services.Sum(s => s.Price)
+                                : 0;
+                            
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Date.ToString("dd/MM/yyyy")).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Time.ToString("HH:mm")).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.ClientName).FontSize(9);
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(apt.Service.Name).FontSize(9);
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${apt.Service.Price:F2}").FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(serviceName).FontSize(9);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${servicePrice:F2}").FontSize(9);
                         }
                     });
 
