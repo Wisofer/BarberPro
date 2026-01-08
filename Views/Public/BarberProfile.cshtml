@@ -38,29 +38,75 @@
         .header {
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: white;
-            padding: 30px 20px;
-            text-align: center;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .header-logo {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        
+        .header-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
         }
         
         .barber-name {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+            margin: 0;
+            line-height: 1.2;
         }
         
         .barber-business {
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.95;
-            margin-bottom: 12px;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.3;
         }
         
         .barber-phone {
             font-size: 14px;
-            opacity: 0.9;
+            opacity: 0.95;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+        
+        .barber-phone i {
+            font-size: 16px;
+            color: #25D366;
+            background: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
         }
         
         /* Selector de Fecha */
@@ -589,14 +635,22 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="barber-name">@(barber?.Name ?? "Barbero")</div>
-            @if (!string.IsNullOrEmpty(barber?.BusinessName))
-            {
-                <div class="barber-business">@barber.BusinessName</div>
-            }
-            <div class="barber-phone">
-                <i class="fas fa-phone"></i>
-                <span>@barber?.Phone</span>
+            <div class="header-logo">
+                <img src="~/images/logo3.png" alt="BarberNic Logo" />
+            </div>
+            <div class="header-info">
+                <div class="barber-name">@(barber?.Name ?? "Barbero")</div>
+                @if (!string.IsNullOrEmpty(barber?.BusinessName))
+                {
+                    <div class="barber-business">@barber.BusinessName</div>
+                }
+                @if (!string.IsNullOrEmpty(barber?.Phone))
+                {
+                    <div class="barber-phone">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>@barber.Phone</span>
+                    </div>
+                }
             </div>
         </div>
         
