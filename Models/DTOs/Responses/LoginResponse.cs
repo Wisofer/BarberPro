@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BarberNic.Models.DTOs.Responses;
 
 /// <summary>
@@ -5,8 +7,16 @@ namespace BarberNic.Models.DTOs.Responses;
 /// </summary>
 public class LoginResponse
 {
+    [JsonPropertyName("token")]
     public string Token { get; set; } = string.Empty;
+    
+    [JsonPropertyName("refreshToken")]
+    public string RefreshToken { get; set; } = string.Empty;
+    
+    [JsonPropertyName("user")]
     public UserDto User { get; set; } = null!;
+    
+    [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
 }
 

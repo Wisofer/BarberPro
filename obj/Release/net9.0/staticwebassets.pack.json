@@ -1,0 +1,137 @@
+{
+  "Files": [
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/css/notifications.css",
+      "PackagePath": "staticwebassets/css/notifications.css"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/css/tailwind.css",
+      "PackagePath": "staticwebassets/css/tailwind.css"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo1.png",
+      "PackagePath": "staticwebassets/images/logo1.png"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo2.png",
+      "PackagePath": "staticwebassets/images/logo2.png"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/images/logo3.png",
+      "PackagePath": "staticwebassets/images/logo3.png"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/admin/barbers-management.js",
+      "PackagePath": "staticwebassets/js/admin/barbers-management.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/admin/employees-management.js",
+      "PackagePath": "staticwebassets/js/admin/employees-management.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/appointment-booking.js",
+      "PackagePath": "staticwebassets/js/appointment-booking.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/cache/cache-manager.js",
+      "PackagePath": "staticwebassets/js/cache/cache-manager.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/configuraciones/configuraciones.js",
+      "PackagePath": "staticwebassets/js/configuraciones/configuraciones.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/confirm-forms.js",
+      "PackagePath": "staticwebassets/js/confirm-forms.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-appbar.js",
+      "PackagePath": "staticwebassets/js/layout/layout-appbar.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-keepalive.js",
+      "PackagePath": "staticwebassets/js/layout/layout-keepalive.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-notifications.js",
+      "PackagePath": "staticwebassets/js/layout/layout-notifications.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-sidebar-inline.js",
+      "PackagePath": "staticwebassets/js/layout/layout-sidebar-inline.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-sidebar-tooltips.js",
+      "PackagePath": "staticwebassets/js/layout/layout-sidebar-tooltips.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-sidebar-utils.js",
+      "PackagePath": "staticwebassets/js/layout/layout-sidebar-utils.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-sidebar.js",
+      "PackagePath": "staticwebassets/js/layout/layout-sidebar.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/layout/layout-theme.js",
+      "PackagePath": "staticwebassets/js/layout/layout-theme.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notifications.js",
+      "PackagePath": "staticwebassets/js/notifications.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/pagos-crear.js",
+      "PackagePath": "staticwebassets/js/pagos-crear.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/precio-protection.js",
+      "PackagePath": "staticwebassets/js/precio-protection.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/tempdata-sounds.js",
+      "PackagePath": "staticwebassets/js/tempdata-sounds.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/lib/chart.js/chart.umd.min.js",
+      "PackagePath": "staticwebassets/lib/chart.js/chart.umd.min.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/lib/daisyui/full.min.css",
+      "PackagePath": "staticwebassets/lib/daisyui/full.min.css"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/lib/tailwindcss/tailwind.min.js",
+      "PackagePath": "staticwebassets/lib/tailwindcss/tailwind.min.js"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/sounds/error.mp3",
+      "PackagePath": "staticwebassets/sounds/error.mp3"
+    },
+    {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/sounds/success.mp3",
+      "PackagePath": "staticwebassets/sounds/success.mp3"
+    },
+    {
+      "Id": "obj/Release/net9.0/staticwebassets/msbuild.BarberNic.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj/Release/net9.0/staticwebassets/msbuild.BarberNic.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Release/net9.0/staticwebassets/msbuild.build.BarberNic.props",
+      "PackagePath": "build\\BarberNic.props"
+    },
+    {
+      "Id": "obj/Release/net9.0/staticwebassets/msbuild.buildMultiTargeting.BarberNic.props",
+      "PackagePath": "buildMultiTargeting\\BarberNic.props"
+    },
+    {
+      "Id": "obj/Release/net9.0/staticwebassets/msbuild.buildTransitive.BarberNic.props",
+      "PackagePath": "buildTransitive\\BarberNic.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

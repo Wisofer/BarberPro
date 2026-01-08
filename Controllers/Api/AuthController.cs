@@ -22,7 +22,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Login de Admin o Barbero
+    /// Login de Admin, Barbero o Empleado
     /// </summary>
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
@@ -45,6 +45,33 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error en login");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Refrescar token de acceso usando refresh token
+    /// </summary>
+    [HttpPost("refresh")]
+    public async Task<ActionResult<LoginResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var result = await _authService.RefreshTokenAsync(request);
+            
+            if (result.Success && result.Response != null)
+            {
+                return Ok(result.Response);
+            }
+            
+            return Unauthorized(new { message = result.ErrorMessage ?? "Refresh token inválido o expirado" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al refrescar token");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }

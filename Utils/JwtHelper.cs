@@ -94,5 +94,85 @@ public static class JwtHelper
         var ownerBarberIdClaim = user.FindFirst("OwnerBarberId")?.Value;
         return int.TryParse(ownerBarberIdClaim, out var ownerBarberId) ? ownerBarberId : null;
     }
+
+    /// <summary>
+    /// Genera un refresh token JWT para un usuario
+    /// </summary>
+    public static string GenerateRefreshToken(User user, string secretKey, string issuer, string audience, int expirationDays)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("UserId", user.Id.ToString()),
+            new Claim("TokenType", "RefreshToken") // Marca especial para identificar refresh tokens
+        };
+
+        // Si es barbero, agregar el ID del barbero
+        if (user.Barber != null)
+        {
+            claims.Add(new Claim("BarberId", user.Barber.Id.ToString()));
+        }
+
+        // Si es trabajador, agregar el ID del trabajador y del barbero dueño
+        if (user.Employee != null)
+        {
+            claims.Add(new Claim("EmployeeId", user.Employee.Id.ToString()));
+            claims.Add(new Claim("OwnerBarberId", user.Employee.OwnerBarberId.ToString()));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(expirationDays),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    /// <summary>
+    /// Valida y decodifica un refresh token JWT
+    /// </summary>
+    public static ClaimsPrincipal? ValidateRefreshToken(string token, string secretKey, string issuer, string audience)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+                ValidateAudience = true,
+                ValidAudience = audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            
+            // Verificar que es un refresh token
+            var tokenType = principal.FindFirst("TokenType")?.Value;
+            if (tokenType != "RefreshToken")
+            {
+                return null;
+            }
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
 

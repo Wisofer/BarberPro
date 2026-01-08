@@ -11,6 +11,7 @@ public interface IAuthService
 {
     Task<LoginResponse?> LoginAsync(LoginRequest request);
     Task<LoginResult> LoginWithResultAsync(LoginRequest request);
+    Task<LoginResult> RefreshTokenAsync(RefreshTokenRequest request);
     Task<User?> GetUserByIdAsync(int userId);
     Task<User?> GetUserByEmailAsync(string email);
     Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);

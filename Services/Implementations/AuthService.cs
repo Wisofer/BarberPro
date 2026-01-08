@@ -85,17 +85,20 @@ public class AuthService : IAuthService
             }
         }
 
-        // Generar token JWT
+        // Generar tokens JWT
         var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
-        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberPro";
-        var audience = _configuration["JwtSettings:Audience"] ?? "BarberProUsers";
+        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberNic";
+        var audience = _configuration["JwtSettings:Audience"] ?? "BarberNicUsers";
         var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
+        var refreshTokenExpirationDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpirationInDays"] ?? "30");
 
         var token = JwtHelper.GenerateToken(user, secretKey, issuer, audience, expirationMinutes);
+        var refreshToken = JwtHelper.GenerateRefreshToken(user, secretKey, issuer, audience, refreshTokenExpirationDays);
 
         return new LoginResponse
         {
             Token = token,
+            RefreshToken = refreshToken,
             User = new UserDto
             {
                 Id = user.Id,
@@ -222,17 +225,120 @@ public class AuthService : IAuthService
             }
         }
 
-        // Generar token JWT
+        // Generar tokens JWT
         var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
-        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberPro";
-        var audience = _configuration["JwtSettings:Audience"] ?? "BarberProUsers";
+        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberNic";
+        var audience = _configuration["JwtSettings:Audience"] ?? "BarberNicUsers";
         var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
+        var refreshTokenExpirationDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpirationInDays"] ?? "30");
 
         var token = JwtHelper.GenerateToken(user, secretKey, issuer, audience, expirationMinutes);
+        var refreshToken = JwtHelper.GenerateRefreshToken(user, secretKey, issuer, audience, refreshTokenExpirationDays);
 
         var response = new LoginResponse
         {
             Token = token,
+            RefreshToken = refreshToken,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                Barber = user.Barber != null ? new BarberDto
+                {
+                    Id = user.Barber.Id,
+                    Name = user.Barber.Name,
+                    BusinessName = user.Barber.BusinessName,
+                    Phone = user.Barber.Phone,
+                    Slug = user.Barber.Slug,
+                    IsActive = user.Barber.IsActive,
+                    QrUrl = QrHelper.GenerateBarberUrl(user.Barber.Slug, _configuration),
+                    CreatedAt = user.Barber.CreatedAt
+                } : null
+            },
+            Role = user.Role.ToString()
+        };
+
+        return LoginResult.SuccessResult(response);
+    }
+
+    public async Task<LoginResult> RefreshTokenAsync(RefreshTokenRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.RefreshToken))
+        {
+            return LoginResult.ErrorResult("Refresh token requerido", LoginErrorType.InvalidCredentials);
+        }
+
+        var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurado");
+        var issuer = _configuration["JwtSettings:Issuer"] ?? "BarberNic";
+        var audience = _configuration["JwtSettings:Audience"] ?? "BarberNicUsers";
+
+        // Validar el refresh token
+        var principal = JwtHelper.ValidateRefreshToken(request.RefreshToken, secretKey, issuer, audience);
+        if (principal == null)
+        {
+            return LoginResult.ErrorResult("Refresh token inválido o expirado", LoginErrorType.InvalidCredentials);
+        }
+
+        // Obtener el ID del usuario desde el token
+        var userIdClaim = principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        {
+            return LoginResult.ErrorResult("Token inválido", LoginErrorType.InvalidCredentials);
+        }
+
+        // Obtener el usuario de la base de datos
+        var user = await GetUserByIdAsync(userId);
+        if (user == null || !user.IsActive)
+        {
+            return LoginResult.ErrorResult("Usuario no encontrado o inactivo", LoginErrorType.UserInactive);
+        }
+
+        // Cargar relaciones necesarias
+        if (user.Role == UserRole.Barber)
+        {
+            await _context.Entry(user)
+                .Reference(u => u.Barber)
+                .LoadAsync();
+            
+            if (user.Barber == null || !user.Barber.IsActive)
+            {
+                return LoginResult.ErrorResult("Tu cuenta de barbero fue eliminada o está desactivada.", LoginErrorType.BarberDeleted);
+            }
+        }
+
+        if (user.Role == UserRole.Employee)
+        {
+            await _context.Entry(user)
+                .Reference(u => u.Employee)
+                .LoadAsync();
+            
+            if (user.Employee == null || !user.Employee.IsActive)
+            {
+                return LoginResult.ErrorResult("Tu cuenta de empleado fue eliminada o está desactivada.", LoginErrorType.EmployeeDeleted);
+            }
+            
+            await _context.Entry(user.Employee)
+                .Reference(e => e.OwnerBarber)
+                .LoadAsync();
+            
+            if (user.Employee.OwnerBarber == null || !user.Employee.OwnerBarber.IsActive)
+            {
+                return LoginResult.ErrorResult("El barbero dueño fue eliminado o está desactivado.", LoginErrorType.OwnerBarberDeleted);
+            }
+        }
+
+        // Generar nuevos tokens
+        var expirationMinutes = int.Parse(_configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
+        var refreshTokenExpirationDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpirationInDays"] ?? "30");
+
+        var newToken = JwtHelper.GenerateToken(user, secretKey, issuer, audience, expirationMinutes);
+        var newRefreshToken = JwtHelper.GenerateRefreshToken(user, secretKey, issuer, audience, refreshTokenExpirationDays);
+
+        var response = new LoginResponse
+        {
+            Token = newToken,
+            RefreshToken = newRefreshToken,
             User = new UserDto
             {
                 Id = user.Id,
