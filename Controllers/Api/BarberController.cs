@@ -175,18 +175,62 @@ public class BarberController : ControllerBase
     /// <summary>
     /// Obtener citas del barbero
     /// </summary>
+    /// <param name="date">Fecha específica (opcional). Si no se envía, devuelve todas las citas</param>
+    /// <param name="status">Estado de la cita (opcional): Pending, Confirmed, Completed, Cancelled</param>
+    /// <param name="startDate">Fecha de inicio para rango (opcional, formato: YYYY-MM-DD)</param>
+    /// <param name="endDate">Fecha de fin para rango (opcional, formato: YYYY-MM-DD)</param>
     [HttpGet("appointments")]
-    public async Task<ActionResult<List<AppointmentDto>>> GetAppointments([FromQuery] DateOnly? date = null, [FromQuery] AppointmentStatus? status = null)
+    public async Task<ActionResult<List<AppointmentDto>>> GetAppointments(
+        [FromQuery] DateOnly? date = null, 
+        [FromQuery] AppointmentStatus? status = null,
+        [FromQuery] string? startDate = null,
+        [FromQuery] string? endDate = null)
     {
         try
         {
             var barberId = await GetBarberIdAsync();
+            
+            // Si se proporciona un rango de fechas, obtener todas las citas en ese rango
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
+                {
+                    var allAppointments = await _appointmentService.GetBarberAppointmentsAsync(barberId, null, status);
+                    var filteredAppointments = allAppointments
+                        .Where(a => a.Date >= start && a.Date <= end)
+                        .ToList();
+                    return Ok(filteredAppointments);
+                }
+            }
+            
+            // Comportamiento original: fecha específica o todas las citas
             var appointments = await _appointmentService.GetBarberAppointmentsAsync(barberId, date, status);
             return Ok(appointments);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener citas");
+            return StatusCode(500, new { message = "Error interno del servidor" });
+        }
+    }
+
+    /// <summary>
+    /// Obtener historial completo de citas del barbero (todas las fechas)
+    /// </summary>
+    /// <param name="status">Estado de la cita (opcional): Pending, Confirmed, Completed, Cancelled</param>
+    [HttpGet("appointments/history")]
+    public async Task<ActionResult<List<AppointmentDto>>> GetAppointmentsHistory([FromQuery] AppointmentStatus? status = null)
+    {
+        try
+        {
+            var barberId = await GetBarberIdAsync();
+            // Pasar null como date para obtener todas las citas
+            var appointments = await _appointmentService.GetBarberAppointmentsAsync(barberId, null, status);
+            return Ok(appointments);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al obtener historial de citas");
             return StatusCode(500, new { message = "Error interno del servidor" });
         }
     }
