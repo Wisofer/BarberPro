@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using BarberNic.Utils;
 using BarberNic.Services.Interfaces;
 using BarberNic.Models.DTOs.Requests;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace BarberNic.Controllers.Web;
@@ -17,6 +18,8 @@ public class AdminController : Controller
     private readonly IAppointmentService _appointmentService;
     private readonly IEmployeeService _employeeService;
     private readonly IReportService _reportService;
+    private readonly IPushNotificationService _pushNotificationService;
+    private readonly BarberNic.Data.ApplicationDbContext _context;
 
     public AdminController(
         IDashboardService dashboardService, 
@@ -25,7 +28,9 @@ public class AdminController : Controller
         IServiceService serviceService,
         IAppointmentService appointmentService,
         IEmployeeService employeeService,
-        IReportService reportService)
+        IReportService reportService,
+        IPushNotificationService pushNotificationService,
+        BarberNic.Data.ApplicationDbContext context)
     {
         _dashboardService = dashboardService;
         _barberService = barberService;
@@ -34,6 +39,8 @@ public class AdminController : Controller
         _appointmentService = appointmentService;
         _employeeService = employeeService;
         _reportService = reportService;
+        _pushNotificationService = pushNotificationService;
+        _context = context;
     }
 
     [HttpGet("admin/dashboard")]
@@ -424,6 +431,139 @@ public class AdminController : Controller
 
         ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
         return View();
+    }
+
+    [HttpGet("admin/notifications")]
+    public async Task<IActionResult> Notifications()
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Redirect("/access-denied");
+        }
+
+        try
+        {
+            var templates = await _context.Templates
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+            
+            var barbers = await _barberService.GetAllBarbersAsync();
+            
+            ViewBag.Templates = templates;
+            ViewBag.Barbers = barbers;
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+        catch (Exception)
+        {
+            ViewBag.Templates = new List<BarberNic.Models.Entities.Template>();
+            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
+            ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
+            return View();
+        }
+    }
+
+    [HttpPost("admin/notifications/create-template")]
+    public async Task<IActionResult> CreateTemplate([FromBody] CreateTemplateRequest? request)
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { success = false, message = "No autorizado" });
+        }
+
+        if (request == null)
+        {
+            return Json(new { success = false, message = "Datos no recibidos" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            return Json(new { success = false, message = "El título es requerido" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Body))
+        {
+            return Json(new { success = false, message = "El cuerpo del mensaje es requerido" });
+        }
+
+        try
+        {
+            var template = new BarberNic.Models.Entities.Template
+            {
+                Title = request.Title,
+                Body = request.Body,
+                ImageUrl = request.ImageUrl,
+                Name = request.Name
+            };
+
+            _context.Templates.Add(template);
+            await _context.SaveChangesAsync();
+
+            return Json(new { 
+                success = true, 
+                message = "Plantilla creada exitosamente",
+                template = new {
+                    id = template.Id,
+                    title = template.Title,
+                    body = template.Body,
+                    imageUrl = template.ImageUrl,
+                    name = template.Name
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"Error al crear plantilla: {ex.Message}" });
+        }
+    }
+
+    [HttpPost("admin/notifications/send")]
+    public async Task<IActionResult> SendNotification([FromBody] SendNotificationRequest? request)
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { success = false, message = "No autorizado" });
+        }
+
+        if (request == null)
+        {
+            return Json(new { success = false, message = "Datos no recibidos" });
+        }
+
+        try
+        {
+            var template = await _context.Templates.FindAsync(request.TemplateId);
+            if (template == null)
+            {
+                return Json(new { success = false, message = "Plantilla no encontrada" });
+            }
+
+            // Obtener todos los dispositivos de todos los barberos
+            var allDevices = await _context.Devices
+                .Where(d => !string.IsNullOrWhiteSpace(d.FcmToken))
+                .ToListAsync();
+
+            if (!allDevices.Any())
+            {
+                return Json(new { success = false, message = "No hay dispositivos registrados" });
+            }
+
+            await _pushNotificationService.SendPushNotificationAsync(
+                template,
+                allDevices,
+                request.ExtraData,
+                request.DataOnly);
+
+            return Json(new { 
+                success = true, 
+                message = $"Notificación enviada a {allDevices.Count} dispositivo(s)",
+                sentCount = allDevices.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"Error al enviar notificación: {ex.Message}" });
+        }
     }
 
     [HttpPost("admin/settings/theme")]

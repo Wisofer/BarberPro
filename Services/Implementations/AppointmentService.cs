@@ -16,17 +16,20 @@ public class AppointmentService : IAppointmentService
     private readonly IBarberService _barberService;
     private readonly IAvailabilityService _availabilityService;
     private readonly IFinanceService _financeService;
+    private readonly IPushNotificationService? _pushNotificationService;
 
     public AppointmentService(
         ApplicationDbContext context,
         IBarberService barberService,
         IAvailabilityService availabilityService,
-        IFinanceService financeService)
+        IFinanceService financeService,
+        IPushNotificationService? pushNotificationService = null)
     {
         _context = context;
         _barberService = barberService;
         _availabilityService = availabilityService;
         _financeService = financeService;
+        _pushNotificationService = pushNotificationService; // Inyectado automáticamente por DI si está registrado
     }
 
     public async Task<AppointmentDto> CreateAppointmentAsync(CreateAppointmentRequest request)
@@ -97,6 +100,73 @@ public class AppointmentService : IAppointmentService
                 _context.AppointmentServices.Add(appointmentService);
             }
             await _context.SaveChangesAsync();
+        }
+
+        // Enviar notificación push al barbero (si el servicio está disponible)
+        if (_pushNotificationService != null)
+        {
+            try
+            {
+                // Obtener dispositivos del barbero
+                var barberUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Barber != null && u.Barber.Id == barber.Id);
+
+                if (barberUser != null)
+                {
+                    var devices = await _context.Devices
+                        .Where(d => d.UserId == barberUser.Id && !string.IsNullOrWhiteSpace(d.FcmToken))
+                        .ToListAsync();
+
+                    if (devices.Any())
+                    {
+                        // Formatear fecha y hora
+                        var fecha = request.Date.ToString("dd/MM/yyyy");
+                        var hora = request.Time.ToString("HH:mm");
+
+                        // Crear template de notificación
+                        var template = new Template
+                        {
+                            Title = "Nueva cita agendada",
+                            Body = $"{request.ClientName} agendó una cita para el {fecha} a las {hora}",
+                            Name = "Nueva cita"
+                        };
+
+                        // Datos adicionales
+                        var extraData = new Dictionary<string, string>
+                        {
+                            ["type"] = "appointment",
+                            ["appointmentId"] = appointment.Id.ToString(),
+                            ["clientName"] = request.ClientName,
+                            ["clientPhone"] = request.ClientPhone,
+                            ["date"] = request.Date.ToString("yyyy-MM-dd"),
+                            ["time"] = request.Time.ToString("HH:mm")
+                        };
+
+                        // Enviar notificación (en segundo plano, no bloquear)
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await _pushNotificationService.SendPushNotificationAsync(
+                                    template,
+                                    devices,
+                                    extraData,
+                                    dataOnly: false);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log error pero no fallar la creación de la cita
+                                Console.WriteLine($"Error al enviar notificación push: {ex.Message}");
+                            }
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error pero no fallar la creación de la cita
+                Console.WriteLine($"Error al enviar notificación push: {ex.Message}");
+            }
         }
 
         return await GetAppointmentByIdAsync(appointment.Id) ?? throw new Exception("Error al crear la cita");

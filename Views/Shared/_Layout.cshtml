@@ -522,6 +522,13 @@
                         </li>
                         
                         <li>
+                            <a href="/admin/notifications" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Notifications" ? "active" : "")" data-tooltip="Notificaciones">
+                                <span class="text-lg">🔔</span>
+                                <span class="sidebar-text">Notificaciones</span>
+                            </a>
+                        </li>
+                        
+                        <li>
                             <a href="/admin/settings" class="sidebar-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")" data-tooltip="Configuración">
                                 <span class="text-lg">⚙️</span>
                                 <span class="sidebar-text">Configuración</span>

@@ -13,11 +13,43 @@ using Microsoft.OpenApi.Models;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 // Configurar Npgsql para manejar DateTime correctamente con PostgreSQL
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Inicializar Firebase solo una vez (al inicio de la aplicación)
+var firebaseCredentialsPath = Path.Combine(builder.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
+if (File.Exists(firebaseCredentialsPath))
+{
+    try
+    {
+        // Verificar que no existe una instancia previa
+        if (FirebaseApp.DefaultInstance == null)
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(firebaseCredentialsPath)
+            });
+            Console.WriteLine("✅ Firebase inicializado correctamente");
+        }
+        else
+        {
+            Console.WriteLine("✅ Firebase ya estaba inicializado");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ Error al inicializar Firebase: {ex.Message}");
+    }
+}
+else
+{
+    Console.WriteLine($"⚠️ Archivo de credenciales Firebase no encontrado en: {firebaseCredentialsPath}");
+}
 
 // Agregar servicios al contenedor
 builder.Services.AddControllers()
@@ -164,6 +196,7 @@ builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddScoped<IHelpSupportService, HelpSupportService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 
 // Registrar servicios antiguos (MVC web - mantener compatibilidad)
         builder.Services.AddScoped<BarberNic.Services.IServices.IAuthService, BarberNic.Services.AuthService>();

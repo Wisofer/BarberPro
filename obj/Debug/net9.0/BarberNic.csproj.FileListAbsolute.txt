@@ -193,3 +193,13 @@
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberNic.pdb
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/BarberNic.genruntimeconfig.cache
 /home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/ref/BarberNic.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Secrets/firebase_credentials.json
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/FirebaseAdmin.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Google.Api.Gax.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Google.Api.Gax.Rest.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Google.Apis.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Google.Apis.Auth.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Google.Apis.Core.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/Newtonsoft.Json.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/System.Management.dll
+/home/william/Documentos/aplicaciones/BarberPro/bin/Debug/net9.0/runtimes/win/lib/net7.0/System.Management.dll

@@ -15,6 +15,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<Barber> Barbers { get; set; }
     public DbSet<Employee> Employees { get; set; }
     
+    // Entidades de notificaciones push
+    public DbSet<Template> Templates { get; set; }
+    public DbSet<Device> Devices { get; set; }
+    public DbSet<NotificationLog> NotificationLogs { get; set; }
+    
     // Entidades del sistema antiguo (MVC web - mantener compatibilidad)
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<Service> Services { get; set; }
@@ -201,6 +206,59 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.UsuarioActualizacion).HasMaxLength(200);
             entity.HasIndex(e => e.Clave).IsUnique();
+        });
+
+        // Configuración de Template
+        modelBuilder.Entity<Template>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Body).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.Name).HasMaxLength(200);
+        });
+
+        // Configuración de Device
+        modelBuilder.Entity<Device>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FcmToken).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Platform).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.FcmToken).IsUnique();
+            entity.HasIndex(e => e.UserId);
+            
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Configuración de NotificationLog
+        modelBuilder.Entity<NotificationLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Payload).HasColumnType("text");
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.DeviceId);
+            entity.HasIndex(e => e.TemplateId);
+            
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Device)
+                .WithMany()
+                .HasForeignKey(e => e.DeviceId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
+            
+            entity.HasOne(e => e.Template)
+                .WithMany()
+                .HasForeignKey(e => e.TemplateId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .IsRequired(false);
         });
     }
 }

@@ -1,0 +1,289 @@
+@using BarberNic.Models.Entities
+@using BarberNic.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Enviar Notificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var templates = ViewBag.Templates as List<Template> ?? new List<Template>();
+    var barbers = ViewBag.Barbers as List<BarberDto> ?? new List<BarberDto>();
+}
+
+<div class="container mx-auto p-4 sm:p-6">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gold mb-1">Enviar Notificaciones Push</h1>
+        <p class="text-sm text-gray-400">Gestiona y envía notificaciones a todos los barberos</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Panel: Crear Plantilla -->
+        <div class="bg-base-200 rounded-lg p-6 border border-base-300">
+            <h2 class="text-xl font-bold mb-4 text-gold">Crear Nueva Plantilla</h2>
+            
+            <form id="createTemplateForm" class="space-y-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Nombre de la Plantilla</span>
+                    </label>
+                    <input type="text" id="templateName" placeholder="Ej: Nueva actualización" 
+                           class="input input-bordered w-full" />
+                </div>
+
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Título <span class="text-error">*</span></span>
+                    </label>
+                    <input type="text" id="templateTitle" placeholder="Ej: Nueva actualización disponible" 
+                           class="input input-bordered w-full" required />
+                </div>
+
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Mensaje <span class="text-error">*</span></span>
+                    </label>
+                    <textarea id="templateBody" placeholder="Escribe el mensaje que recibirán los barberos..." 
+                              class="textarea textarea-bordered w-full h-24" required></textarea>
+                </div>
+
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">URL de Imagen (Opcional)</span>
+                    </label>
+                    <input type="url" id="templateImageUrl" placeholder="https://ejemplo.com/imagen.jpg" 
+                           class="input input-bordered w-full" />
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Debe ser una URL HTTPS válida</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    <span class="text-lg">💾</span>
+                    Guardar Plantilla
+                </button>
+            </form>
+        </div>
+
+        <!-- Panel: Enviar Notificación -->
+        <div class="bg-base-200 rounded-lg p-6 border border-base-300">
+            <h2 class="text-xl font-bold mb-4 text-gold">Enviar Notificación</h2>
+            
+            <form id="sendNotificationForm" class="space-y-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Seleccionar Plantilla <span class="text-error">*</span></span>
+                    </label>
+                    <select id="selectedTemplate" class="select select-bordered w-full" required>
+                        <option value="">-- Selecciona una plantilla --</option>
+                        @foreach (var template in templates)
+                        {
+                            <option value="@template.Id" data-title="@template.Title" data-body="@template.Body" data-image="@(template.ImageUrl ?? "")">
+                                @(template.Name ?? template.Title)
+                            </option>
+                        }
+                    </select>
+                    @if (!templates.Any())
+                    {
+                        <label class="label">
+                            <span class="label-text-alt text-warning">No hay plantillas. Crea una primero.</span>
+                        </label>
+                    }
+                </div>
+
+                <!-- Vista Previa -->
+                <div id="previewSection" class="hidden bg-base-300 rounded-lg p-4 border border-base-300">
+                    <h3 class="font-semibold mb-2">Vista Previa:</h3>
+                    <div class="bg-base-100 rounded p-3">
+                        <div class="font-bold text-sm mb-1" id="previewTitle"></div>
+                        <div class="text-sm text-gray-600" id="previewBody"></div>
+                        <img id="previewImage" src="" alt="" class="mt-2 rounded max-w-full hidden" />
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-2">
+                        <input type="checkbox" id="dataOnly" class="checkbox checkbox-primary" />
+                        <span class="label-text">Solo datos (sin notificación del sistema)</span>
+                    </label>
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Útil para actualizaciones en segundo plano</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-success w-full" id="sendBtn" @(!templates.Any() ? "disabled" : "")>
+                    <span class="text-lg">📤</span>
+                    Enviar a Todos los Barberos
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Plantillas -->
+    <div class="mt-6 bg-base-200 rounded-lg p-6 border border-base-300">
+        <h2 class="text-xl font-bold mb-4 text-gold">Plantillas Guardadas</h2>
+        
+        @if (templates.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Título</th>
+                            <th>Mensaje</th>
+                            <th>Fecha Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var template in templates)
+                        {
+                            <tr>
+                                <td class="font-semibold">@(template.Name ?? "Sin nombre")</td>
+                                <td>@template.Title</td>
+                                <td class="max-w-xs truncate">@template.Body</td>
+                                <td>@template.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <button onclick="selectTemplate(@template.Id)" class="btn btn-sm btn-primary">
+                                        Usar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <span>No hay plantillas guardadas. Crea una nueva plantilla arriba.</span>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Vista previa de plantilla seleccionada
+        document.getElementById('selectedTemplate').addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            if (this.value) {
+                const previewSection = document.getElementById('previewSection');
+                const previewTitle = document.getElementById('previewTitle');
+                const previewBody = document.getElementById('previewBody');
+                const previewImage = document.getElementById('previewImage');
+                
+                previewTitle.textContent = option.dataset.title;
+                previewBody.textContent = option.dataset.body;
+                
+                if (option.dataset.image) {
+                    previewImage.src = option.dataset.image;
+                    previewImage.classList.remove('hidden');
+                } else {
+                    previewImage.classList.add('hidden');
+                }
+                
+                previewSection.classList.remove('hidden');
+            } else {
+                document.getElementById('previewSection').classList.add('hidden');
+            }
+        });
+
+        // Crear plantilla
+        document.getElementById('createTemplateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading loading-spinner"></span> Guardando...';
+            
+            try {
+                const response = await fetch('/admin/notifications/create-template', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('templateName').value,
+                        title: document.getElementById('templateTitle').value,
+                        body: document.getElementById('templateBody').value,
+                        imageUrl: document.getElementById('templateImageUrl').value || null
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Notify.success(result.message);
+                    // Limpiar formulario
+                    this.reset();
+                    // Recargar página para mostrar nueva plantilla
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    Notify.error(result.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                Notify.error('Error al crear plantilla: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // Enviar notificación
+        document.getElementById('sendNotificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const templateId = document.getElementById('selectedTemplate').value;
+            if (!templateId) {
+                Notify.error('Selecciona una plantilla');
+                return;
+            }
+            
+            const btn = document.getElementById('sendBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading loading-spinner"></span> Enviando...';
+            
+            try {
+                const response = await fetch('/admin/notifications/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        templateId: parseInt(templateId),
+                        dataOnly: document.getElementById('dataOnly').checked,
+                        extraData: null
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Notify.success(result.message);
+                    // Limpiar formulario
+                    document.getElementById('selectedTemplate').value = '';
+                    document.getElementById('previewSection').classList.add('hidden');
+                    document.getElementById('dataOnly').checked = false;
+                } else {
+                    Notify.error(result.message);
+                }
+            } catch (error) {
+                Notify.error('Error al enviar notificación: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+
+        // Seleccionar plantilla desde la tabla
+        function selectTemplate(templateId) {
+            document.getElementById('selectedTemplate').value = templateId;
+            document.getElementById('selectedTemplate').dispatchEvent(new Event('change'));
+            // Scroll al formulario de envío
+            document.getElementById('sendNotificationForm').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+}

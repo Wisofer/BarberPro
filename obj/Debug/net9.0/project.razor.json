@@ -19466,6 +19466,11 @@
   "RootNamespace": "BarberNic",
   "Documents": [
     {
+      "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Admin/Notifications.cshtml",
+      "TargetPath": "Views\\Admin\\Notifications.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "/home/william/Documentos/aplicaciones/BarberPro/Views/Public/BarberProfile.cshtml",
       "TargetPath": "Views\\Public\\BarberProfile.cshtml",
       "FileKind": "mvc"
