@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using BarberNic.Utils;
 using BarberNic.Services.Interfaces;
 using BarberNic.Models.DTOs.Requests;
+using BarberNic.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace BarberNic.Controllers.Web;
 
@@ -449,8 +451,14 @@ public class AdminController : Controller
             
             var barbers = await _barberService.GetAllBarbersAsync();
             
+            // Obtener UserIds de los barberos
+            var barbersWithUserId = await _context.Barbers
+                .Select(b => new { b.Id, b.UserId, b.Name, b.BusinessName })
+                .ToListAsync();
+            
             ViewBag.Templates = templates;
             ViewBag.Barbers = barbers;
+            ViewBag.BarbersWithUserId = barbersWithUserId;
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
@@ -458,6 +466,7 @@ public class AdminController : Controller
         {
             ViewBag.Templates = new List<BarberNic.Models.Entities.Template>();
             ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
+            ViewBag.BarbersWithUserId = new List<dynamic>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
@@ -538,30 +547,74 @@ public class AdminController : Controller
                 return Json(new { success = false, message = "Plantilla no encontrada" });
             }
 
-            // Obtener todos los dispositivos de todos los barberos
-            var allDevices = await _context.Devices
-                .Where(d => !string.IsNullOrWhiteSpace(d.FcmToken))
-                .ToListAsync();
-
-            if (!allDevices.Any())
+            // Determinar a qué usuarios enviar
+            List<BarberNic.Models.Entities.Device> targetDevices;
+            
+            if (request.UserIds != null && request.UserIds.Any())
             {
-                return Json(new { success = false, message = "No hay dispositivos registrados" });
+                // Enviar solo a usuarios seleccionados
+                targetDevices = await _context.Devices
+                    .Where(d => request.UserIds.Contains(d.UserId) && !string.IsNullOrWhiteSpace(d.FcmToken))
+                    .Include(d => d.User)
+                    .ToListAsync();
+                
+                if (!targetDevices.Any())
+                {
+                    return Json(new { success = false, message = "No hay dispositivos registrados para los usuarios seleccionados" });
+                }
+            }
+            else
+            {
+                // Enviar a todos los usuarios
+                targetDevices = await _context.Devices
+                    .Where(d => !string.IsNullOrWhiteSpace(d.FcmToken))
+                    .Include(d => d.User)
+                    .ToListAsync();
+                
+                if (!targetDevices.Any())
+                {
+                    return Json(new { success = false, message = "No hay dispositivos registrados" });
+                }
+            }
+
+            // Log detallado antes de enviar
+            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AdminController>>();
+            logger.LogInformation("📤 Enviando notificación:");
+            logger.LogInformation("   - Template ID: {TemplateId}", template.Id);
+            logger.LogInformation("   - Template Title: {Title}", template.Title);
+            logger.LogInformation("   - Template Body: {Body}", template.Body);
+            logger.LogInformation("   - Usuarios destino: {UserCount}", targetDevices.Select(d => d.UserId).Distinct().Count());
+            logger.LogInformation("   - Dispositivos destino: {DeviceCount}", targetDevices.Count);
+            logger.LogInformation("   - Tokens FCM: {Tokens}", string.Join(", ", targetDevices.Select(d => d.FcmToken).Take(5)));
+            
+            if (request.UserIds != null && request.UserIds.Any())
+            {
+                logger.LogInformation("   - UserIds seleccionados: {UserIds}", string.Join(", ", request.UserIds));
+            }
+            else
+            {
+                logger.LogInformation("   - Enviando a TODOS los usuarios");
             }
 
             await _pushNotificationService.SendPushNotificationAsync(
                 template,
-                allDevices,
+                targetDevices,
                 request.ExtraData,
                 request.DataOnly);
 
+            var uniqueUsers = targetDevices.Select(d => d.UserId).Distinct().Count();
+            
             return Json(new { 
                 success = true, 
-                message = $"Notificación enviada a {allDevices.Count} dispositivo(s)",
-                sentCount = allDevices.Count
+                message = $"Notificación enviada a {uniqueUsers} usuario(s) en {targetDevices.Count} dispositivo(s)",
+                sentCount = targetDevices.Count,
+                userCount = uniqueUsers
             });
         }
         catch (Exception ex)
         {
+            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AdminController>>();
+            logger.LogError(ex, "❌ Error al enviar notificación");
             return Json(new { success = false, message = $"Error al enviar notificación: {ex.Message}" });
         }
     }

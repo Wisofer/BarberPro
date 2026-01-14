@@ -67,6 +67,18 @@ public class PushNotificationService : IPushNotificationService
 
         try
         {
+            _logger.LogInformation("🔔 Iniciando envío de notificación push");
+            _logger.LogInformation("   - Template ID: {TemplateId}", template.Id);
+            _logger.LogInformation("   - Template Title: {Title}", template.Title);
+            _logger.LogInformation("   - Template Body: {Body}", template.Body);
+            _logger.LogInformation("   - Template ImageUrl: {ImageUrl}", template.ImageUrl ?? "null");
+            _logger.LogInformation("   - Dispositivos válidos: {Count}", validDevices.Count);
+            _logger.LogInformation("   - DataOnly: {DataOnly}", dataOnly);
+            
+            // Log de tokens (solo primeros 3 para seguridad)
+            var sampleTokens = validDevices.Take(3).Select(d => d.FcmToken).ToList();
+            _logger.LogInformation("   - Tokens FCM (muestra): {Tokens}", string.Join(", ", sampleTokens));
+            
             // Construir notificación
             var notification = new Notification
             {
@@ -85,11 +97,13 @@ public class PushNotificationService : IPushNotificationService
                 {
                     data[item.Key] = item.Value;
                 }
+                _logger.LogInformation("   - ExtraData: {ExtraData}", string.Join(", ", extraData.Select(kv => $"{kv.Key}={kv.Value}")));
             }
 
             // Agregar datos de la plantilla
             data["title"] = template.Title;
             data["body"] = template.Body;
+            data["type"] = "announcement"; // Tipo por defecto para notificaciones manuales
             if (!string.IsNullOrWhiteSpace(template.ImageUrl))
             {
                 data["imageUrl"] = template.ImageUrl;
@@ -98,6 +112,8 @@ public class PushNotificationService : IPushNotificationService
             {
                 data["templateId"] = template.Id.ToString();
             }
+            
+            _logger.LogInformation("   - Data payload: {Data}", string.Join(", ", data.Select(kv => $"{kv.Key}={kv.Value}")));
 
             // Construir mensaje base
             var message = new Message
@@ -110,7 +126,7 @@ public class PushNotificationService : IPushNotificationService
             message.Android = new AndroidConfig
             {
                 Priority = Priority.High,
-                Notification = new AndroidNotification
+                Notification = dataOnly ? null : new AndroidNotification
                 {
                     Title = template.Title,
                     Body = template.Body,
@@ -129,20 +145,21 @@ public class PushNotificationService : IPushNotificationService
                 },
                 Aps = new Aps
                 {
-                    Alert = new ApsAlert
+                    Alert = dataOnly ? null : new ApsAlert
                     {
                         Title = template.Title,
                         Body = template.Body
                     },
-                    Sound = "default",
-                    Badge = 1
+                    Sound = dataOnly ? null : "default",
+                    Badge = dataOnly ? (int?)null : 1,
+                    ContentAvailable = dataOnly // iOS: indica que es solo datos
                 }
             };
 
             // Configurar Web
             message.Webpush = new WebpushConfig
             {
-                Notification = new WebpushNotification
+                Notification = dataOnly ? null : new WebpushNotification
                 {
                     Title = template.Title,
                     Body = template.Body,
@@ -179,11 +196,33 @@ public class PushNotificationService : IPushNotificationService
                         Webpush = message.Webpush
                     };
 
+                    _logger.LogInformation("📤 Enviando lote de {Count} tokens a Firebase", tokens.Count);
+                    
                     var response = await FirebaseMessaging.DefaultInstance
                         .SendEachForMulticastAsync(multicastMessage);
 
+                    _logger.LogInformation("✅ Respuesta de Firebase: {Success} exitosas, {Failed} fallidas", 
+                        response.SuccessCount, response.FailureCount);
+                    
                     totalSent += response.SuccessCount;
                     totalFailed += response.FailureCount;
+                    
+                    // Log de errores detallados
+                    if (response.FailureCount > 0)
+                    {
+                        for (int i = 0; i < response.Responses.Count; i++)
+                        {
+                            var fcmResponse = response.Responses[i];
+                            if (!fcmResponse.IsSuccess)
+                            {
+                                var device = batch[i];
+                                _logger.LogWarning("❌ Error al enviar a dispositivo {DeviceId} (Usuario {UserId}): {ErrorCode} - {ErrorMessage}", 
+                                    device.Id, device.UserId, 
+                                    fcmResponse.Exception?.MessagingErrorCode, 
+                                    fcmResponse.Exception?.Message);
+                            }
+                        }
+                    }
 
                     // Registrar logs de éxito
                     for (int i = 0; i < batch.Count && i < response.Responses.Count; i++)
@@ -249,8 +288,13 @@ public class PushNotificationService : IPushNotificationService
             await _context.SaveChangesAsync();
 
             _logger.LogInformation(
-                "Notificación enviada: {Sent} exitosas, {Failed} fallidas de {Total} dispositivos",
+                "✅ Notificación completada: {Sent} exitosas, {Failed} fallidas de {Total} dispositivos",
                 totalSent, totalFailed, validDevices.Count);
+            
+            if (totalFailed > 0)
+            {
+                _logger.LogWarning("⚠️ Algunas notificaciones fallaron. Revisa los logs anteriores para más detalles.");
+            }
         }
         catch (Exception ex)
         {

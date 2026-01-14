@@ -37,19 +37,19 @@ public class ExportService : IExportService
             if (barber == null)
                 throw new KeyNotFoundException("Barbero no encontrado");
 
-            var query = _context.Appointments
-                .Include(a => a.Service)
-                .Where(a => a.BarberId == barberId);
+        var query = _context.Appointments
+            .Include(a => a.Service)
+            .Where(a => a.BarberId == barberId);
 
-            if (startDate.HasValue)
-                query = query.Where(a => a.Date >= startDate.Value);
-            if (endDate.HasValue)
-                query = query.Where(a => a.Date <= endDate.Value);
+        if (startDate.HasValue)
+            query = query.Where(a => a.Date >= startDate.Value);
+        if (endDate.HasValue)
+            query = query.Where(a => a.Date <= endDate.Value);
 
-            var appointments = await query
-                .OrderBy(a => a.Date)
-                .ThenBy(a => a.Time)
-                .ToListAsync();
+        var appointments = await query
+            .OrderBy(a => a.Date)
+            .ThenBy(a => a.Time)
+            .ToListAsync();
             
             // Cargar servicios adicionales desde la tabla intermedia
             List<AppointmentServiceEntity> appointmentServices = new List<AppointmentServiceEntity>();
@@ -62,13 +62,13 @@ public class ExportService : IExportService
                     .ToListAsync();
             }
 
-            return format.ToLower() switch
-            {
+        return format.ToLower() switch
+        {
                 "csv" => GenerateCsvAppointments(appointments, appointmentServices),
                 "excel" => await GenerateExcelAppointmentsAsync(appointments, appointmentServices),
                 "pdf" => await GeneratePdfAppointmentsAsync(appointments, barber, startDate, endDate, appointmentServices),
-                _ => throw new ArgumentException($"Formato no soportado: {format}")
-            };
+            _ => throw new ArgumentException($"Formato no soportado: {format}")
+        };
         }
         catch (Exception ex)
         {
@@ -233,17 +233,17 @@ public class ExportService : IExportService
                 }
                 
                 return new
-                {
-                    a.Id,
-                    a.ClientName,
-                    a.ClientPhone,
-                    a.Date,
-                    a.Time,
-                    a.Status,
+            {
+                a.Id,
+                a.ClientName,
+                a.ClientPhone,
+                a.Date,
+                a.Time,
+                a.Status,
                     Services = services.Select(s => new { s.Name, s.Price }).ToList(),
                     ServiceName = services.Any() ? string.Join(" + ", services.Select(s => s.Name)) : "Sin servicio",
                     ServicePrice = services.Any() ? services.Sum(s => s.Price) : 0,
-                    a.CreatedAt
+                a.CreatedAt
                 };
             }),
             Transactions = transactions.Select(t => new
@@ -842,36 +842,36 @@ public class ExportService : IExportService
                         .FontColor(Colors.Grey.Darken3);
 
                     column.Item().Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
                     {
-                        table.ColumnsDefinition(columns =>
-                        {
                             columns.RelativeColumn(2.5f);
                             columns.RelativeColumn(2);
                             columns.RelativeColumn(1.5f);
                             columns.RelativeColumn(2);
                             columns.RelativeColumn(2);
-                        });
+                    });
 
                         // Header de la tabla
-                        table.Header(header =>
-                        {
+                    table.Header(header =>
+                    {
                             header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Cliente").Bold().FontSize(10);
                             header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Teléfono").Bold().FontSize(10);
                             header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Total Citas").Bold().FontSize(10);
                             header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Última Cita").Bold().FontSize(10);
                             header.Cell().Background(Colors.Grey.Lighten3).Padding(8).Text("Total Gastado").Bold().FontSize(10);
-                        });
+                    });
 
                         // Filas de datos
-                        foreach (var client in clients)
-                        {
+                    foreach (var client in clients)
+                    {
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.ClientName).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.ClientPhone).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.TotalAppointments.ToString()).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text(client.LastAppointment.ToString("dd/MM/yyyy")).FontSize(9);
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(6).Text($"${client.TotalSpent:F2}").FontSize(9);
-                        }
-                    });
+                    }
+                });
 
                     // Nota legal
                     column.Item().PaddingTop(20).BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(10);

@@ -11,6 +11,11 @@ public class SendNotificationRequest
     public int TemplateId { get; set; }
 
     /// <summary>
+    /// Lista de IDs de usuarios a los que enviar. Si es null o vacía, se envía a todos.
+    /// </summary>
+    public List<int>? UserIds { get; set; }
+
+    /// <summary>
     /// Datos adicionales a enviar (opcional)
     /// </summary>
     public Dictionary<string, string>? ExtraData { get; set; }

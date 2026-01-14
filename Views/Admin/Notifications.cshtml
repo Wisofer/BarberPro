@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var templates = ViewBag.Templates as List<Template> ?? new List<Template>();
     var barbers = ViewBag.Barbers as List<BarberDto> ?? new List<BarberDto>();
+    var barbersWithUserId = ViewBag.BarbersWithUserId as dynamic ?? new List<dynamic>();
 }
 
 <div class="container mx-auto p-4 sm:p-6">
@@ -98,6 +99,33 @@
                     </div>
                 </div>
 
+                <!-- Selección de Usuarios -->
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Destinatarios</span>
+                    </label>
+                    <div class="form-control mb-2">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox" id="sendToAll" class="checkbox checkbox-primary" checked />
+                            <span class="label-text font-semibold">Enviar a todos los barberos</span>
+                        </label>
+                    </div>
+                    <div id="userSelectionContainer" class="hidden">
+                        <label class="label">
+                            <span class="label-text-alt text-gray-500">Selecciona los barberos específicos:</span>
+                        </label>
+                        <select id="selectedUsers" class="select select-bordered w-full" multiple size="5">
+                            @foreach (var barber in barbersWithUserId)
+                            {
+                                <option value="@barber.UserId">@barber.Name (@(barber.BusinessName ?? ""))</option>
+                            }
+                        </select>
+                        <label class="label">
+                            <span class="label-text-alt text-gray-500">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="form-control">
                     <label class="label cursor-pointer justify-start gap-2">
                         <input type="checkbox" id="dataOnly" class="checkbox checkbox-primary" />
@@ -110,7 +138,7 @@
 
                 <button type="submit" class="btn btn-success w-full" id="sendBtn" @(!templates.Any() ? "disabled" : "")>
                     <span class="text-lg">📤</span>
-                    Enviar a Todos los Barberos
+                    <span id="sendButtonText">Enviar a Todos los Barberos</span>
                 </button>
             </form>
         </div>
@@ -231,6 +259,20 @@
             }
         });
 
+        // Toggle selección de usuarios
+        document.getElementById('sendToAll').addEventListener('change', function() {
+            const userSelectionContainer = document.getElementById('userSelectionContainer');
+            const sendButtonText = document.getElementById('sendButtonText');
+            
+            if (this.checked) {
+                userSelectionContainer.classList.add('hidden');
+                sendButtonText.textContent = 'Enviar a Todos los Barberos';
+            } else {
+                userSelectionContainer.classList.remove('hidden');
+                sendButtonText.textContent = 'Enviar a Barberos Seleccionados';
+            }
+        });
+
         // Enviar notificación
         document.getElementById('sendNotificationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -241,22 +283,44 @@
                 return;
             }
             
+            // Determinar destinatarios
+            let userIds = null;
+            const sendToAll = document.getElementById('sendToAll').checked;
+            
+            if (!sendToAll) {
+                const selectedUsers = Array.from(document.getElementById('selectedUsers').selectedOptions)
+                    .map(option => parseInt(option.value));
+                
+                if (selectedUsers.length === 0) {
+                    Notify.error('Selecciona al menos un barbero o marca "Enviar a todos"');
+                    return;
+                }
+                
+                userIds = selectedUsers;
+            }
+            
             const btn = document.getElementById('sendBtn');
             const originalText = btn.innerHTML;
             btn.disabled = true;
             btn.innerHTML = '<span class="loading loading-spinner"></span> Enviando...';
             
             try {
+                const requestBody = {
+                    templateId: parseInt(templateId),
+                    dataOnly: document.getElementById('dataOnly').checked,
+                    extraData: null
+                };
+                
+                if (userIds !== null) {
+                    requestBody.userIds = userIds;
+                }
+                
                 const response = await fetch('/admin/notifications/send', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        templateId: parseInt(templateId),
-                        dataOnly: document.getElementById('dataOnly').checked,
-                        extraData: null
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 const result = await response.json();
@@ -267,6 +331,13 @@
                     document.getElementById('selectedTemplate').value = '';
                     document.getElementById('previewSection').classList.add('hidden');
                     document.getElementById('dataOnly').checked = false;
+                    document.getElementById('sendToAll').checked = true;
+                    document.getElementById('userSelectionContainer').classList.add('hidden');
+                    document.getElementById('sendButtonText').textContent = 'Enviar a Todos los Barberos';
+                    // Deseleccionar todos los usuarios
+                    Array.from(document.getElementById('selectedUsers').options).forEach(option => {
+                        option.selected = false;
+                    });
                 } else {
                     Notify.error(result.message);
                 }
