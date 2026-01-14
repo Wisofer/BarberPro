@@ -67,6 +67,21 @@ public class PushNotificationService : IPushNotificationService
 
         try
         {
+            // Verificar que Firebase esté inicializado
+            if (FirebaseApp.DefaultInstance == null)
+            {
+                _logger.LogError("❌ FirebaseApp.DefaultInstance es null. Firebase no está inicializado.");
+                throw new InvalidOperationException("Firebase no está inicializado. Verifica la configuración en Program.cs");
+            }
+
+            if (FirebaseMessaging.DefaultInstance == null)
+            {
+                _logger.LogError("❌ FirebaseMessaging.DefaultInstance es null aunque FirebaseApp está inicializado.");
+                throw new InvalidOperationException("FirebaseMessaging no está disponible. Verifica la configuración.");
+            }
+            
+            _logger.LogInformation("✅ Firebase verificado: FirebaseApp y FirebaseMessaging están disponibles");
+
             _logger.LogInformation("🔔 Iniciando envío de notificación push");
             _logger.LogInformation("   - Template ID: {TemplateId}", template.Id);
             _logger.LogInformation("   - Template Title: {Title}", template.Title);
@@ -115,11 +130,18 @@ public class PushNotificationService : IPushNotificationService
             
             _logger.LogInformation("   - Data payload: {Data}", string.Join(", ", data.Select(kv => $"{kv.Key}={kv.Value}")));
 
+            // Asegurar que data no sea null
+            if (data == null)
+            {
+                _logger.LogError("❌ Error: data es null después de construir el diccionario");
+                data = new Dictionary<string, string>();
+            }
+
             // Construir mensaje base
             var message = new Message
             {
                 Notification = dataOnly ? null : notification,
-                Data = data
+                Data = data ?? new Dictionary<string, string>()
             };
 
             // Configurar Android
@@ -181,25 +203,55 @@ public class PushNotificationService : IPushNotificationService
 
             foreach (var batch in batches)
             {
-                var tokens = batch.Select(d => d.FcmToken).ToList();
+                var tokens = batch.Select(d => d.FcmToken).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+                
+                if (!tokens.Any())
+                {
+                    _logger.LogWarning("⚠️ Lote sin tokens válidos, saltando...");
+                    continue;
+                }
                 
                 try
                 {
+                    // Verificar nuevamente que Firebase esté disponible
+                    if (FirebaseApp.DefaultInstance == null)
+                    {
+                        _logger.LogError("❌ FirebaseApp.DefaultInstance es null al intentar enviar");
+                        throw new InvalidOperationException("FirebaseApp no está inicializado");
+                    }
+                    
+                    if (FirebaseMessaging.DefaultInstance == null)
+                    {
+                        _logger.LogError("❌ FirebaseMessaging.DefaultInstance es null al intentar enviar");
+                        throw new InvalidOperationException("FirebaseMessaging no está disponible");
+                    }
+
+                    // Validar que message.Data no sea null
+                    var messageData = message.Data ?? new Dictionary<string, string>();
+                    
                     // Enviar a múltiples dispositivos
                     var multicastMessage = new MulticastMessage
                     {
                         Tokens = tokens,
                         Notification = dataOnly ? null : notification,
-                        Data = message.Data,
+                        Data = messageData,
                         Android = message.Android,
                         Apns = message.Apns,
                         Webpush = message.Webpush
                     };
 
                     _logger.LogInformation("📤 Enviando lote de {Count} tokens a Firebase", tokens.Count);
+                    _logger.LogInformation("   - Firebase.DefaultInstance disponible: {Available}", FirebaseMessaging.DefaultInstance != null);
+                    _logger.LogInformation("   - Message.Data count: {Count}", messageData.Count);
                     
-                    var response = await FirebaseMessaging.DefaultInstance
-                        .SendEachForMulticastAsync(multicastMessage);
+                    // Obtener instancia de Firebase (ya validada arriba)
+                    var firebaseMessaging = FirebaseMessaging.DefaultInstance;
+                    if (firebaseMessaging == null)
+                    {
+                        throw new InvalidOperationException("FirebaseMessaging.DefaultInstance es null");
+                    }
+                    
+                    var response = await firebaseMessaging.SendEachForMulticastAsync(multicastMessage);
 
                     _logger.LogInformation("✅ Respuesta de Firebase: {Success} exitosas, {Failed} fallidas", 
                         response.SuccessCount, response.FailureCount);
@@ -250,22 +302,28 @@ public class PushNotificationService : IPushNotificationService
                     }
 
                     // Eliminar tokens inválidos
-                    for (int i = 0; i < batch.Count && i < response.Responses.Count; i++)
+                    if (response?.Responses != null)
                     {
-                        var fcmResponse = response.Responses[i];
-                        if (!fcmResponse.IsSuccess && 
-                            (fcmResponse.Exception?.MessagingErrorCode == MessagingErrorCode.InvalidArgument ||
-                             fcmResponse.Exception?.MessagingErrorCode == MessagingErrorCode.Unregistered))
+                        for (int i = 0; i < batch.Count && i < response.Responses.Count; i++)
                         {
-                            var device = batch[i];
-                            _logger.LogWarning("Token FCM inválido, eliminando dispositivo: {DeviceId}", device.Id);
-                            _context.Devices.Remove(device);
+                            var fcmResponse = response.Responses[i];
+                            if (!fcmResponse.IsSuccess && 
+                                (fcmResponse.Exception?.MessagingErrorCode == MessagingErrorCode.InvalidArgument ||
+                                 fcmResponse.Exception?.MessagingErrorCode == MessagingErrorCode.Unregistered))
+                            {
+                                var device = batch[i];
+                                _logger.LogWarning("Token FCM inválido, eliminando dispositivo: {DeviceId}", device.Id);
+                                _context.Devices.Remove(device);
+                            }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (NullReferenceException ex)
                 {
-                    _logger.LogError(ex, "Error al enviar notificación a lote de {Count} dispositivos", batch.Count);
+                    _logger.LogError(ex, "❌ NullReferenceException al enviar notificación a lote de {Count} dispositivos", batch.Count);
+                    _logger.LogError("   - StackTrace: {StackTrace}", ex.StackTrace);
+                    _logger.LogError("   - FirebaseApp.DefaultInstance: {IsNull}", FirebaseApp.DefaultInstance == null ? "NULL" : "OK");
+                    _logger.LogError("   - FirebaseMessaging.DefaultInstance: {IsNull}", FirebaseMessaging.DefaultInstance == null ? "NULL" : "OK");
                     totalFailed += batch.Count;
 
                     // Registrar logs de error
