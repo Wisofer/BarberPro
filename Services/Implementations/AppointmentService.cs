@@ -107,65 +107,57 @@ public class AppointmentService : IAppointmentService
         {
             try
             {
-                // Obtener dispositivos del barbero
-                var barberUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Barber != null && u.Barber.Id == barber.Id);
+                // Obtener dispositivos del barbero usando directamente el UserId del barbero
+                var devices = await _context.Devices
+                    .Where(d => d.UserId == barber.UserId && !string.IsNullOrWhiteSpace(d.FcmToken))
+                    .ToListAsync();
 
-                if (barberUser != null)
+                if (devices.Any())
                 {
-                    var devices = await _context.Devices
-                        .Where(d => d.UserId == barberUser.Id && !string.IsNullOrWhiteSpace(d.FcmToken))
-                        .ToListAsync();
+                    // Formatear fecha y hora
+                    var fecha = request.Date.ToString("dd/MM/yyyy");
+                    var hora = request.Time.ToString("HH:mm");
 
-                    if (devices.Any())
+                    // Crear template de notificación
+                    var template = new Template
                     {
-                        // Formatear fecha y hora
-                        var fecha = request.Date.ToString("dd/MM/yyyy");
-                        var hora = request.Time.ToString("HH:mm");
+                        Title = "Nueva cita agendada",
+                        Body = $"{request.ClientName} agendó una cita para el {fecha} a las {hora}",
+                        Name = "Nueva cita"
+                    };
 
-                        // Crear template de notificación
-                        var template = new Template
-                        {
-                            Title = "Nueva cita agendada",
-                            Body = $"{request.ClientName} agendó una cita para el {fecha} a las {hora}",
-                            Name = "Nueva cita"
-                        };
+                    // Datos adicionales
+                    var extraData = new Dictionary<string, string>
+                    {
+                        ["type"] = "appointment",
+                        ["appointmentId"] = appointment.Id.ToString(),
+                        ["clientName"] = request.ClientName,
+                        ["clientPhone"] = request.ClientPhone,
+                        ["date"] = request.Date.ToString("yyyy-MM-dd"),
+                        ["time"] = request.Time.ToString("HH:mm")
+                    };
 
-                        // Datos adicionales
-                        var extraData = new Dictionary<string, string>
+                    // Enviar notificación (en segundo plano, no bloquear)
+                    _ = Task.Run(async () =>
+                    {
+                        try
                         {
-                            ["type"] = "appointment",
-                            ["appointmentId"] = appointment.Id.ToString(),
-                            ["clientName"] = request.ClientName,
-                            ["clientPhone"] = request.ClientPhone,
-                            ["date"] = request.Date.ToString("yyyy-MM-dd"),
-                            ["time"] = request.Time.ToString("HH:mm")
-                        };
-
-                        // Enviar notificación (en segundo plano, no bloquear)
-                        _ = Task.Run(async () =>
+                            await _pushNotificationService.SendPushNotificationAsync(
+                                template,
+                                devices,
+                                extraData,
+                                dataOnly: false);
+                        }
+                        catch (Exception)
                         {
-                            try
-                            {
-                                await _pushNotificationService.SendPushNotificationAsync(
-                                    template,
-                                    devices,
-                                    extraData,
-                                    dataOnly: false);
-                            }
-                            catch (Exception ex)
-                            {
-                                // Log error pero no fallar la creación de la cita
-                                Console.WriteLine($"Error al enviar notificación push: {ex.Message}");
-                            }
-                        });
-                    }
+                            // Error silencioso - no fallar la creación de la cita
+                        }
+                    });
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Log error pero no fallar la creación de la cita
-                Console.WriteLine($"Error al enviar notificación push: {ex.Message}");
+                // Error silencioso - no fallar la creación de la cita
             }
         }
 
