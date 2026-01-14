@@ -23,58 +23,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Inicializar Firebase solo una vez (al inicio de la aplicación)
 var firebaseCredentialsPath = Path.Combine(builder.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
-Console.WriteLine($"🔍 Buscando credenciales Firebase en: {firebaseCredentialsPath}");
 
 if (File.Exists(firebaseCredentialsPath))
 {
     try
     {
-        Console.WriteLine("📁 Archivo de credenciales encontrado");
-        
-        // Verificar que no existe una instancia previa
         if (FirebaseApp.DefaultInstance == null)
         {
-            Console.WriteLine("🔄 Inicializando Firebase...");
-            
             var credential = GoogleCredential.FromFile(firebaseCredentialsPath);
             var appOptions = new AppOptions()
             {
                 Credential = credential
             };
             
-            var firebaseApp = FirebaseApp.Create(appOptions);
-            
-            // Verificar que se creó correctamente
-            if (FirebaseApp.DefaultInstance == null)
-            {
-                Console.WriteLine("❌ ERROR: FirebaseApp.DefaultInstance sigue siendo null después de crear");
-                throw new InvalidOperationException("Firebase no se inicializó correctamente");
-            }
-            
-            Console.WriteLine($"✅ Firebase inicializado correctamente. App Name: {firebaseApp.Name}");
-            Console.WriteLine($"✅ FirebaseApp.DefaultInstance disponible: {FirebaseApp.DefaultInstance != null}");
-        }
-        else
-        {
-            Console.WriteLine($"✅ Firebase ya estaba inicializado. App Name: {FirebaseApp.DefaultInstance.Name}");
+            FirebaseApp.Create(appOptions);
         }
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        Console.WriteLine($"❌ ERROR CRÍTICO al inicializar Firebase:");
-        Console.WriteLine($"   Mensaje: {ex.Message}");
-        Console.WriteLine($"   StackTrace: {ex.StackTrace}");
-        if (ex.InnerException != null)
-        {
-            Console.WriteLine($"   InnerException: {ex.InnerException.Message}");
-        }
-        // No lanzar excepción aquí para que la app pueda iniciar, pero registrar el error
+        // No lanzar excepción aquí para que la app pueda iniciar
     }
-}
-else
-{
-    Console.WriteLine($"⚠️ Archivo de credenciales Firebase NO encontrado en: {firebaseCredentialsPath}");
-    Console.WriteLine($"⚠️ ContentRootPath: {builder.Environment.ContentRootPath}");
 }
 
 // Agregar servicios al contenedor
@@ -232,12 +200,8 @@ builder.Services.AddScoped<IConfiguracionService, ConfiguracionService>();
 var app = builder.Build();
 
 // Verificar Firebase después de construir la app
-var appLogger = app.Services.GetRequiredService<ILogger<Program>>();
 if (FirebaseApp.DefaultInstance == null)
 {
-    appLogger.LogError("❌ CRÍTICO: FirebaseApp.DefaultInstance es null después de construir la app");
-    appLogger.LogError("   Intentando reinicializar Firebase...");
-    
     try
     {
         var firebaseCredsPath = Path.Combine(app.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
@@ -245,22 +209,13 @@ if (FirebaseApp.DefaultInstance == null)
         {
             var credential = GoogleCredential.FromFile(firebaseCredsPath);
             var appOptions = new AppOptions() { Credential = credential };
-            var firebaseAppInstance = FirebaseApp.Create(appOptions);
-            appLogger.LogInformation("✅ Firebase reinicializado. App Name: {AppName}", firebaseAppInstance.Name);
-        }
-        else
-        {
-            appLogger.LogError("❌ No se puede reinicializar: archivo de credenciales no encontrado");
+            FirebaseApp.Create(appOptions);
         }
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        appLogger.LogError(ex, "❌ Error al reinicializar Firebase");
+        // Error silencioso
     }
-}
-else
-{
-    appLogger.LogInformation("✅ Firebase está disponible. App Name: {AppName}", FirebaseApp.DefaultInstance.Name);
 }
 
 // Aplicar migraciones e inicializar datos

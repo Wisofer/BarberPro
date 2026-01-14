@@ -577,25 +577,6 @@ public class AdminController : Controller
                 }
             }
 
-            // Log detallado antes de enviar
-            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AdminController>>();
-            logger.LogInformation("📤 Enviando notificación:");
-            logger.LogInformation("   - Template ID: {TemplateId}", template.Id);
-            logger.LogInformation("   - Template Title: {Title}", template.Title);
-            logger.LogInformation("   - Template Body: {Body}", template.Body);
-            logger.LogInformation("   - Usuarios destino: {UserCount}", targetDevices.Select(d => d.UserId).Distinct().Count());
-            logger.LogInformation("   - Dispositivos destino: {DeviceCount}", targetDevices.Count);
-            logger.LogInformation("   - Tokens FCM: {Tokens}", string.Join(", ", targetDevices.Select(d => d.FcmToken).Take(5)));
-            
-            if (request.UserIds != null && request.UserIds.Any())
-            {
-                logger.LogInformation("   - UserIds seleccionados: {UserIds}", string.Join(", ", request.UserIds));
-            }
-            else
-            {
-                logger.LogInformation("   - Enviando a TODOS los usuarios");
-            }
-
             await _pushNotificationService.SendPushNotificationAsync(
                 template,
                 targetDevices,
@@ -613,8 +594,6 @@ public class AdminController : Controller
         }
         catch (Exception ex)
         {
-            var logger = HttpContext.RequestServices.GetRequiredService<ILogger<AdminController>>();
-            logger.LogError(ex, "❌ Error al enviar notificación");
             return Json(new { success = false, message = $"Error al enviar notificación: {ex.Message}" });
         }
     }
