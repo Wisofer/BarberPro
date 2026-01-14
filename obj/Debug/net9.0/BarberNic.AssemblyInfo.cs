@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BarberNic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ccdc6454ec77c688abf0b791db5726b0040a1f8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98279792367a962a5f2e23e32afc5faa9045b3e3")]
 [assembly: System.Reflection.AssemblyProductAttribute("BarberNic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BarberNic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

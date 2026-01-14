@@ -104,25 +104,66 @@
                     <label class="label">
                         <span class="label-text font-semibold">Destinatarios</span>
                     </label>
-                    <div class="form-control mb-2">
-                        <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" id="sendToAll" class="checkbox checkbox-primary" checked />
-                            <span class="label-text font-semibold">Enviar a todos los barberos</span>
+                    
+                    <!-- Opción: Enviar a todos -->
+                    <div class="form-control mb-4">
+                        <label class="label cursor-pointer justify-start gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/30 hover:border-primary transition-all duration-200 shadow-sm">
+                            <input type="checkbox" id="sendToAll" class="checkbox checkbox-primary checkbox-lg" checked />
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">🌐</span>
+                                    <span class="label-text font-bold text-lg text-primary">Enviar a todos los barberos</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1 ml-8">Todos los barberos registrados recibirán la notificación</div>
+                            </div>
+                            <div class="badge badge-primary badge-lg">Todos</div>
                         </label>
                     </div>
+
+                    <!-- Selección específica de barberos -->
                     <div id="userSelectionContainer" class="hidden">
-                        <label class="label">
-                            <span class="label-text-alt text-gray-500">Selecciona los barberos específicos:</span>
-                        </label>
-                        <select id="selectedUsers" class="select select-bordered w-full" multiple size="5">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-sm font-semibold text-gray-400">Selecciona barberos específicos:</span>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="selectAllBarbers()" class="btn btn-xs btn-ghost">Seleccionar todos</button>
+                                <button type="button" onclick="deselectAllBarbers()" class="btn btn-xs btn-ghost">Deseleccionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="max-h-64 overflow-y-auto border border-base-300 rounded-xl p-3 bg-base-100 space-y-2 shadow-inner" id="barbersList">
                             @foreach (var barber in barbersWithUserId)
                             {
-                                <option value="@barber.UserId">@barber.Name (@(barber.BusinessName ?? ""))</option>
+                                <label class="barber-card flex items-center gap-3 p-4 rounded-xl border-2 border-base-300 cursor-pointer hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all duration-200 group" 
+                                       data-user-id="@barber.UserId">
+                                    <input type="checkbox" 
+                                           class="barber-checkbox checkbox checkbox-primary checkbox-lg" 
+                                           value="@barber.UserId" 
+                                           onchange="updateSelectedCount()" />
+                                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                                        <div class="avatar placeholder">
+                                            <div class="bg-primary text-primary-content rounded-full w-12 h-12">
+                                                <span class="text-xl font-bold">@(barber.Name?.ToString().Substring(0, 1).ToUpper() ?? "B")</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold text-base truncate group-hover:text-primary transition-colors">@barber.Name</div>
+                                            @if (!string.IsNullOrEmpty(barber.BusinessName?.ToString()))
+                                            {
+                                                <div class="text-xs text-gray-500 truncate flex items-center gap-1 mt-1">
+                                                    <span>🏢</span>
+                                                    <span>@barber.BusinessName</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="badge badge-outline badge-lg">✂️ Barbero</div>
+                                </label>
                             }
-                        </select>
-                        <label class="label">
-                            <span class="label-text-alt text-gray-500">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples</span>
-                        </label>
+                        </div>
+                        
+                        <div class="mt-3 p-3 rounded-lg bg-base-300 text-sm text-center">
+                            <span id="selectedCount" class="font-semibold">0 barberos seleccionados</span>
+                        </div>
                     </div>
                 </div>
 
@@ -188,6 +229,35 @@
         }
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .barber-card {
+            transition: all 0.2s ease;
+        }
+        .barber-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .barber-card input[type="checkbox"]:checked ~ div {
+            color: hsl(var(--p));
+        }
+        #barbersList::-webkit-scrollbar {
+            width: 8px;
+        }
+        #barbersList::-webkit-scrollbar-track {
+            background: hsl(var(--b2));
+            border-radius: 4px;
+        }
+        #barbersList::-webkit-scrollbar-thumb {
+            background: hsl(var(--p));
+            border-radius: 4px;
+        }
+        #barbersList::-webkit-scrollbar-thumb:hover {
+            background: hsl(var(--pf));
+        }
+    </style>
+}
 
 @section Scripts {
     <script>
@@ -267,10 +337,80 @@
             if (this.checked) {
                 userSelectionContainer.classList.add('hidden');
                 sendButtonText.textContent = 'Enviar a Todos los Barberos';
+                // Deseleccionar todos los checkboxes
+                document.querySelectorAll('.barber-checkbox').forEach(cb => cb.checked = false);
+                updateSelectedCount();
             } else {
                 userSelectionContainer.classList.remove('hidden');
                 sendButtonText.textContent = 'Enviar a Barberos Seleccionados';
             }
+        });
+
+        // Actualizar contador de seleccionados
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll('.barber-checkbox:checked').length;
+            const total = document.querySelectorAll('.barber-checkbox').length;
+            const countElement = document.getElementById('selectedCount');
+            
+            if (selected === 0) {
+                countElement.textContent = '0 barberos seleccionados';
+                countElement.className = 'text-gray-400';
+            } else if (selected === total) {
+                countElement.textContent = `✓ Todos los barberos seleccionados (${selected})`;
+                countElement.className = 'text-success font-semibold';
+            } else {
+                countElement.textContent = `${selected} de ${total} barberos seleccionados`;
+                countElement.className = 'text-primary font-semibold';
+            }
+        }
+
+        // Seleccionar todos los barberos
+        function selectAllBarbers() {
+            document.querySelectorAll('.barber-checkbox').forEach(cb => {
+                cb.checked = true;
+                cb.closest('.barber-card').classList.add('border-primary', 'bg-primary/10');
+            });
+            updateSelectedCount();
+        }
+
+        // Deseleccionar todos los barberos
+        function deselectAllBarbers() {
+            document.querySelectorAll('.barber-checkbox').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.barber-card').classList.remove('border-primary', 'bg-primary/10');
+            });
+            updateSelectedCount();
+        }
+
+        // Mejorar la interacción de las cards
+        document.querySelectorAll('.barber-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // No toggle si se hace clic directamente en el checkbox
+                if (e.target.type === 'checkbox') return;
+                
+                const checkbox = this.querySelector('.barber-checkbox');
+                checkbox.checked = !checkbox.checked;
+                
+                if (checkbox.checked) {
+                    this.classList.add('border-primary', 'bg-primary/10');
+                } else {
+                    this.classList.remove('border-primary', 'bg-primary/10');
+                }
+                
+                updateSelectedCount();
+            });
+        });
+
+        // Actualizar estilo visual cuando cambia el checkbox
+        document.querySelectorAll('.barber-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const card = this.closest('.barber-card');
+                if (this.checked) {
+                    card.classList.add('border-primary', 'bg-primary/10');
+                } else {
+                    card.classList.remove('border-primary', 'bg-primary/10');
+                }
+            });
         });
 
         // Enviar notificación
@@ -288,8 +428,8 @@
             const sendToAll = document.getElementById('sendToAll').checked;
             
             if (!sendToAll) {
-                const selectedUsers = Array.from(document.getElementById('selectedUsers').selectedOptions)
-                    .map(option => parseInt(option.value));
+                const selectedUsers = Array.from(document.querySelectorAll('.barber-checkbox:checked'))
+                    .map(checkbox => parseInt(checkbox.value));
                 
                 if (selectedUsers.length === 0) {
                     Notify.error('Selecciona al menos un barbero o marca "Enviar a todos"');
@@ -334,10 +474,12 @@
                     document.getElementById('sendToAll').checked = true;
                     document.getElementById('userSelectionContainer').classList.add('hidden');
                     document.getElementById('sendButtonText').textContent = 'Enviar a Todos los Barberos';
-                    // Deseleccionar todos los usuarios
-                    Array.from(document.getElementById('selectedUsers').options).forEach(option => {
-                        option.selected = false;
+                    // Deseleccionar todos los checkboxes
+                    document.querySelectorAll('.barber-checkbox').forEach(cb => {
+                        cb.checked = false;
+                        cb.closest('.barber-card').classList.remove('border-primary', 'bg-primary/10');
                     });
+                    updateSelectedCount();
                 } else {
                     Notify.error(result.message);
                 }
