@@ -44,7 +44,7 @@ GET /api/notifications/logs?page=1&pageSize=50
 
 ### 2. Marcar Notificación como Leída
 ```
-POST /v1/push/notificationlog/{id}/opened
+POST /api/v1/push/notificationlog/{id}/opened
 ```
 
 **Parámetros:**
@@ -71,7 +71,7 @@ POST /v1/push/notificationlog/{id}/opened
 
 ### 3. Eliminar Notificación
 ```
-DELETE /v1/push/notificationlog/{id}
+DELETE /api/v1/push/notificationlog/{id}
 ```
 
 **Parámetros:**
@@ -85,7 +85,7 @@ DELETE /v1/push/notificationlog/{id}
 
 ### 4. Marcar Todas las Notificaciones como Leídas
 ```
-POST /v1/push/notificationlog/opened-all
+POST /api/v1/push/notificationlog/opened-all
 ```
 
 **Body:** (opcional, puede ser vacío)
@@ -120,7 +120,7 @@ final response = await http.get(
 
 // Marcar como leída
 final response = await http.post(
-  Uri.parse('http://localhost:5229/v1/push/notificationlog/$notificationId/opened'),
+  Uri.parse('http://localhost:5229/api/v1/push/notificationlog/$notificationId/opened'),
   headers: {
     'Authorization': 'Bearer $token',
     'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ final response = await http.post(
 
 // Eliminar notificación
 final response = await http.delete(
-  Uri.parse('http://localhost:5229/v1/push/notificationlog/$notificationId'),
+  Uri.parse('http://localhost:5229/api/v1/push/notificationlog/$notificationId'),
   headers: {
     'Authorization': 'Bearer $token',
   },
@@ -138,7 +138,7 @@ final response = await http.delete(
 
 // Marcar todas como leídas
 final response = await http.post(
-  Uri.parse('http://localhost:5229/v1/push/notificationlog/opened-all'),
+  Uri.parse('http://localhost:5229/api/v1/push/notificationlog/opened-all'),
   headers: {
     'Authorization': 'Bearer $token',
     'Content-Type': 'application/json',
@@ -158,7 +158,7 @@ const response = await fetch('http://localhost:5229/api/notifications/logs?page=
 });
 
 // Marcar como leída
-const response = await fetch(`http://localhost:5229/v1/push/notificationlog/${notificationId}/opened`, {
+const response = await fetch(`http://localhost:5229/api/v1/push/notificationlog/${notificationId}/opened`, {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,
@@ -168,7 +168,7 @@ const response = await fetch(`http://localhost:5229/v1/push/notificationlog/${no
 });
 
 // Eliminar notificación
-const response = await fetch(`http://localhost:5229/v1/push/notificationlog/${notificationId}`, {
+const response = await fetch(`http://localhost:5229/api/v1/push/notificationlog/${notificationId}`, {
   method: 'DELETE',
   headers: {
     'Authorization': `Bearer ${token}`,
@@ -176,7 +176,7 @@ const response = await fetch(`http://localhost:5229/v1/push/notificationlog/${no
 });
 
 // Marcar todas como leídas
-const response = await fetch('http://localhost:5229/v1/push/notificationlog/opened-all', {
+const response = await fetch('http://localhost:5229/api/v1/push/notificationlog/opened-all', {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,
@@ -193,9 +193,9 @@ const response = await fetch('http://localhost:5229/v1/push/notificationlog/open
 | Acción | Método | Endpoint | Status Code |
 |--------|--------|----------|-------------|
 | Obtener notificaciones | GET | `/api/notifications/logs?page=1&pageSize=50` | 200 |
-| Marcar como leída | POST | `/v1/push/notificationlog/{id}/opened` | 200 |
-| Eliminar notificación | DELETE | `/v1/push/notificationlog/{id}` | 204 |
-| Marcar todas como leídas | POST | `/v1/push/notificationlog/opened-all` | 200 |
+| Marcar como leída | POST | `/api/v1/push/notificationlog/{id}/opened` | 200 |
+| Eliminar notificación | DELETE | `/api/v1/push/notificationlog/{id}` | 204 |
+| Marcar todas como leídas | POST | `/api/v1/push/notificationlog/opened-all` | 200 |
 
 ---
 

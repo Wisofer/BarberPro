@@ -12,7 +12,7 @@ namespace BarberNic.Controllers.Api;
 /// Controlador para gestión de logs de notificaciones (compatibilidad con frontend)
 /// </summary>
 [ApiController]
-[Route("v1/push/notificationlog")]
+[Route("api/v1/push/notificationlog")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class PushNotificationLogController : ControllerBase
 {
