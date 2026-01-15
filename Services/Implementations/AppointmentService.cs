@@ -118,13 +118,17 @@ public class AppointmentService : IAppointmentService
                     var fecha = request.Date.ToString("dd/MM/yyyy");
                     var hora = request.Time.ToString("HH:mm");
 
-                    // Crear template de notificación
+                    // Crear y guardar template de notificación en la BD
                     var template = new Template
                     {
                         Title = "Nueva cita agendada",
                         Body = $"{request.ClientName} agendó una cita para el {fecha} a las {hora}",
                         Name = "Nueva cita"
                     };
+
+                    // Guardar template en la BD para que tenga un ID válido
+                    _context.Templates.Add(template);
+                    await _context.SaveChangesAsync();
 
                     // Datos adicionales
                     var extraData = new Dictionary<string, string>
