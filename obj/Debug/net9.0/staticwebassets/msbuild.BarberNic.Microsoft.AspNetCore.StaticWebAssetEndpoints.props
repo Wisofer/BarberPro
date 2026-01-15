@@ -228,17 +228,17 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-slIK5prgbst8rCprtOYjgGetrQmSStdlaIvIHkJRKp8="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1295"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022slIK5prgbst8rCprtOYjgGetrQmSStdlaIvIHkJRKp8=\u0022"},{"Name":"Last-Modified","Value":"Wed, 07 Jan 2026 08:44:24 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/BarberNic/js/notificacion/notifications.j1zhashho9.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\notificacion\notifications.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"j1zhashho9"},{"Name":"integrity","Value":"sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt\u002BoFNUn05\u002BDWc8rUAQ="},{"Name":"label","Value":"_content/BarberNic/js/notificacion/notifications.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"19448"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022WaqKqP9NvR/aBPxT7BqdNbPFyt\u002BoFNUn05\u002BDWc8rUAQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 15 Jan 2026 18:29:49 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/BarberNic/js/notificacion/notifications.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\notificacion\notifications.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt\u002BoFNUn05\u002BDWc8rUAQ="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"19448"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022WaqKqP9NvR/aBPxT7BqdNbPFyt\u002BoFNUn05\u002BDWc8rUAQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 15 Jan 2026 18:29:49 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-AIRXCsrwSJ8brC3kDu\u002B68c\u002BddcXcrmE76r4GqLxGxEQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"20527"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022AIRXCsrwSJ8brC3kDu\u002B68c\u002BddcXcrmE76r4GqLxGxEQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 15 Jan 2026 20:03:06 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/BarberNic/js/notificacion/notifications.wwmc5gmros.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\notificacion\notifications.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"wwmc5gmros"},{"Name":"integrity","Value":"sha256-AIRXCsrwSJ8brC3kDu\u002B68c\u002BddcXcrmE76r4GqLxGxEQ="},{"Name":"label","Value":"_content/BarberNic/js/notificacion/notifications.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"20527"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022AIRXCsrwSJ8brC3kDu\u002B68c\u002BddcXcrmE76r4GqLxGxEQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 15 Jan 2026 20:03:06 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/BarberNic/js/notifications.8tfznbgwvq.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\notifications.js'))</AssetFile>

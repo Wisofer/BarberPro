@@ -4,6 +4,7 @@ using BarberNic.Models.DTOs.Responses;
 using BarberNic.Models.Entities;
 using BarberNic.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BarberNic.Services.Implementations;
 
@@ -17,18 +18,21 @@ public class AppointmentService : IAppointmentService
     private readonly IAvailabilityService _availabilityService;
     private readonly IFinanceService _financeService;
     private readonly IPushNotificationService? _pushNotificationService;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public AppointmentService(
         ApplicationDbContext context,
         IBarberService barberService,
         IAvailabilityService availabilityService,
         IFinanceService financeService,
+        IServiceScopeFactory serviceScopeFactory,
         IPushNotificationService? pushNotificationService = null)
     {
         _context = context;
         _barberService = barberService;
         _availabilityService = availabilityService;
         _financeService = financeService;
+        _serviceScopeFactory = serviceScopeFactory;
         _pushNotificationService = pushNotificationService; // Inyectado automáticamente por DI si está registrado
     }
 
@@ -141,20 +145,51 @@ public class AppointmentService : IAppointmentService
                         ["time"] = request.Time.ToString("HH:mm")
                     };
 
+                    // Guardar datos necesarios para el Task.Run
+                    var templateId = template.Id;
+                    var templateTitle = template.Title;
+                    var templateBody = template.Body;
+                    var templateImageUrl = template.ImageUrl;
+                    var templateName = template.Name;
+                    var deviceIds = devices.Select(d => d.Id).ToList();
+                    var deviceUserIds = devices.Select(d => d.UserId).Distinct().ToList();
+                    var deviceTokens = devices.Select(d => d.FcmToken).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+
                     // Enviar notificación (en segundo plano, no bloquear)
+                    // Usar IServiceScopeFactory para crear un nuevo scope y poder guardar los logs
                     _ = Task.Run(async () =>
                     {
-                        try
+                        using (var scope = _serviceScopeFactory.CreateScope())
                         {
-                            await _pushNotificationService.SendPushNotificationAsync(
-                                template,
-                                devices,
-                                extraData,
-                                dataOnly: false);
-                        }
-                        catch (Exception)
-                        {
-                            // Error silencioso - no fallar la creación de la cita
+                            try
+                            {
+                                var scopedContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                var scopedPushService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
+                                
+                                // Reconstruir template y devices con el nuevo contexto
+                                var scopedTemplate = new Template
+                                {
+                                    Id = templateId,
+                                    Title = templateTitle,
+                                    Body = templateBody,
+                                    ImageUrl = templateImageUrl,
+                                    Name = templateName
+                                };
+                                
+                                var scopedDevices = await scopedContext.Devices
+                                    .Where(d => deviceIds.Contains(d.Id))
+                                    .ToListAsync();
+
+                                await scopedPushService.SendPushNotificationAsync(
+                                    scopedTemplate,
+                                    scopedDevices,
+                                    extraData,
+                                    dataOnly: false);
+                            }
+                            catch (Exception)
+                            {
+                                // Error silencioso - no fallar la creación de la cita
+                            }
                         }
                     });
                 }

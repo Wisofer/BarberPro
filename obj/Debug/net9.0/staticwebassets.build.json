@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ZGOjo9JtzwrGPOIcXX7a5OR92lZZPgTgS5ch4pQV6EU=",
+  "Hash": "O6U44WPg0tbDHLx/dhmOQ80x1L8/WRZ/4ZBVJC8Mv30=",
   "Source": "BarberNic",
   "BasePath": "_content/BarberNic",
   "Mode": "Default",
@@ -269,12 +269,12 @@
       "OriginalItemSpec": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/lib/daisyui/full.min.css"
     },
     {
-      "Identity": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-j1zhashho9.gz",
+      "Identity": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-wwmc5gmros.gz",
       "SourceId": "BarberNic",
       "SourceType": "Discovered",
       "ContentRoot": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/",
       "BasePath": "_content/BarberNic",
-      "RelativePath": "js/notificacion/notifications#[.{fingerprint=j1zhashho9}]?.js.gz",
+      "RelativePath": "js/notificacion/notifications#[.{fingerprint=wwmc5gmros}]?.js.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -283,8 +283,8 @@
       "RelatedAsset": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "5jlj3yy2ye",
-      "Integrity": "P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko=",
+      "Fingerprint": "o4ygq6u5jl",
+      "Integrity": "OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js"
@@ -934,8 +934,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "j1zhashho9",
-      "Integrity": "WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ=",
+      "Fingerprint": "wwmc5gmros",
+      "Integrity": "AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/js/notificacion/notifications.js"
@@ -6146,13 +6146,13 @@
       ]
     },
     {
-      "Route": "js/notificacion/notifications.j1zhashho9.js",
-      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-j1zhashho9.gz",
+      "Route": "js/notificacion/notifications.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-wwmc5gmros.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000279251606"
+          "Quality": "0.000270855905"
         }
       ],
       "ResponseHeaders": [
@@ -6162,19 +6162,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3580"
+          "Value": "3691"
         },
         {
           "Name": "ETag",
-          "Value": "\"P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko=\""
+          "Value": "\"OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
+          "Value": "no-cache"
         },
         {
           "Name": "Content-Encoding",
@@ -6190,26 +6190,18 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ=\""
+          "Value": "W/\"AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ=\""
         }
       ],
       "EndpointProperties": [
         {
-          "Name": "fingerprint",
-          "Value": "j1zhashho9"
-        },
-        {
-          "Name": "label",
-          "Value": "js/notificacion/notifications.js"
-        },
-        {
           "Name": "integrity",
-          "Value": "sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ="
+          "Value": "sha256-AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ="
         }
       ]
     },
     {
-      "Route": "js/notificacion/notifications.j1zhashho9.js",
+      "Route": "js/notificacion/notifications.js",
       "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js",
       "Selectors": [],
       "ResponseHeaders": [
@@ -6219,7 +6211,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "19448"
+          "Value": "20527"
         },
         {
           "Name": "Content-Type",
@@ -6227,11 +6219,156 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ=\""
+          "Value": "\"AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ="
+        }
+      ]
+    },
+    {
+      "Route": "js/notificacion/notifications.js.gz",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-wwmc5gmros.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3691"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U="
+        }
+      ]
+    },
+    {
+      "Route": "js/notificacion/notifications.wwmc5gmros.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-wwmc5gmros.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000270855905"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3691"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "wwmc5gmros"
+        },
+        {
+          "Name": "label",
+          "Value": "js/notificacion/notifications.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ="
+        }
+      ]
+    },
+    {
+      "Route": "js/notificacion/notifications.wwmc5gmros.js",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "20527"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6241,7 +6378,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "j1zhashho9"
+          "Value": "wwmc5gmros"
         },
         {
           "Name": "label",
@@ -6249,13 +6386,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ="
+          "Value": "sha256-AIRXCsrwSJ8brC3kDu+68c+ddcXcrmE76r4GqLxGxEQ="
         }
       ]
     },
     {
-      "Route": "js/notificacion/notifications.j1zhashho9.js.gz",
-      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-j1zhashho9.gz",
+      "Route": "js/notificacion/notifications.wwmc5gmros.js.gz",
+      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-wwmc5gmros.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -6264,7 +6401,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3580"
+          "Value": "3691"
         },
         {
           "Name": "Content-Type",
@@ -6272,11 +6409,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko=\""
+          "Value": "\"OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
+          "Value": "Thu, 15 Jan 2026 20:03:06 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -6294,7 +6431,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "j1zhashho9"
+          "Value": "wwmc5gmros"
         },
         {
           "Name": "label",
@@ -6302,144 +6439,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko="
-        }
-      ]
-    },
-    {
-      "Route": "js/notificacion/notifications.js",
-      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-j1zhashho9.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000279251606"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3580"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ=\""
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ="
-        }
-      ]
-    },
-    {
-      "Route": "js/notificacion/notifications.js",
-      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "19448"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-WaqKqP9NvR/aBPxT7BqdNbPFyt+oFNUn05+DWc8rUAQ="
-        }
-      ]
-    },
-    {
-      "Route": "js/notificacion/notifications.js.gz",
-      "AssetFile": "/home/william/Documentos/aplicaciones/BarberPro/obj/Debug/net9.0/compressed/o8zwt9111l-j1zhashho9.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3580"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 15 Jan 2026 18:29:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-P8GUznZgaIvAZPKRTuaCdGzsorp87N4wOFvWftSHYko="
+          "Value": "sha256-OJ23rsI3ovjae93sUAHz6WVIP1TMoZH+Orwycr07G5U="
         }
       ]
     },
