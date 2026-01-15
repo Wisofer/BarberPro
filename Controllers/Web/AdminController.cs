@@ -449,23 +449,26 @@ public class AdminController : Controller
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
             
-            var barbers = await _barberService.GetAllBarbersAsync();
-            
-            // Obtener UserIds de los barberos
-            var barbersWithUserId = await _context.Barbers
-                .Select(b => new { b.Id, b.UserId, b.Name, b.BusinessName })
+            // Obtener solo barberos que tienen dispositivos con token registrado
+            var barbersWithToken = await _context.Barbers
+                .Where(b => _context.Devices.Any(d => d.UserId == b.UserId && !string.IsNullOrWhiteSpace(d.FcmToken)))
+                .Select(b => new { 
+                    b.Id, 
+                    b.UserId, 
+                    b.Name, 
+                    b.BusinessName,
+                    DeviceCount = _context.Devices.Count(d => d.UserId == b.UserId && !string.IsNullOrWhiteSpace(d.FcmToken))
+                })
                 .ToListAsync();
             
             ViewBag.Templates = templates;
-            ViewBag.Barbers = barbers;
-            ViewBag.BarbersWithUserId = barbersWithUserId;
+            ViewBag.BarbersWithUserId = barbersWithToken;
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
         }
         catch (Exception)
         {
             ViewBag.Templates = new List<BarberNic.Models.Entities.Template>();
-            ViewBag.Barbers = new List<BarberNic.Models.DTOs.Responses.BarberDto>();
             ViewBag.BarbersWithUserId = new List<dynamic>();
             ViewBag.Nombre = SecurityHelper.GetUserFullName(User);
             return View();
@@ -523,6 +526,95 @@ public class AdminController : Controller
         catch (Exception ex)
         {
             return Json(new { success = false, message = $"Error al crear plantilla: {ex.Message}" });
+        }
+    }
+
+    [HttpPut("admin/notifications/update-template/{id}")]
+    [HttpPost("admin/notifications/update-template/{id}")]
+    public async Task<IActionResult> UpdateTemplate(int id, [FromBody] CreateTemplateRequest? request)
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { success = false, message = "No autorizado" });
+        }
+
+        if (request == null)
+        {
+            return Json(new { success = false, message = "Datos no recibidos" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            return Json(new { success = false, message = "El título es requerido" });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Body))
+        {
+            return Json(new { success = false, message = "El cuerpo del mensaje es requerido" });
+        }
+
+        try
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null)
+            {
+                return Json(new { success = false, message = "Plantilla no encontrada" });
+            }
+
+            template.Title = request.Title;
+            template.Body = request.Body;
+            template.ImageUrl = request.ImageUrl;
+            template.Name = request.Name;
+            template.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { 
+                success = true, 
+                message = "Plantilla actualizada exitosamente",
+                template = new {
+                    id = template.Id,
+                    title = template.Title,
+                    body = template.Body,
+                    imageUrl = template.ImageUrl,
+                    name = template.Name
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"Error al actualizar plantilla: {ex.Message}" });
+        }
+    }
+
+    [HttpDelete("admin/notifications/delete-template/{id}")]
+    [HttpPost("admin/notifications/delete-template/{id}")]
+    public async Task<IActionResult> DeleteTemplate(int id)
+    {
+        if (!SecurityHelper.IsAdministrator(User))
+        {
+            return Json(new { success = false, message = "No autorizado" });
+        }
+
+        try
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null)
+            {
+                return Json(new { success = false, message = "Plantilla no encontrada" });
+            }
+
+            _context.Templates.Remove(template);
+            await _context.SaveChangesAsync();
+
+            return Json(new { 
+                success = true, 
+                message = "Plantilla eliminada exitosamente"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = $"Error al eliminar plantilla: {ex.Message}" });
         }
     }
 

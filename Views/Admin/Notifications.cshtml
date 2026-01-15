@@ -1,10 +1,11 @@
 @using BarberNic.Models.Entities
 @using BarberNic.Models.DTOs.Responses
+@using System.Text.Json
+@using System.Net
 @{
     ViewData["Title"] = "Enviar Notificaciones";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var templates = ViewBag.Templates as List<Template> ?? new List<Template>();
-    var barbers = ViewBag.Barbers as List<BarberDto> ?? new List<BarberDto>();
     var barbersWithUserId = ViewBag.BarbersWithUserId as dynamic ?? new List<dynamic>();
 }
 
@@ -106,63 +107,60 @@
                     </label>
                     
                     <!-- Opción: Enviar a todos -->
-                    <div class="form-control mb-4">
-                        <label class="label cursor-pointer justify-start gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/30 hover:border-primary transition-all duration-200 shadow-sm">
-                            <input type="checkbox" id="sendToAll" class="checkbox checkbox-primary checkbox-lg" checked />
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-2xl">🌐</span>
-                                    <span class="label-text font-bold text-lg text-primary">Enviar a todos los barberos</span>
-                                </div>
-                                <div class="text-xs text-gray-500 mt-1 ml-8">Todos los barberos registrados recibirán la notificación</div>
-                            </div>
-                            <div class="badge badge-primary badge-lg">Todos</div>
+                    <div class="form-control mb-3">
+                        <label class="label cursor-pointer justify-start gap-2 p-2 rounded border border-base-300 hover:bg-base-300">
+                            <input type="checkbox" id="sendToAll" class="checkbox checkbox-primary" />
+                            <span class="label-text font-semibold">Seleccionar todos</span>
                         </label>
                     </div>
 
-                    <!-- Selección específica de barberos -->
-                    <div id="userSelectionContainer" class="hidden">
-                        <div class="mb-3 flex items-center justify-between">
-                            <span class="text-sm font-semibold text-gray-400">Selecciona barberos específicos:</span>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="selectAllBarbers()" class="btn btn-xs btn-ghost">Seleccionar todos</button>
-                                <button type="button" onclick="deselectAllBarbers()" class="btn btn-xs btn-ghost">Deseleccionar</button>
-                            </div>
+                    <!-- Selección específica de barberos - Tabla compacta -->
+                    <div id="userSelectionContainer">
+                        <div class="overflow-x-auto border border-base-300 rounded-lg">
+                            <table class="table table-zebra table-compact w-full">
+                                <thead>
+                                    <tr>
+                                        <th class="w-12">
+                                            <input type="checkbox" 
+                                                   class="checkbox checkbox-primary checkbox-sm" 
+                                                   id="selectAllCheckbox"
+                                                   onchange="toggleAllBarbers(this.checked)" />
+                                        </th>
+                                        <th>Nombre</th>
+                                        <th>Negocio</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barbersList">
+                                    @if (barbersWithUserId != null && barbersWithUserId is IEnumerable<dynamic> && ((IEnumerable<dynamic>)barbersWithUserId).Any())
+                                    {
+                                        @foreach (var barber in barbersWithUserId)
+                                        {
+                                            <tr class="hover:bg-base-200 cursor-pointer barber-row" data-user-id="@barber.UserId">
+                                                <td>
+                                                    <input type="checkbox" 
+                                                           class="barber-checkbox checkbox checkbox-primary checkbox-sm" 
+                                                           value="@barber.UserId" 
+                                                           onchange="updateSelectedCount()" />
+                                                </td>
+                                                <td class="font-medium">@barber.Name</td>
+                                                <td class="text-sm text-gray-600">@(barber.BusinessName?.ToString() ?? "-")</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-center py-4 text-gray-500">
+                                                ⚠️ No hay barberos con dispositivos registrados
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                         
-                        <div class="max-h-64 overflow-y-auto border border-base-300 rounded-xl p-3 bg-base-100 space-y-2 shadow-inner" id="barbersList">
-                            @foreach (var barber in barbersWithUserId)
-                            {
-                                <label class="barber-card flex items-center gap-3 p-4 rounded-xl border-2 border-base-300 cursor-pointer hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all duration-200 group" 
-                                       data-user-id="@barber.UserId">
-                                    <input type="checkbox" 
-                                           class="barber-checkbox checkbox checkbox-primary checkbox-lg" 
-                                           value="@barber.UserId" 
-                                           onchange="updateSelectedCount()" />
-                                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                                        <div class="avatar placeholder">
-                                            <div class="bg-primary text-primary-content rounded-full w-12 h-12">
-                                                <span class="text-xl font-bold">@(barber.Name?.ToString().Substring(0, 1).ToUpper() ?? "B")</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="font-semibold text-base truncate group-hover:text-primary transition-colors">@barber.Name</div>
-                                            @if (!string.IsNullOrEmpty(barber.BusinessName?.ToString()))
-                                            {
-                                                <div class="text-xs text-gray-500 truncate flex items-center gap-1 mt-1">
-                                                    <span>🏢</span>
-                                                    <span>@barber.BusinessName</span>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="badge badge-outline badge-lg">✂️ Barbero</div>
-                                </label>
-                            }
-                        </div>
-                        
-                        <div class="mt-3 p-3 rounded-lg bg-base-300 text-sm text-center">
-                            <span id="selectedCount" class="font-semibold">0 barberos seleccionados</span>
+                        <div class="mt-2 text-sm text-center text-gray-500">
+                            <span id="selectedCount">0 barberos seleccionados</span>
                         </div>
                     </div>
                 </div>
@@ -211,9 +209,24 @@
                                 <td class="max-w-xs truncate">@template.Body</td>
                                 <td>@template.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>
-                                    <button onclick="selectTemplate(@template.Id)" class="btn btn-sm btn-primary">
-                                        Usar
-                                    </button>
+                                    <div class="flex gap-2">
+                                        <button onclick="selectTemplate(@template.Id)" class="btn btn-sm btn-primary">
+                                            Usar
+                                        </button>
+                                        <button class="btn btn-sm btn-warning edit-template-btn" 
+                                                data-template-id="@template.Id"
+                                                data-template-name="@WebUtility.HtmlEncode(template.Name ?? "")"
+                                                data-template-title="@WebUtility.HtmlEncode(template.Title)"
+                                                data-template-body="@WebUtility.HtmlEncode(template.Body)"
+                                                data-template-image="@WebUtility.HtmlEncode(template.ImageUrl ?? "")">
+                                            ✏️ Editar
+                                        </button>
+                                        <button class="btn btn-sm btn-error delete-template-btn" 
+                                                data-template-id="@template.Id"
+                                                data-template-title="@WebUtility.HtmlEncode(template.Title)">
+                                            🗑️ Borrar
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -228,275 +241,70 @@
             </div>
         }
     </div>
+
+    <!-- Modal para Editar Plantilla -->
+    <dialog id="editTemplateModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4 text-gold">Editar Plantilla</h3>
+            <form id="editTemplateForm" class="space-y-4">
+                <input type="hidden" id="editTemplateId" />
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Nombre de la Plantilla</span>
+                    </label>
+                    <input type="text" id="editTemplateName" placeholder="Ej: Nueva actualización" 
+                           class="input input-bordered w-full" />
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Título <span class="text-error">*</span></span>
+                    </label>
+                    <input type="text" id="editTemplateTitle" placeholder="Ej: Nueva actualización disponible" 
+                           class="input input-bordered w-full" required />
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">Mensaje <span class="text-error">*</span></span>
+                    </label>
+                    <textarea id="editTemplateBody" placeholder="Escribe el mensaje que recibirán los barberos..." 
+                              class="textarea textarea-bordered w-full h-24" required></textarea>
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text font-semibold">URL de Imagen (Opcional)</span>
+                    </label>
+                    <input type="url" id="editTemplateImageUrl" placeholder="https://ejemplo.com/imagen.jpg" 
+                           class="input input-bordered w-full" />
+                </div>
+                <div class="modal-action">
+                    <button type="button" onclick="closeEditModal()" class="btn btn-ghost">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 </div>
 
 @section Styles {
     <style>
-        .barber-card {
-            transition: all 0.2s ease;
+        .barber-row {
+            transition: background-color 0.2s ease;
         }
-        .barber-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .barber-row:hover {
+            background-color: hsl(var(--b2)) !important;
         }
-        .barber-card input[type="checkbox"]:checked ~ div {
-            color: hsl(var(--p));
+        .table-compact {
+            font-size: 0.875rem;
         }
-        #barbersList::-webkit-scrollbar {
-            width: 8px;
-        }
-        #barbersList::-webkit-scrollbar-track {
-            background: hsl(var(--b2));
-            border-radius: 4px;
-        }
-        #barbersList::-webkit-scrollbar-thumb {
-            background: hsl(var(--p));
-            border-radius: 4px;
-        }
-        #barbersList::-webkit-scrollbar-thumb:hover {
-            background: hsl(var(--pf));
+        .table-compact td, .table-compact th {
+            padding: 0.5rem;
         }
     </style>
 }
 
 @section Scripts {
-    <script>
-        // Vista previa de plantilla seleccionada
-        document.getElementById('selectedTemplate').addEventListener('change', function() {
-            const option = this.options[this.selectedIndex];
-            if (this.value) {
-                const previewSection = document.getElementById('previewSection');
-                const previewTitle = document.getElementById('previewTitle');
-                const previewBody = document.getElementById('previewBody');
-                const previewImage = document.getElementById('previewImage');
-                
-                previewTitle.textContent = option.dataset.title;
-                previewBody.textContent = option.dataset.body;
-                
-                if (option.dataset.image) {
-                    previewImage.src = option.dataset.image;
-                    previewImage.classList.remove('hidden');
-                } else {
-                    previewImage.classList.add('hidden');
-                }
-                
-                previewSection.classList.remove('hidden');
-            } else {
-                document.getElementById('previewSection').classList.add('hidden');
-            }
-        });
-
-        // Crear plantilla
-        document.getElementById('createTemplateForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading loading-spinner"></span> Guardando...';
-            
-            try {
-                const response = await fetch('/admin/notifications/create-template', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: document.getElementById('templateName').value,
-                        title: document.getElementById('templateTitle').value,
-                        body: document.getElementById('templateBody').value,
-                        imageUrl: document.getElementById('templateImageUrl').value || null
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    Notify.success(result.message);
-                    // Limpiar formulario
-                    this.reset();
-                    // Recargar página para mostrar nueva plantilla
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    Notify.error(result.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                }
-            } catch (error) {
-                Notify.error('Error al crear plantilla: ' + error.message);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        });
-
-        // Toggle selección de usuarios
-        document.getElementById('sendToAll').addEventListener('change', function() {
-            const userSelectionContainer = document.getElementById('userSelectionContainer');
-            const sendButtonText = document.getElementById('sendButtonText');
-            
-            if (this.checked) {
-                userSelectionContainer.classList.add('hidden');
-                sendButtonText.textContent = 'Enviar a Todos los Barberos';
-                // Deseleccionar todos los checkboxes
-                document.querySelectorAll('.barber-checkbox').forEach(cb => cb.checked = false);
-                updateSelectedCount();
-            } else {
-                userSelectionContainer.classList.remove('hidden');
-                sendButtonText.textContent = 'Enviar a Barberos Seleccionados';
-            }
-        });
-
-        // Actualizar contador de seleccionados
-        function updateSelectedCount() {
-            const selected = document.querySelectorAll('.barber-checkbox:checked').length;
-            const total = document.querySelectorAll('.barber-checkbox').length;
-            const countElement = document.getElementById('selectedCount');
-            
-            if (selected === 0) {
-                countElement.textContent = '0 barberos seleccionados';
-                countElement.className = 'text-gray-400';
-            } else if (selected === total) {
-                countElement.textContent = `✓ Todos los barberos seleccionados (${selected})`;
-                countElement.className = 'text-success font-semibold';
-            } else {
-                countElement.textContent = `${selected} de ${total} barberos seleccionados`;
-                countElement.className = 'text-primary font-semibold';
-            }
-        }
-
-        // Seleccionar todos los barberos
-        function selectAllBarbers() {
-            document.querySelectorAll('.barber-checkbox').forEach(cb => {
-                cb.checked = true;
-                cb.closest('.barber-card').classList.add('border-primary', 'bg-primary/10');
-            });
-            updateSelectedCount();
-        }
-
-        // Deseleccionar todos los barberos
-        function deselectAllBarbers() {
-            document.querySelectorAll('.barber-checkbox').forEach(cb => {
-                cb.checked = false;
-                cb.closest('.barber-card').classList.remove('border-primary', 'bg-primary/10');
-            });
-            updateSelectedCount();
-        }
-
-        // Mejorar la interacción de las cards
-        document.querySelectorAll('.barber-card').forEach(card => {
-            card.addEventListener('click', function(e) {
-                // No toggle si se hace clic directamente en el checkbox
-                if (e.target.type === 'checkbox') return;
-                
-                const checkbox = this.querySelector('.barber-checkbox');
-                checkbox.checked = !checkbox.checked;
-                
-                if (checkbox.checked) {
-                    this.classList.add('border-primary', 'bg-primary/10');
-                } else {
-                    this.classList.remove('border-primary', 'bg-primary/10');
-                }
-                
-                updateSelectedCount();
-            });
-        });
-
-        // Actualizar estilo visual cuando cambia el checkbox
-        document.querySelectorAll('.barber-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const card = this.closest('.barber-card');
-                if (this.checked) {
-                    card.classList.add('border-primary', 'bg-primary/10');
-                } else {
-                    card.classList.remove('border-primary', 'bg-primary/10');
-                }
-            });
-        });
-
-        // Enviar notificación
-        document.getElementById('sendNotificationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const templateId = document.getElementById('selectedTemplate').value;
-            if (!templateId) {
-                Notify.error('Selecciona una plantilla');
-                return;
-            }
-            
-            // Determinar destinatarios
-            let userIds = null;
-            const sendToAll = document.getElementById('sendToAll').checked;
-            
-            if (!sendToAll) {
-                const selectedUsers = Array.from(document.querySelectorAll('.barber-checkbox:checked'))
-                    .map(checkbox => parseInt(checkbox.value));
-                
-                if (selectedUsers.length === 0) {
-                    Notify.error('Selecciona al menos un barbero o marca "Enviar a todos"');
-                    return;
-                }
-                
-                userIds = selectedUsers;
-            }
-            
-            const btn = document.getElementById('sendBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading loading-spinner"></span> Enviando...';
-            
-            try {
-                const requestBody = {
-                    templateId: parseInt(templateId),
-                    dataOnly: document.getElementById('dataOnly').checked,
-                    extraData: null
-                };
-                
-                if (userIds !== null) {
-                    requestBody.userIds = userIds;
-                }
-                
-                const response = await fetch('/admin/notifications/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    Notify.success(result.message);
-                    // Limpiar formulario
-                    document.getElementById('selectedTemplate').value = '';
-                    document.getElementById('previewSection').classList.add('hidden');
-                    document.getElementById('dataOnly').checked = false;
-                    document.getElementById('sendToAll').checked = true;
-                    document.getElementById('userSelectionContainer').classList.add('hidden');
-                    document.getElementById('sendButtonText').textContent = 'Enviar a Todos los Barberos';
-                    // Deseleccionar todos los checkboxes
-                    document.querySelectorAll('.barber-checkbox').forEach(cb => {
-                        cb.checked = false;
-                        cb.closest('.barber-card').classList.remove('border-primary', 'bg-primary/10');
-                    });
-                    updateSelectedCount();
-                } else {
-                    Notify.error(result.message);
-                }
-            } catch (error) {
-                Notify.error('Error al enviar notificación: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        });
-
-        // Seleccionar plantilla desde la tabla
-        function selectTemplate(templateId) {
-            document.getElementById('selectedTemplate').value = templateId;
-            document.getElementById('selectedTemplate').dispatchEvent(new Event('change'));
-            // Scroll al formulario de envío
-            document.getElementById('sendNotificationForm').scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
+    <script src="~/js/notificacion/notifications.js"></script>
 }

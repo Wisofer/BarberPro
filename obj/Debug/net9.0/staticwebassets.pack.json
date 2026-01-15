@@ -77,6 +77,10 @@
       "PackagePath": "staticwebassets/js/layout/layout-theme.js"
     },
     {
+      "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notificacion/notifications.js",
+      "PackagePath": "staticwebassets/js/notificacion/notifications.js"
+    },
+    {
       "Id": "/home/william/Documentos/aplicaciones/BarberPro/wwwroot/js/notifications.js",
       "PackagePath": "staticwebassets/js/notifications.js"
     },
