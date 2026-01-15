@@ -21,21 +21,37 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Inicializar Firebase solo una vez (al inicio de la aplicación)
-var firebaseCredentialsPath = Path.Combine(builder.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
-
-if (File.Exists(firebaseCredentialsPath))
+// Inicializar Firebase - Soporta variable de entorno (Docker/Producción) o archivo local (Desarrollo)
+void InitializeFirebase()
 {
     try
     {
-        if (FirebaseApp.DefaultInstance == null)
+        if (FirebaseApp.DefaultInstance != null) return;
+
+        GoogleCredential? credential = null;
+
+        // Prioridad 1: Variable de entorno FIREBASE_CREDENTIALS_JSON (para Docker/Producción)
+        var firebaseCredentialsJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
+        if (!string.IsNullOrEmpty(firebaseCredentialsJson))
         {
-            var credential = GoogleCredential.FromFile(firebaseCredentialsPath);
+            credential = GoogleCredential.FromJson(firebaseCredentialsJson);
+        }
+        // Prioridad 2: Archivo local (para desarrollo)
+        else
+        {
+            var firebaseCredentialsPath = Path.Combine(builder.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
+            if (File.Exists(firebaseCredentialsPath))
+            {
+                credential = GoogleCredential.FromFile(firebaseCredentialsPath);
+            }
+        }
+
+        if (credential != null)
+        {
             var appOptions = new AppOptions()
             {
                 Credential = credential
             };
-            
             FirebaseApp.Create(appOptions);
         }
     }
@@ -44,6 +60,9 @@ if (File.Exists(firebaseCredentialsPath))
         // No lanzar excepción aquí para que la app pueda iniciar
     }
 }
+
+// Inicializar Firebase al inicio
+InitializeFirebase();
 
 // Agregar servicios al contenedor
 builder.Services.AddControllers()
@@ -199,23 +218,10 @@ builder.Services.AddScoped<IConfiguracionService, ConfiguracionService>();
 
 var app = builder.Build();
 
-// Verificar Firebase después de construir la app
+// Verificar Firebase después de construir la app (fallback si no se inicializó antes)
 if (FirebaseApp.DefaultInstance == null)
 {
-    try
-    {
-        var firebaseCredsPath = Path.Combine(app.Environment.ContentRootPath, "Secrets", "firebase_credentials.json");
-        if (File.Exists(firebaseCredsPath))
-        {
-            var credential = GoogleCredential.FromFile(firebaseCredsPath);
-            var appOptions = new AppOptions() { Credential = credential };
-            FirebaseApp.Create(appOptions);
-        }
-    }
-    catch (Exception)
-    {
-        // Error silencioso
-    }
+    InitializeFirebase();
 }
 
 // Aplicar migraciones e inicializar datos
